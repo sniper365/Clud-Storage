@@ -10,8 +10,11 @@ use schema::users::dsl::*;
 
 use rocket_contrib::Json;
 
+use bcrypt::{DEFAULT_COST, hash, verify};
+
 #[get("/login")]
-fn login(conn: DbConn) -> QueryResult<Json<Vec<User>>> {
+fn login(conn: DbConn) -> Json<Vec<User>> {
     users.load::<User>(&*conn)
         .map(| u | Json(u))
+        .unwrap()
 }
