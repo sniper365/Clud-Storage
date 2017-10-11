@@ -9,6 +9,7 @@ INSERT INTO roles (name) VALUES ('user');
 INSERT INTO roles (name) VALUES ('guest');
 
 CREATE TABLE role_user (
+    id SERIAL PRIMARY KEY,
     role_id SERIAL references roles(id),
     user_id SERIAL references users(id)
 );

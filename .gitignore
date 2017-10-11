@@ -1,2 +1,2 @@
 docker-compose.yml
-api_server/.env
+/api_server/.env

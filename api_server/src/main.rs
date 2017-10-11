@@ -2,11 +2,12 @@
 #![plugin(rocket_codegen)]
 
 extern crate rocket;
-#[macro_use]
 extern crate rocket_contrib;
 
 #[macro_use]
 extern crate serde_derive;
+
+extern crate serde_json;
 
 #[macro_use]
 extern crate diesel;
@@ -25,9 +26,14 @@ pub use pg_pool::DbConn;
 mod schema;
 mod controllers;
 mod models;
+mod guards;
+mod requests;
+mod responses;
 
 use dotenv::dotenv;
 use std::env;
+
+use controllers::*;
 
 fn main() {
     // initialize env
@@ -37,8 +43,9 @@ fn main() {
 
     rocket::ignite()
         .manage(pg_pool::init(&database_url))
-        .mount("/api/v1", routes![
-            controllers::auth::login
+        .mount("/api", routes![
+            session_controller::login,
+            session_controller::logout,
         ])
         .launch();
 }
