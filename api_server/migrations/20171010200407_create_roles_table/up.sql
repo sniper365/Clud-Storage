@@ -10,6 +10,6 @@ INSERT INTO roles (name) VALUES ('guest');
 
 CREATE TABLE role_user (
     id SERIAL PRIMARY KEY,
-    role_id SERIAL references roles(id),
-    user_id SERIAL references users(id)
+    role_id int4 references roles(id) NOT NULL,
+    user_id int4 references users(id) NOT NULL
 );

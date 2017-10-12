@@ -46,6 +46,7 @@ fn main() {
         .mount("/api", routes![
             session_controller::login,
             session_controller::logout,
+            user_controller::index,
         ])
         .launch();
 }

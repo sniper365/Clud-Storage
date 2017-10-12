@@ -19,11 +19,13 @@ use guards::auth_guard::Token;
 use requests::session_request;
 use responses::session_response;
 
+use std::str::FromStr;
+
 #[post("/login", data="<request>")]
 fn login(conn: DbConn, mut cookies: Cookies, request: Json<session_request::Login>) -> Json<session_response::Login> {
-    use schema::users::dsl::{users, id, email as user_email, token as auth_token };
+    use schema::users::dsl::{users, email as user_email };
 
-    let user = match users.filter(user_email.eq(request.0.email))
+    let mut user = match users.filter(user_email.eq(request.0.email))
         .first::<User>(&*conn) {
         Ok(user) => user,
         Err(_) => return Json(session_response::Login {
@@ -47,10 +49,9 @@ fn login(conn: DbConn, mut cookies: Cookies, request: Json<session_request::Logi
     if matched {
         let token = Token::new(user.id).to_string();
 
-        diesel::update(users.filter(id.eq(user.id)))
-            .set(auth_token.eq(&token))
-            .get_result::<User>(&*conn)
-            .unwrap();
+        user.token = Some(String::from_str(&token).unwrap());
+
+        user.save(&conn).unwrap();
 
         cookies.add_private(Cookie::new("session_token", token));
 

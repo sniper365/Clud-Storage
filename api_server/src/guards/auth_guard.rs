@@ -36,7 +36,7 @@ use models::user::User;
 use diesel::prelude::*;
 
 pub struct Auth {
-    user: User,
+    pub user: User,
 }
 
 use r2d2;

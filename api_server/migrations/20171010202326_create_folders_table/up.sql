@@ -1,8 +1,8 @@
 CREATE TABLE folders (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(128),
-    parent_id SERIAL references folders(id),
-    user_id SERIAL references users(id),
+    name VARCHAR(128) NOT NULL,
+    parent_id int4 references folders(id) NULL,
+    user_id int4 references users(id) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now()
 );
