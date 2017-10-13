@@ -58,9 +58,12 @@ impl<'a, 'r> FromRequest<'a, 'r> for Auth {
 
                 let mut cookies = request.cookies();
 
-                match cookies.get_private("session_token") {
+                println!("{:?}", cookies);
+                match cookies.get("session_token") {
                     Some(session_token) => {
                         let token = session_token.value();
+
+                        println!("Some");
 
                         match users.filter(auth_token.eq(token)).first::<User>(&*conn) {
                             Ok(user) => {
@@ -72,6 +75,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for Auth {
                         }
                     },
                     None => {
+                        println!("none");
+
                         Outcome::Failure((Status::Unauthorized, ()))
                     },
                 }

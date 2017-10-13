@@ -7,6 +7,7 @@ use diesel;
 use diesel::ExpressionMethods;
 use diesel::FilterDsl;
 use diesel::FindDsl;
+use diesel::FirstDsl;
 use diesel::LoadDsl;
 use diesel::result::Error;
 
@@ -30,6 +31,13 @@ impl Role {
         NewRole {
             name: name,
         }
+    }
+
+    // Finders
+    pub fn find(id: i32, conn: &DbConn) -> Result<Role, Error> {
+        use schema::roles::dsl::{ roles };
+
+        roles.find(id).first::<Role>(conn.deref())
     }
 
     pub fn role_users(&self, conn: &DbConn) -> Result<Vec<RoleUser>, Error> {

@@ -21,9 +21,15 @@ use responses::session_response;
 
 use std::str::FromStr;
 
+use guards::auth_guard::Auth;
+
 #[post("/login", data="<request>")]
 fn login(conn: DbConn, mut cookies: Cookies, request: Json<session_request::Login>) -> Json<session_response::Login> {
     use schema::users::dsl::{users, email as user_email };
+
+    // let new_user = User::new("Charles".to_string(), "Bassett".to_string(), "chasb96@gmail.com".to_string(), "password".to_string());
+    //
+    // let user = new_user.save(&conn).unwrap();
 
     let mut user = match users.filter(user_email.eq(request.0.email))
         .first::<User>(&*conn) {
@@ -32,7 +38,7 @@ fn login(conn: DbConn, mut cookies: Cookies, request: Json<session_request::Logi
             success: false,
             user_id: None,
             token: None,
-            message: String::from("Could not find a user with that email or password"),
+            message: "Could not find a user with that email or password".to_string(),
         }),
     };
 
@@ -42,24 +48,25 @@ fn login(conn: DbConn, mut cookies: Cookies, request: Json<session_request::Logi
             success: false,
             user_id: None,
             token: None,
-            message: String::from("Password given does not match acceptance criteria"),
+            message: "Password given does not match acceptance criteria".to_string(),
         }),
     };
 
     if matched {
         let token = Token::new(user.id).to_string();
 
+        cookies.add(Cookie::build("session_token", token).path("/").finish());
+        let token = cookies.get("session_token").unwrap().value().to_string();
+
         user.token = Some(String::from_str(&token).unwrap());
 
         user.save(&conn).unwrap();
 
-        cookies.add_private(Cookie::new("session_token", token));
-
         return Json(session_response::Login {
             success: true,
             user_id: Some(user.id),
-            token: Some(Token::new(user.id).to_string()),
-            message: String::from("Successfully logged in"),
+            token: Some(token),
+            message: "Successfully logged in".to_string(),
         });
     }
 
@@ -67,35 +74,22 @@ fn login(conn: DbConn, mut cookies: Cookies, request: Json<session_request::Logi
         success: false,
         user_id: None,
         token: None,
-        message: String::from("Could not find a user with that email or password"),
+        message: "Could not find a user with that email or password".to_string(),
     });
 }
 
 #[get("/logout")]
-fn logout(conn: DbConn, mut cookies: Cookies) -> Json<session_response::Logout> {
+fn logout(conn: DbConn,  auth: Auth) -> Json<session_response::Logout> {
     use schema::users::dsl::{users, id, token as auth_token };
 
-    let cookie = match cookies.get_private("session_token") {
-        Some(cookie) => cookie,
-        None => return Json(session_response::Logout {
-            success: false,
-            user_id: None,
-            message: String::from("Attempted to logout without a session"),
-        })
-    };
-
-    cookies.remove_private(Cookie::named("session_token"));
-
-    let token = Token::from_json_string(cookie.value());
-
-    diesel::update(users.filter(id.eq(token.user_id)))
+    diesel::update(users.filter(id.eq(auth.user.id)))
         .set(auth_token.eq(""))
         .get_result::<User>(&*conn)
         .unwrap();
 
     Json(session_response::Logout {
         success: true,
-        user_id: Some(token.user_id),
-        message: String::from("Successfully destroyed session"),
+        user_id: Some(auth.user.id),
+        message: "Successfully destroyed session".to_string(),
     })
 }

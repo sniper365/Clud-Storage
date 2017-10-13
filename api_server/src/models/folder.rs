@@ -42,6 +42,13 @@ impl Folder {
         }
     }
 
+    // Finders
+    pub fn find(id: i32, conn: &DbConn) -> Result<Folder, Error> {
+        use schema::folders::dsl::{ folders };
+
+        folders.find(id).first::<Folder>(conn.deref())
+    }
+
     pub fn user(&self, conn: &DbConn) -> Result<User, Error> {
         use schema::users::dsl::{ users, id };
 

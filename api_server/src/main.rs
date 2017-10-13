@@ -36,7 +36,6 @@ use std::env;
 use controllers::*;
 
 fn main() {
-    // initialize env
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
@@ -47,6 +46,9 @@ fn main() {
             session_controller::login,
             session_controller::logout,
             user_controller::index,
+            user_controller::show,
+            user_controller::store,
+            user_controller::update,
         ])
         .launch();
 }

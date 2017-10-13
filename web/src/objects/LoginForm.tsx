@@ -23,7 +23,7 @@ class LoginForm extends React.Component<{}, { }> {
                                 Login
                             </div>
 
-                            <form action="/api/v1/login" method="post">
+                            <form action="/api/login" method="post">
                                 <div className="panel-body">
                                     <div className="form-group">
                                         <label htmlFor="email" className="control-label">Email</label>

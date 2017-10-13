@@ -10,6 +10,7 @@ use diesel::FilterDsl;
 use diesel::FirstDsl;
 use diesel::FindDsl;
 use diesel::LoadDsl;
+use diesel::ExecuteDsl;
 use diesel::result::Error;
 
 use models::folder::Folder;
@@ -39,6 +40,7 @@ pub struct NewUser {
 }
 
 impl User {
+    // Creators
     pub fn new(first_name: String, last_name: String, email: String, password: String) -> NewUser {
         use bcrypt::{ DEFAULT_COST, hash };
 
@@ -50,18 +52,20 @@ impl User {
         }
     }
 
-    pub fn folders(&self, conn: &DbConn) -> Result<Vec<Folder>, Error> {
-        use schema::folders::dsl::{ folders, user_id };
+    // Finders
+    pub fn all(conn: &DbConn) -> Result<Vec<User>, Error> {
+        use schema::users::dsl::{ users };
 
-        folders.filter(user_id.eq(&self.id)).load::<Folder>(conn.deref())
+        users.load::<User>(conn.deref())
     }
 
-    pub fn role_users(&self, conn: &DbConn) -> Result<Vec<RoleUser>, Error> {
-        use schema::role_user::dsl::{ role_user, user_id };
+    pub fn find(id: i32, conn: &DbConn) -> Result<User, Error> {
+        use schema::users::dsl::{ users };
 
-        role_user.filter(user_id.eq(&self.id)).load::<RoleUser>(conn.deref())
+        users.find(id).first::<User>(conn.deref())
     }
 
+    // Saving
     pub fn save(&self, conn: &DbConn) -> Result<User, Error> {
         use schema::users::dsl::*;
 
@@ -76,6 +80,26 @@ impl User {
             .get_result(conn.deref())
     }
 
+    pub fn delete(&self, conn: &DbConn) -> Result<usize, Error> {
+        use schema::users::dsl::users;
+
+        diesel::delete(users.find(&self.id)).execute(conn.deref())
+    }
+
+    // Relationships
+    pub fn folders(&self, conn: &DbConn) -> Result<Vec<Folder>, Error> {
+        use schema::folders::dsl::{ folders, user_id };
+
+        folders.filter(user_id.eq(&self.id)).load::<Folder>(conn.deref())
+    }
+
+    pub fn role_users(&self, conn: &DbConn) -> Result<Vec<RoleUser>, Error> {
+        use schema::role_user::dsl::{ role_user, user_id };
+
+        role_user.filter(user_id.eq(&self.id)).load::<RoleUser>(conn.deref())
+    }
+
+    // Properties
     pub fn is_admin(&self, conn: &DbConn) -> bool {
         use schema::role_user::dsl::*;
         use schema::roles::dsl::*;
@@ -93,18 +117,24 @@ impl User {
             Err(_) => return false,
         }
     }
+
+    // Modifiers
+    pub fn set_password(&mut self, password: String) {
+        use bcrypt::{ DEFAULT_COST, hash };
+
+        self.password = hash(&password, DEFAULT_COST).unwrap();
+    }
 }
 
 impl NewUser {
     pub fn save(&self, conn: &DbConn) -> Result<User, Error> {
-        use std::str::FromStr;
         use schema::users;
 
         let new_user = NewUser {
-            first_name: String::from_str(&self.first_name).unwrap(),
-            last_name: String::from_str(&self.last_name).unwrap(),
-            email: String::from_str(&self.email).unwrap(),
-            password: String::from_str(&self.password).unwrap(),
+            first_name: self.first_name.to_string(),
+            last_name: self.last_name.to_string(),
+            email: self.email.to_string(),
+            password: self.password.to_string(),
         };
 
         diesel::insert(&new_user).into(users::table).get_result(conn.deref())
