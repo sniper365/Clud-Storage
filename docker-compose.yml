@@ -31,7 +31,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data/pgdata
     environment:
-      POSTGRES_PASSWORD: cuntcrusher
+      POSTGRES_PASSWORD: secret
       PGDATA: /var/lib/postgresql/data/pgdata
 
 # cargo will try to redownload packages @ docker-compose up so store them here.
