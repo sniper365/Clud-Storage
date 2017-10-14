@@ -25,7 +25,6 @@ pub struct User {
     pub last_name: String,
     pub email: String,
     pub password: String,
-    pub token: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -74,8 +73,7 @@ impl User {
                 first_name.eq(&self.first_name),
                 last_name.eq(&self.last_name),
                 email.eq(&self.email),
-                password.eq(&self.password),
-                token.eq(&self.token)
+                password.eq(&self.password)
             ))
             .get_result(conn.deref())
     }
@@ -116,6 +114,14 @@ impl User {
             Ok(_) => return true,
             Err(_) => return false,
         }
+    }
+
+    pub fn display_name(&self) -> String {
+        let mut name = self.first_name.to_string();
+        name.push(' ');
+        name.push_str(&self.last_name);
+
+        name.to_string()
     }
 
     // Modifiers

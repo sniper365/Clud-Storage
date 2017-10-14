@@ -19,6 +19,8 @@ extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate chrono;
 extern crate bcrypt;
+extern crate crypto;
+extern crate frank_jwt;
 
 mod pg_pool;
 pub use pg_pool::DbConn;
@@ -29,6 +31,7 @@ mod models;
 mod guards;
 mod requests;
 mod responses;
+mod libraries;
 
 use dotenv::dotenv;
 use std::env;
@@ -44,7 +47,6 @@ fn main() {
         .manage(pg_pool::init(&database_url))
         .mount("/api", routes![
             session_controller::login,
-            session_controller::logout,
             user_controller::index,
             user_controller::show,
             user_controller::store,
