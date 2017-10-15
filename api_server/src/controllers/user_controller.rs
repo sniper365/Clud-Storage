@@ -8,20 +8,15 @@ use requests::user_request;
 use responses::user_response;
 
 use guards::auth_guard::Auth;
+use guards::admin_guard::Admin;
 
-use rocket::response::status::*;
 use rocket::http::Status;
 
-#[get("/users")]
-fn index(conn: DbConn, auth: Auth) -> Result<Json<Vec<user_response::Show>>, Custom<Status>> {
-    if !auth.user.is_admin(&conn) {
-        return Err(Custom(Status::Unauthorized, Status::Unauthorized))
-    }
+use rocket::Response;
 
-    let users = match User::all(&conn) {
-        Ok(users) => users,
-        Err(_) => return Err(Custom(Status::InternalServerError, Status::InternalServerError))
-    };
+#[get("/users")]
+fn index(conn: DbConn, _admin: Admin) -> Json<Vec<user_response::Show>> {
+    let users = User::all(&conn).unwrap();
 
     let response: Vec<user_response::Show> = users.into_iter().map(| user | {
         user_response::Show {
@@ -32,21 +27,21 @@ fn index(conn: DbConn, auth: Auth) -> Result<Json<Vec<user_response::Show>>, Cus
         }
     }).collect();
 
-    return Ok(Json(response))
+    return Json(response)
 }
 
 #[get("/users/<id>")]
-fn show(conn: DbConn, auth: Auth, id: i32) -> Result<Json<user_response::Show>, Custom<Status>> {
+fn show(conn: DbConn, auth: Auth, id: i32) -> Option<Json<user_response::Show>> {
     if auth.user.id != id && !auth.user.is_admin(&conn) {
-        return Err(Custom(Status::Unauthorized, Status::Unauthorized));
+        return None;
     }
 
     let user = match User::find(id, &conn) {
         Ok(user) => user,
-        Err(_) => return Err(Custom(Status::NotFound, Status::NotFound)),
+        Err(_) => return None,
     };
 
-    return Ok(Json(user_response::Show {
+    return Some(Json(user_response::Show {
         email: user.email,
         first_name: user.first_name,
         last_name: user.last_name,
@@ -55,11 +50,7 @@ fn show(conn: DbConn, auth: Auth, id: i32) -> Result<Json<user_response::Show>, 
 }
 
 #[post("/users", data="<request>")]
-fn store(conn: DbConn, auth: Auth, request: Json<user_request::Store>) -> Result<Created<String>, Custom<Status>> {
-    if !auth.user.is_admin(&conn) {
-        return Err(Custom(Status::Unauthorized, Status::Unauthorized));
-    }
-
+fn store(conn: DbConn, _admin: Admin, request: Json<user_request::Store>) -> Response<'static> {
     let new_user = User::new(request.0.first_name, request.0.last_name, request.0.email, request.0.password);
 
     let user = new_user.save(&conn).unwrap();
@@ -67,18 +58,18 @@ fn store(conn: DbConn, auth: Auth, request: Json<user_request::Store>) -> Result
     let mut response = String::from("/api/users/");
     response.push(user.id as u8 as char);
 
-    Ok(Created(response, Some("Successfully created user".to_string())))
+    Response::build().status(Status::Created).finalize()
 }
 
 #[put("/users/<id>", data="<request>")]
-fn update(conn: DbConn, auth: Auth, id: i32, request: Json<user_request::Store>) -> Result<NoContent, Custom<Status>> {
+fn update(conn: DbConn, auth: Auth, id: i32, request: Json<user_request::Store>) -> Response<'static> {
     if auth.user.id != id && !auth.user.is_admin(&conn) {
-        return Err(Custom(Status::Unauthorized, Status::Unauthorized));
+        return Response::build().status(Status::Unauthorized).finalize();
     }
 
     let mut user = match User::find(id, &conn) {
         Ok(user) => user,
-        Err(_) => return Err(Custom(Status::NotFound, Status::NotFound)),
+        Err(_) => return Response::build().status(Status::NotFound).finalize(),
     };
 
     user.first_name = request.0.first_name;
@@ -91,5 +82,5 @@ fn update(conn: DbConn, auth: Auth, id: i32, request: Json<user_request::Store>)
 
     user.save(&conn).unwrap();
 
-    Ok(NoContent)
+    Response::build().status(Status::NoContent).finalize()
 }
