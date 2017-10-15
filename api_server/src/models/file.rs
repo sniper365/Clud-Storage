@@ -10,6 +10,7 @@ use diesel::FilterDsl;
 use diesel::FirstDsl;
 use diesel::FindDsl;
 use diesel::LoadDsl;
+use diesel::ExecuteDsl;
 use diesel::result::Error;
 
 use models::folder::Folder;
@@ -65,6 +66,12 @@ impl File {
                 folder_id.eq(self.folder_id)
             ))
             .get_result(conn.deref())
+    }
+
+    pub fn delete(&self, conn: &DbConn) -> Result<usize, Error> {
+        use schema::files::dsl::files;
+
+        diesel::delete(files.find(&self.id)).execute(conn.deref())
     }
 }
 

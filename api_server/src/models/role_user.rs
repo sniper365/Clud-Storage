@@ -9,6 +9,7 @@ use diesel::FilterDsl;
 use diesel::FirstDsl;
 use diesel::FindDsl;
 use diesel::LoadDsl;
+use diesel::ExecuteDsl;
 use diesel::result::Error;
 
 use models::role::Role;
@@ -58,6 +59,12 @@ impl RoleUser {
                 user_id.eq(&self.user_id)
             ))
             .get_result(conn.deref())
+    }
+
+    pub fn delete(&self, conn: &DbConn) -> Result<usize, Error> {
+        use schema::role_user::dsl::role_user;
+
+        diesel::delete(role_user.find(&self.id)).execute(conn.deref())
     }
 }
 

@@ -38,8 +38,14 @@ pub struct NewUser {
     pub password: String
 }
 
+#[derive(Serialize)]
+pub struct Show {
+    pub user_id: i32,
+    pub display_name: String,
+    pub email: String
+}
+
 impl User {
-    // Creators
     pub fn new(first_name: String, last_name: String, email: String, password: String) -> NewUser {
         use bcrypt::{ DEFAULT_COST, hash };
 
@@ -51,7 +57,6 @@ impl User {
         }
     }
 
-    // Finders
     pub fn all(conn: &DbConn) -> Result<Vec<User>, Error> {
         use schema::users::dsl::{ users };
 
@@ -64,7 +69,6 @@ impl User {
         users.find(id).first::<User>(conn.deref())
     }
 
-    // Saving
     pub fn save(&self, conn: &DbConn) -> Result<User, Error> {
         use schema::users::dsl::*;
 
@@ -81,14 +85,25 @@ impl User {
     pub fn delete(&self, conn: &DbConn) -> Result<usize, Error> {
         use schema::users::dsl::users;
 
+        let folders = self.folders(conn)?;
+
+        for folder in folders.into_iter() {
+            folder.delete(conn)?;
+        }
+
+        let roles = self.role_users(conn)?;
+
+        for role in roles.into_iter() {
+            role.delete(conn)?;
+        }
+
         diesel::delete(users.find(&self.id)).execute(conn.deref())
     }
 
-    // Relationships
     pub fn folders(&self, conn: &DbConn) -> Result<Vec<Folder>, Error> {
-        use schema::folders::dsl::{ folders, user_id };
+        use schema::folders::dsl::{ folders, user_id, parent_id };
 
-        folders.filter(user_id.eq(&self.id)).load::<Folder>(conn.deref())
+        folders.filter(user_id.eq(&self.id)).filter(parent_id.is_null()).load::<Folder>(conn.deref())
     }
 
     pub fn role_users(&self, conn: &DbConn) -> Result<Vec<RoleUser>, Error> {
@@ -97,7 +112,6 @@ impl User {
         role_user.filter(user_id.eq(&self.id)).load::<RoleUser>(conn.deref())
     }
 
-    // Properties
     pub fn is_admin(&self, conn: &DbConn) -> bool {
         use schema::role_user::dsl::*;
         use schema::roles::dsl::*;
@@ -124,11 +138,18 @@ impl User {
         name.to_string()
     }
 
-    // Modifiers
     pub fn set_password(&mut self, password: String) {
         use bcrypt::{ DEFAULT_COST, hash };
 
         self.password = hash(&password, DEFAULT_COST).unwrap();
+    }
+
+    pub fn into_show(&self) -> Show {
+        Show {
+            user_id: self.id,
+            display_name: self.display_name(),
+            email: self.email.to_string()
+        }
     }
 }
 

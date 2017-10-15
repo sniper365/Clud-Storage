@@ -2,58 +2,65 @@ use rocket_contrib::Json;
 
 use pg_pool::DbConn;
 
-use models::user::User;
+use models::user::{ User, Show };
 
 use requests::user_request;
-use responses::user_response;
 
 use guards::auth_guard::Auth;
 use guards::admin_guard::Admin;
 
-use rocket::http::Status;
+use rocket::http::{ Status, ContentType };
+use std::io::Cursor;
 
 use rocket::Response;
 
+use serde_json;
+
 #[get("/users")]
-fn index(conn: DbConn, _admin: Admin) -> Json<Vec<user_response::Show>> {
+fn index(conn: DbConn, _admin: Admin) -> Response<'static> {
     let users = User::all(&conn).unwrap();
 
-    let response: Vec<user_response::Show> = users.into_iter().map(| user | {
-        user_response::Show {
-            user_id: user.id,
-            email: user.email,
-            first_name: user.first_name,
-            last_name: user.last_name,
-        }
+    let response: Vec<Show> = users.into_iter().map(| user | {
+        user.into_show()
     }).collect();
 
-    return Json(response)
+    let response = serde_json::to_string(&response).unwrap();
+
+    Response::build()
+        .status(Status::Ok)
+        .header(ContentType::JSON)
+        .sized_body(Cursor::new(response))
+        .finalize()
 }
 
 #[get("/users/<id>")]
-fn show(conn: DbConn, auth: Auth, id: i32) -> Option<Json<user_response::Show>> {
+fn show(conn: DbConn, auth: Auth, id: i32) -> Response<'static> {
     if auth.user.id != id && !auth.user.is_admin(&conn) {
-        return None;
+        return Response::build().status(Status::NotFound).finalize();
     }
 
     let user = match User::find(id, &conn) {
-        Ok(user) => user,
-        Err(_) => return None,
+        Ok(user) => user.into_show(),
+        Err(_) => return Response::build().status(Status::NotFound).finalize(),
     };
 
-    return Some(Json(user_response::Show {
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        user_id: user.id,
-    }))
+    let response = serde_json::to_string(&user).unwrap();
+
+    Response::build()
+        .status(Status::Ok)
+        .header(ContentType::JSON)
+        .sized_body(Cursor::new(response))
+        .finalize()
 }
 
 #[post("/users", data="<request>")]
 fn store(conn: DbConn, _admin: Admin, request: Json<user_request::Store>) -> Response<'static> {
     let new_user = User::new(request.0.first_name, request.0.last_name, request.0.email, request.0.password);
 
-    let user = new_user.save(&conn).unwrap();
+    let user = match new_user.save(&conn) {
+        Ok(user) => user,
+        Err(_) => return Response::build().status(Status::SeeOther).finalize(),
+    };
 
     let mut response = String::from("/api/users/");
     response.push(user.id as u8 as char);
@@ -64,7 +71,7 @@ fn store(conn: DbConn, _admin: Admin, request: Json<user_request::Store>) -> Res
 #[put("/users/<id>", data="<request>")]
 fn update(conn: DbConn, auth: Auth, id: i32, request: Json<user_request::Store>) -> Response<'static> {
     if auth.user.id != id && !auth.user.is_admin(&conn) {
-        return Response::build().status(Status::Unauthorized).finalize();
+        return Response::build().status(Status::NotFound).finalize();
     }
 
     let mut user = match User::find(id, &conn) {
@@ -80,7 +87,25 @@ fn update(conn: DbConn, auth: Auth, id: i32, request: Json<user_request::Store>)
         user.set_password(request.0.password);
     }
 
-    user.save(&conn).unwrap();
+    match user.save(&conn) {
+        Ok(_) => Response::build().status(Status::NoContent).finalize(),
+        Err(_) => Response::build().status(Status::InternalServerError).finalize(),
+    }
+}
 
-    Response::build().status(Status::NoContent).finalize()
+#[delete("/users/<id>")]
+fn delete(conn: DbConn, auth: Auth, id: i32) -> Response<'static> {
+    if auth.user.id != id && !auth.user.is_admin(&conn) {
+        return Response::build().status(Status::NotFound).finalize();
+    }
+
+    let user = match User::find(id, &conn) {
+        Ok(user) => user,
+        Err(_) => return Response::build().status(Status::NotFound).finalize(),
+    };
+
+    match user.delete(&conn) {
+        Ok(_) => Response::build().status(Status::Accepted).finalize(),
+        Err(_) => Response::build().status(Status::InternalServerError).finalize(),
+    }
 }

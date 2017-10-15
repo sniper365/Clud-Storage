@@ -10,9 +10,11 @@ use diesel::FilterDsl;
 use diesel::FirstDsl;
 use diesel::FindDsl;
 use diesel::LoadDsl;
+use diesel::ExecuteDsl;
 use diesel::result::Error;
 
 use models::user::User;
+use models::file::File;
 
 #[derive(Queryable, Associations, Identifiable, Serialize)]
 #[table_name = "folders"]
@@ -31,6 +33,14 @@ pub struct NewFolder {
     pub name: String,
     pub parent_id: Option<i32>,
     pub user_id: i32,
+}
+
+#[derive(Serialize)]
+pub struct Show {
+    folder_id: i32,
+    name: String,
+    parent_id: Option<i32>,
+    user_id: i32,
 }
 
 impl Folder {
@@ -53,6 +63,12 @@ impl Folder {
         use schema::users::dsl::{ users, id };
 
         users.filter(id.eq(&self.user_id)).first::<User>(conn.deref())
+    }
+
+    pub fn files(&self, conn: &DbConn) -> Result<Vec<File>, Error> {
+        use schema::files::dsl::{ files, folder_id };
+
+        files.filter(folder_id.eq(&self.id)).load::<File>(conn.deref())
     }
 
     pub fn parent(&self, conn: &DbConn) -> Result<Option<Folder>, Error> {
@@ -83,6 +99,27 @@ impl Folder {
                 user_id.eq(self.user_id)
             ))
             .get_result(conn.deref())
+    }
+
+    pub fn delete(&self, conn: &DbConn) -> Result<usize, Error> {
+        use schema::folders::dsl::folders;
+
+        let files = self.files(conn)?;
+
+        for file in files.into_iter() {
+            file.delete(conn)?;
+        }
+
+        diesel::delete(folders.find(&self.id)).execute(conn.deref())
+    }
+
+    pub fn into_show(&self) -> Show {
+        Show {
+            folder_id: self.id,
+            name: self.name.to_string(),
+            parent_id: self.parent_id,
+            user_id: self.user_id,
+        }
     }
 }
 
