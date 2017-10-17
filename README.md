@@ -19,8 +19,10 @@ Requirements:
 Setup:
 1. Copy `docker-compose.yml.example` into `docker-compose.yml`. Update as needed.
 2. Copy `/api_server/.env.example` into `/api_server/.env`. Update as needed.
-3. Run `docker-compose up` and `docker-compose exec api_server bash` in two separate terminals
-    - In the api_server terminal: run `diesel migration run`
+3. Run `docker-compose up`
+    - If your migrations do not automatically run, then:
+        1. In another terminal run `docker-compose exec api_server bash`
+        2. In the shell, run `diesel migration run`
 4. Known issues:
     - Windows doesn't behave nicely initially, and starting the drive `api_server_x` will fail. To fix this, just change `api_server/wait-for-it.sh` to Unix line endings.
     - PostgreSQL won't startup the first time; this is just part of it's install. `Ctrl+C` out and run `docker-compose up` again.
