@@ -55,7 +55,7 @@ fn show(conn: DbConn, auth: Auth, id: i32) -> Response<'static> {
 
 #[post("/users", data="<request>")]
 fn store(conn: DbConn, _admin: Admin, request: Json<user_request::Store>) -> Response<'static> {
-    let new_user = User::new(request.0.first_name, request.0.last_name, request.0.email, request.0.password);
+    let new_user = User::new(request.0.name, request.0.email, request.0.password);
 
     let user = match new_user.save(&conn) {
         Ok(user) => user,
@@ -79,8 +79,7 @@ fn update(conn: DbConn, auth: Auth, id: i32, request: Json<user_request::Store>)
         Err(_) => return Response::build().status(Status::NotFound).finalize(),
     };
 
-    user.first_name = request.0.first_name;
-    user.last_name = request.0.last_name;
+    user.name = request.0.name;
     user.email = request.0.email;
 
     if request.0.password.trim() != "" {

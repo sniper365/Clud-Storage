@@ -21,8 +21,7 @@ use models::role::Role;
 #[table_name = "users"]
 pub struct User {
     pub id: i32,
-    pub first_name: String,
-    pub last_name: String,
+    pub name: String,
     pub email: String,
     pub password: String,
     pub created_at: NaiveDateTime,
@@ -32,8 +31,7 @@ pub struct User {
 #[derive(Insertable)]
 #[table_name = "users"]
 pub struct NewUser {
-    pub first_name: String,
-    pub last_name: String,
+    pub name: String,
     pub email: String,
     pub password: String
 }
@@ -41,17 +39,16 @@ pub struct NewUser {
 #[derive(Serialize)]
 pub struct Show {
     pub user_id: i32,
-    pub display_name: String,
+    pub name: String,
     pub email: String
 }
 
 impl User {
-    pub fn new(first_name: String, last_name: String, email: String, password: String) -> NewUser {
+    pub fn new(name: String, email: String, password: String) -> NewUser {
         use bcrypt::{ DEFAULT_COST, hash };
 
         NewUser {
-            first_name: first_name,
-            last_name: last_name,
+            name: name,
             email: email,
             password: hash(&password, DEFAULT_COST).unwrap(),
         }
@@ -74,8 +71,7 @@ impl User {
 
         diesel::update(users.find(&self.id))
             .set((
-                first_name.eq(&self.first_name),
-                last_name.eq(&self.last_name),
+                name.eq(&self.name),
                 email.eq(&self.email),
                 password.eq(&self.password)
             ))
@@ -130,14 +126,6 @@ impl User {
         }
     }
 
-    pub fn display_name(&self) -> String {
-        let mut name = self.first_name.to_string();
-        name.push(' ');
-        name.push_str(&self.last_name);
-
-        name.to_string()
-    }
-
     pub fn set_password(&mut self, password: String) {
         use bcrypt::{ DEFAULT_COST, hash };
 
@@ -147,7 +135,7 @@ impl User {
     pub fn into_show(&self) -> Show {
         Show {
             user_id: self.id,
-            display_name: self.display_name(),
+            name: self.name.to_string(),
             email: self.email.to_string()
         }
     }
@@ -158,8 +146,7 @@ impl NewUser {
         use schema::users;
 
         let new_user = NewUser {
-            first_name: self.first_name.to_string(),
-            last_name: self.last_name.to_string(),
+            name: self.name.to_string(),
             email: self.email.to_string(),
             password: self.password.to_string(),
         };

@@ -1,9 +1,10 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import LoginForm from "./components/LoginForm";
+import App from "./App";
 import registerServiceWorker from "./registerServiceWorker";
 
+// import "./dark.css";
 import "./index.css";
 
-ReactDOM.render(<LoginForm />, document.getElementById("root") as HTMLElement);
+ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 registerServiceWorker();

@@ -55,6 +55,7 @@ fn main() {
             folder_controller::index,
             folder_controller::show,
             folder_controller::children,
+            folder_controller::store,
         ])
         .launch();
 }

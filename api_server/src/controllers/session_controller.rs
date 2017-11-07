@@ -44,7 +44,7 @@ fn login(conn: DbConn, request: Json<session_request::Login>) -> Json<session_re
 
     // If it matched: make a token of their identity and return it
     if matched {
-        let token = Token::new(user.id, user.display_name()).encode();
+        let token = Token::new(user.id, user.name).encode();
 
         return Json(session_response::Login {
             success: true,

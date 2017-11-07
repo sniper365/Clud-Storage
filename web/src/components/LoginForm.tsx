@@ -1,64 +1,83 @@
 import * as $ from "jquery";
 import * as React from "react";
+import { Redirect } from "react-router-dom";
 
-class LoginForm extends React.Component<{}, { }> {
+import AuthService from "../services/Auth";
+
+class LoginForm extends React.Component<{ }, { email: string, password: string, authenticated: boolean }> {
     constructor() {
         super();
+
+        this.login = this.login.bind(this);
+        this.set_email = this.set_email.bind(this);
+        this.set_password = this.set_password.bind(this);
+
+        this.state = {
+            authenticated: false,
+            email: '',
+            password: '',
+        };
     }
 
-    public login() {
+    public login( e: React.MouseEvent<HTMLButtonElement> ) {
+        e.preventDefault();
+
         $('#login').html("Logging In...");
 
-        fetch("/api/login", {
-            body: JSON.stringify({
-                'email': $('#email').val(),
-                'password': $('#password').val(),
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: 'POST'
-        })
-        .then((response) => {
-            return response.json();
-        })
-        .then((response) => {
-            $('[name="_token"]').attr('content', response.token);
-        });
+        const authenticated = AuthService.login( this.state.email, this.state.password );
+
+        if ( authenticated ) {
+            $('[id=title]').html( AuthService.getUser().name );
+
+            this.setState({
+                authenticated: true,
+            });
+        } else {
+            $('#login').html("Login");
+        }
     }
 
     public render() {
+        if ( this.state.authenticated ) {
+            return (
+                <Redirect to="/home" />
+            );
+        }
+
         return (
-            <div className="container">
-                <div className="row">
-                    <div className="col-md-8 col-md-offset-2">
-                        <div className="panel panel-default">
-                            <div className="panel-heading">
-                                Login
-                            </div>
-                            <div className="panel-body">
-                                <div className="form-group">
-                                    <label htmlFor="email" className="control-label">Email</label>
-                                    <input id="email" type="text" name="email" className="form-control"/>
-                                </div>
+            <div className="w3-panel w3-blue-gray login-form">
+                <form>
 
-                                <div className="form-group">
-                                    <label htmlFor="password" className="control-label">Password</label>
-                                    <input id="password" type="password" name="password" className="form-control"/>
-                                </div>
-                            </div>
-
-                            <div className="panel-footer">
-                                <button className="btn btn-primary pull-right" id="login" type="submit" onClick={this.login}>
-                                    Login
-                                </button>
-                                <div className="clearfix"/>
-                            </div>
-                        </div>
+                    <div className="w3-margin-top w3-margin-bottom">
+                        <input id="email" type="text" className="w3-input w3-border-0" onChange={this.set_email}/>
+                        <label htmlFor="email">Email</label>
                     </div>
-                </div>
+
+                    <div className="w3-margin-top w3-margin-bottom">
+                        <input id="password" type="password"
+                            className="w3-input w3-border-0" onChange={this.set_password}/>
+                        <label htmlFor="password">Password</label>
+                    </div>
+
+                    <button className="w3-btn login-btn" id="login" type="submit" onClick={this.login}>
+                        Login
+                    </button>
+
+                </form>
             </div>
         );
+    }
+
+    private set_email(e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({
+            email: e.target.value,
+        });
+    }
+
+    private set_password(e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({
+            password: e.target.value,
+        });
     }
 }
 

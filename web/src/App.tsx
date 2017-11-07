@@ -1,25 +1,41 @@
 import * as React from "react";
 import "./App.css";
 
-class App extends React.Component<{}, { api_message: string }> {
+import {
+    BrowserRouter as Router,
+    Redirect,
+    Route,
+} from "react-router-dom";
+
+import LoginForm from "./components/LoginForm";
+import Nav from "./components/Nav";
+import Viewport from "./components/Viewport";
+
+import AuthService from "./services/Auth";
+
+const PrivateRoute  = ({ component: Component, ...rest }) => (
+    <Route {...rest} render={ props => (
+        AuthService.isAuthenticated
+            ? <Component {...props} />
+            : <Redirect to={{ pathname: "/", state: { from: props.location }}}/>
+    )} />
+);
+
+class App extends React.Component<{}, {}> {
   constructor() {
     super();
-
-    this.state = { api_message: "" };
-  }
-
-  public componentDidMount() {
-    fetch("/api").then(r => r.text()).then(api_message => {
-      this.setState({
-        api_message
-      });
-    });
   }
 
   public render() {
     return (
-      <div className="App">
-      </div>
+      <Router>
+        <div id="app">
+            <Nav />
+
+            <Route path="/" component={LoginForm} />
+            <PrivateRoute path="/home" component={Viewport} />
+        </div>
+      </Router>
     );
   }
 }

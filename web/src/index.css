@@ -1,10 +1,75 @@
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-  background-color: #212121;
+body, html {
+    background-color: #F5F5F5;
+    margin: 0px;
+    width: 100%;
+    height: 100%;
+    font-family: sans-serif;
 }
 
-.panel-default > .panel-heading, .panel-footer {
-    background-color: #fff;
+#root, #app {
+    height: 100%;
+    width: 100%;
+}
+
+#viewport {
+    height: calc(100% - 45px);
+}
+
+.w3-bar {
+    box-shadow: 0 2px 2px #212121;
+    z-index: 1000;
+}
+
+.nav-item {
+    color: #EEEEEE;
+    margin: 10px;
+}
+
+p {
+    margin: 0px;
+}
+
+h2 {
+    margin: 0px;
+}
+
+
+.login-form {
+    margin-top: 50px;
+}
+
+.folder {
+    border-bottom: 1px solid #9E9E9E;
+    /*background-color: #9E9E9E;*/
+    /*border-radius: 4px;*/
+    font-size: large;
+    /*margin-top: 10px;*/
+    word-wrap: break-word;
+}
+
+.folder:hover {
+    background-color: #BDBDBD;
+}
+
+.folder-list {
+    width: 275px;
+    height: 100%;
+    padding: 10px;
+}
+
+.login-form {
+    width: 500px;
+    margin: auto;
+    margin-top: 100px;
+    padding: 10px;
+    box-shadow: 0 2px 2px #212121;
+}
+
+.login-btn {
+    background-color: #424242;
+    float: right;
+}
+
+.w3-btn:hover {
+    box-shadow: none;
 }
