@@ -39,6 +39,31 @@ fn index(conn: DbConn, auth: Auth, user_id: i32) -> Response<'static> {
         .finalize()
 }
 
+#[get("/users/<user_id>/root")]
+fn root(conn: DbConn, auth: Auth, user_id: i32) -> Response<'static> {
+    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+        return Response::build().status(Status::NotFound).finalize();
+    }
+
+    let folder = match auth.user.folders(&conn) {
+        Ok(folders) => folders,
+        Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
+    };
+
+    let found = match folder.first() {
+        Some(found) => found.into_show(),
+        None => return Response::build().status(Status::NotFound).finalize(),
+    };
+
+    let response = serde_json::to_string(&found).unwrap();
+
+    Response::build()
+        .status(Status::Ok)
+        .header(ContentType::JSON)
+        .sized_body(Cursor::new(response))
+        .finalize()
+}
+
 #[get("/users/<user_id>/folders/<id>")]
 fn show(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static> {
     if auth.user.id != user_id && !auth.user.is_admin(&conn) {

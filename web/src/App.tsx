@@ -17,7 +17,7 @@ const PrivateRoute  = ({ component: Component, ...rest }) => (
     <Route {...rest} render={ props => (
         AuthService.isAuthenticated
             ? <Component {...props} />
-            : <Redirect to={{ pathname: "/", state: { from: props.location }}}/>
+            : <Redirect to={{ pathname: "/login", state: { from: props.location }}}/>
     )} />
 );
 
@@ -32,8 +32,8 @@ class App extends React.Component<{}, {}> {
         <div id="app">
             <Nav />
 
-            <Route path="/" component={LoginForm} />
-            <PrivateRoute path="/home" component={Viewport} />
+            <Route exact={true} path="/login" component={LoginForm} />
+            <PrivateRoute path="/folders" component={Viewport} />
         </div>
       </Router>
     );

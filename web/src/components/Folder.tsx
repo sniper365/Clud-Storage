@@ -1,13 +1,8 @@
 import * as React from "react";
 
 class Folder extends React.Component<{ folder_id: number, folder_name: string }, { }> {
-    constructor( folder_id: number, folder_name: string ) {
+    constructor( ) {
         super();
-
-        this.props = {
-            folder_id,
-            folder_name
-        };
     }
 
     public render() {

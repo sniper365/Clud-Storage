@@ -1,30 +1,33 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
+import { Folder as FolderModel } from "../models/Folder";
 import Folder from "./Folder";
 
-class FolderList extends React.Component<{ }, { root: number, folders: Folder[] }> {
-    constructor(root: number) {
+class FolderList extends React.Component<{ root?: FolderModel }, { folders: FolderModel[] }> {
+    constructor() {
         super();
 
         this.state = {
-            folders: Array<Folder>(),
-            root,
+            folders: [],
         };
+    }
 
+    public getRoot() {
+        if ( this.props.root !== undefined && this.props.root.parent_id ) {
+            return (
+                <Link to={"/folders/" + this.props.root.parent_id}>
+                    <Folder folder_id={1} folder_name="../"/>
+                </Link>
+            );
+        }
+
+        return;
     }
 
     public render() {
-        const folders = [
-            new Folder(1, "test"),
-            new Folder(2, "test1"),
-            new Folder(3, "test2"),
-            new Folder(4, "test3"),
-        ];
-
         return (
             <ul className="w3-ul folder-list">
-                {folders.map( ( folder ) => {
-                    return folder.render();
-                })}
+                {this.getRoot()}
             </ul>
         );
     }

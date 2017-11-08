@@ -53,6 +53,7 @@ fn main() {
             user_controller::update,
             user_controller::delete,
             folder_controller::index,
+            folder_controller::root,
             folder_controller::show,
             folder_controller::children,
             folder_controller::store,

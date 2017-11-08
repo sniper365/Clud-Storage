@@ -40,7 +40,7 @@ class LoginForm extends React.Component<{ }, { email: string, password: string, 
     public render() {
         if ( this.state.authenticated ) {
             return (
-                <Redirect to="/home" />
+                <Redirect to="/folders"/>
             );
         }
 
