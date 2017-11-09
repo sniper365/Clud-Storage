@@ -96,10 +96,16 @@ impl User {
         diesel::delete(users.find(&self.id)).execute(conn.deref())
     }
 
-    pub fn folders(&self, conn: &DbConn) -> Result<Vec<Folder>, Error> {
+    pub fn roots(&self, conn: &DbConn) -> Result<Vec<Folder>, Error> {
         use schema::folders::dsl::{ folders, user_id, parent_id };
 
         folders.filter(user_id.eq(&self.id)).filter(parent_id.is_null()).load::<Folder>(conn.deref())
+    }
+
+    pub fn folders(&self, conn: &DbConn) -> Result<Vec<Folder>, Error> {
+        use schema::folders::dsl::{ folders, user_id };
+
+        folders.filter(user_id.eq(&self.id)).load::<Folder>(conn.deref())
     }
 
     pub fn role_users(&self, conn: &DbConn) -> Result<Vec<RoleUser>, Error> {

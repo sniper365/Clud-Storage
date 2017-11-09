@@ -45,7 +45,7 @@ fn root(conn: DbConn, auth: Auth, user_id: i32) -> Response<'static> {
         return Response::build().status(Status::NotFound).finalize();
     }
 
-    let folder = match auth.user.folders(&conn) {
+    let folder = match auth.user.roots(&conn) {
         Ok(folders) => folders,
         Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
     };
@@ -89,7 +89,7 @@ fn show(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static> {
         .finalize()
 }
 
-#[get("/users/<user_id>/folders/<id>/sub-directories")]
+#[get("/users/<user_id>/folders/<id>/children")]
 fn children(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static> {
     if auth.user.id != user_id && !auth.user.is_admin(&conn) {
         return Response::build().status(Status::NotFound).finalize();

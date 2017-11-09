@@ -1,5 +1,3 @@
-import * as $ from "jquery";
-
 import User from "../models/User";
 
 import AuthPayload from "../responses/AuthPayload";
@@ -7,72 +5,53 @@ import AuthPayload from "../responses/AuthPayload";
 class AuthService {
     public isAuthenticated: boolean = false;
 
-    public login( email: string, password: string ): boolean {
-        let payload: AuthPayload = {
-            token: '',
-            user_id: 0
-        };
+    private user: User;
 
-        $.ajax("/api/login", {
-            async: false,
-            data: JSON.stringify( {
+    private token: string;
+
+    public getUser(): User {
+        return this.user;
+    }
+
+    public getToken(): string {
+        return this.token;
+    }
+
+    public authenticate( email: string, password: string ) {
+        return fetch('api/login', {
+            body: JSON.stringify( {
                 'email': email,
                 'password': password,
             } ),
-            dataType: 'json',
             headers: {
                 'Content-Type': 'application/json'
             },
             method: 'POST',
-            success: ( response: AuthPayload, _status: string ) => {
-                payload = response;
-
-                $('[name="_token"]').attr( 'content', payload.token );
+        }).then((response) => {
+            return response.json();
+        }).then((response: AuthPayload) => {
+            if (response.success) {
+                this.token = response.token;
 
                 this.isAuthenticated = true;
-            },
+            }
+
+            return response;
         });
-
-        if ( this.isAuthenticated ) {
-            $.ajax("api/users/" + payload.user_id, {
-                async: false,
-                dataType: 'json',
-                headers: {
-                    'Authorization': 'Bearer ' + payload.token,
-                    'Content-Type': 'application/json',
-                },
-                method: 'GET',
-                success: ( response: object, _status: string ) => {
-                    $('[name="_user"]').attr( 'content', JSON.stringify(response) );
-                },
-            });
-        }
-
-        return this.isAuthenticated;
     }
 
-    public getUser(): User {
-        const user: string | undefined = $('[name="_user"]').attr( 'content' );
-
-        if ( user !== undefined ) {
-            return JSON.parse( user );
-        }
-
-        return {
-            email: '',
-            name: '',
-            user_id: 0,
-        };
-    }
-
-    public getToken(): string {
-        const token = $('[name="_token"]').attr( 'content' );
-
-        if ( token !== undefined ) {
-            return token;
-        }
-
-        return "";
+    public setUser(user_id: number) {
+        return fetch('api/users/' + user_id, {
+            headers: {
+                'Authorization': 'Bearer ' + this.getToken(),
+                'Content-Type': 'application/json',
+            },
+            method: 'GET',
+        }).then((response) => {
+            return response.json();
+        }).then((response: User) => {
+            this.user = response;
+        });
     }
 }
 

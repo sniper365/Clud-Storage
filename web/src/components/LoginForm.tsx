@@ -2,9 +2,14 @@ import * as $ from "jquery";
 import * as React from "react";
 import { Redirect } from "react-router-dom";
 
+import AuthPayload from "../responses/AuthPayload";
 import AuthService from "../services/Auth";
+import Alert from "./Alert";
 
-class LoginForm extends React.Component<{ }, { email: string, password: string, authenticated: boolean }> {
+class LoginForm extends React.Component<
+    {},
+    { email: string, password: string, authenticated: boolean, errors: boolean }> {
+
     constructor() {
         super();
 
@@ -15,6 +20,7 @@ class LoginForm extends React.Component<{ }, { email: string, password: string, 
         this.state = {
             authenticated: false,
             email: '',
+            errors: false,
             password: '',
         };
     }
@@ -24,17 +30,25 @@ class LoginForm extends React.Component<{ }, { email: string, password: string, 
 
         $('#login').html("Logging In...");
 
-        const authenticated = AuthService.login( this.state.email, this.state.password );
+        AuthService.authenticate( this.state.email, this.state.password )
+            .then((response: AuthPayload) => {
+                if ( response.success ) {
+                    AuthService.setUser( response.user_id )
+                        .then(() => {
+                            $('[id=title]').html( AuthService.getUser().name );
 
-        if ( authenticated ) {
-            $('[id=title]').html( AuthService.getUser().name );
+                            this.setState({
+                                authenticated: true,
+                            });
+                        });
+                } else {
+                    $('#login').html("Login");
 
-            this.setState({
-                authenticated: true,
+                    this.setState({
+                        errors: true,
+                    });
+                }
             });
-        } else {
-            $('#login').html("Login");
-        }
     }
 
     public render() {
@@ -46,6 +60,8 @@ class LoginForm extends React.Component<{ }, { email: string, password: string, 
 
         return (
             <div className="w3-panel w3-blue-gray login-form">
+                {this.state.errors && <Alert alert="Error" msg="Email or Password was incorrect"/>}
+
                 <form>
 
                     <div className="w3-margin-top w3-margin-bottom">
