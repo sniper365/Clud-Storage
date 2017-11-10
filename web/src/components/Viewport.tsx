@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Route, Switch } from "react-router-dom";
 
-import FolderList from "./FolderList";
+import FolderList from "./folders/FolderList";
+import FileList from "./files/FileList";
 
 import Folder from "../models/Folder";
 
@@ -23,6 +24,13 @@ class Viewport extends React.Component<{}, { loaded: boolean, root?: Folder }> {
                     <Route path="/folders/:folder_id" component={({ match }) => (
                             <FolderList root={match.params.folder_id}/>)
                         }/>
+                </Switch>
+
+                <Switch>
+                <Route exact={true} path="/folders" component={() => (<FileList root={undefined}/>)}/>
+                <Route path="/folders/:folder_id" component={({ match }) => (
+                        <FileList root={match.params.folder_id}/>)
+                    }/>
                 </Switch>
             </div>
         );

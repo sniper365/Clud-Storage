@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Folder as FolderModel } from "../models/Folder";
-import AuthService from "../services/Auth";
+import { Folder as FolderModel } from "../../models/Folder";
+import AuthService from "../../services/Auth";
 import Folder from "./Folder";
 
 class FolderList extends React.Component<{ root?: number }, { root?: FolderModel, children?: FolderModel[] }> {
@@ -64,26 +64,6 @@ class FolderList extends React.Component<{ root?: number }, { root?: FolderModel
         });
     }
 
-    public show( folder_id: number | undefined ) {
-        const user = AuthService.getUser();
-
-        const path = ( folder_id === undefined )
-            ? "/api/users/" + user.user_id + "/root"
-            : "/api/users/" + user.user_id + "/folders/" + folder_id;
-
-        return fetch(path, {
-            headers: {
-                'Authorization': 'Bearer ' + AuthService.getToken(),
-                'Content-Type': 'application/json',
-            },
-        }).then((response) => {
-            return response.json();
-        }).then((response: Folder) => {
-            return response;
-        });
-    }
-
-
     public getRoot() {
         if ( this.state.root === undefined ) { return; }
 
@@ -104,7 +84,7 @@ class FolderList extends React.Component<{ root?: number }, { root?: FolderModel
 
     public render() {
         return (
-            <ul className="w3-ul folder-list">
+            <ul className="w3-ul w3-quarter folder-list">
                 {this.getRoot()}
                 {this.getChildren()}
             </ul>
