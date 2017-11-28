@@ -18,7 +18,7 @@ use rocket_contrib::Json;
 #[get("/users/<user_id>/folders")]
 fn index(conn: DbConn, auth: Auth, user_id: i32) -> Response<'static> {
     if auth.user.id != user_id && !auth.user.is_admin(&conn) {
-        return Response::build().status(Status::NotFound).finalize();
+        return Response::build().status(Status::Unauthorized).finalize();
     }
 
     let folders = match auth.user.folders(&conn) {
@@ -42,7 +42,7 @@ fn index(conn: DbConn, auth: Auth, user_id: i32) -> Response<'static> {
 #[get("/users/<user_id>/root")]
 fn root(conn: DbConn, auth: Auth, user_id: i32) -> Response<'static> {
     if auth.user.id != user_id && !auth.user.is_admin(&conn) {
-        return Response::build().status(Status::NotFound).finalize();
+        return Response::build().status(Status::Unauthorized).finalize();
     }
 
     let folder = match auth.user.roots(&conn) {
@@ -67,7 +67,7 @@ fn root(conn: DbConn, auth: Auth, user_id: i32) -> Response<'static> {
 #[get("/users/<user_id>/folders/<id>")]
 fn show(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static> {
     if auth.user.id != user_id && !auth.user.is_admin(&conn) {
-        return Response::build().status(Status::NotFound).finalize();
+        return Response::build().status(Status::Unauthorized).finalize();
     }
 
     let folders = match auth.user.folders(&conn) {
@@ -92,7 +92,7 @@ fn show(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static> {
 #[get("/users/<user_id>/folders/<id>/children")]
 fn children(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static> {
     if auth.user.id != user_id && !auth.user.is_admin(&conn) {
-        return Response::build().status(Status::NotFound).finalize();
+        return Response::build().status(Status::Unauthorized).finalize();
     }
 
     let folders = match auth.user.folders(&conn) {
@@ -124,7 +124,7 @@ fn children(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static
 #[post("/users/<user_id>/folders", data="<request>")]
 fn store(conn: DbConn, auth: Auth, user_id: i32, request: Json<folder_request::Store>) -> Response<'static> {
     if auth.user.id != user_id && !auth.user.is_admin(&conn) {
-        return Response::build().status(Status::NotFound).finalize();
+        return Response::build().status(Status::Unauthorized).finalize();
     }
 
     let parent = match Folder::find(request.0.parent_id, &conn) {

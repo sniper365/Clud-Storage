@@ -2,6 +2,7 @@ import * as React from "react";
 import { Folder as FolderModel } from "../../models/Folder";
 import AuthService from "../../services/Auth";
 import Folder from "./Folder";
+import Header from "./Header";
 
 class FolderList extends React.Component<{ root?: number }, { root?: FolderModel, children?: FolderModel[] }> {
     constructor() {
@@ -64,6 +65,16 @@ class FolderList extends React.Component<{ root?: number }, { root?: FolderModel
         });
     }
 
+    public getHeader() {
+        if ( this.state.root === undefined ) { return; }
+
+        if ( this.state.root.parent_id === null ) { return; }
+
+        return (
+            <Header name={this.state.root.name}/>
+        );
+    }
+
     public getRoot() {
         if ( this.state.root === undefined ) { return; }
 
@@ -84,10 +95,12 @@ class FolderList extends React.Component<{ root?: number }, { root?: FolderModel
 
     public render() {
         return (
-            <ul className="w3-ul w3-quarter folder-list">
-                {this.getRoot()}
-                {this.getChildren()}
-            </ul>
+            <div className="w3-quarter folder-list">
+                <ul className="w3-ul">
+                    {this.getRoot()}
+                    {this.getChildren()}
+                </ul>
+            </div>
         );
     }
 }

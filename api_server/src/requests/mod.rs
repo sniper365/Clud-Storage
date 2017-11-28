@@ -2,3 +2,4 @@
 pub mod session_request;
 pub mod user_request;
 pub mod folder_request;
+pub mod file_request;

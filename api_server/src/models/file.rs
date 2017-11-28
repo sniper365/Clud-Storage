@@ -24,6 +24,7 @@ pub struct File {
     pub folder_id: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub extension: String,
 }
 
 #[derive(Insertable)]
@@ -31,14 +32,24 @@ pub struct File {
 pub struct NewFile {
     pub name: String,
     pub file_name: String,
+    pub extension: String,
     pub folder_id: i32,
 }
 
+#[derive(Serialize)]
+pub struct Show {
+    file_id: i32,
+    folder_id: i32,
+    name: String,
+    extension: String,
+}
+
 impl File {
-    pub fn new(name: String, file_name: String, folder_id: i32) -> NewFile {
+    pub fn new(name: String, file_name: String, folder_id: i32, extension: String) -> NewFile {
         NewFile {
             name: name,
             file_name: file_name,
+            extension: extension,
             folder_id: folder_id,
         }
     }
@@ -63,6 +74,7 @@ impl File {
             .set((
                 name.eq(&self.name),
                 file_name.eq(&self.file_name),
+                extension.eq(&self.extension),
                 folder_id.eq(self.folder_id)
             ))
             .get_result(conn.deref())
@@ -72,6 +84,15 @@ impl File {
         use schema::files::dsl::files;
 
         diesel::delete(files.find(&self.id)).execute(conn.deref())
+    }
+
+    pub fn into_show(&self) -> Show {
+        Show {
+            file_id: self.id,
+            folder_id: self.folder_id,
+            name: self.name.to_string(),
+            extension: self.extension.to_string(),
+        }
     }
 }
 
@@ -83,6 +104,7 @@ impl NewFile {
         let new_file = NewFile {
             name: String::from_str(&self.name).unwrap(),
             file_name: String::from_str(&self.file_name).unwrap(),
+            extension: String::from_str(&self.extension).unwrap(),
             folder_id: self.folder_id
         };
 

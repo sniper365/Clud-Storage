@@ -1,6 +1,5 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
-
 extern crate rocket;
 extern crate rocket_contrib;
 
@@ -21,6 +20,8 @@ extern crate chrono;
 extern crate bcrypt;
 extern crate crypto;
 extern crate frank_jwt;
+extern crate time;
+extern crate rand;
 
 mod pg_pool;
 pub use pg_pool::DbConn;
@@ -52,11 +53,15 @@ fn main() {
             user_controller::store,
             user_controller::update,
             user_controller::delete,
-            folder_controller::index,
             folder_controller::root,
+            folder_controller::index,
             folder_controller::show,
             folder_controller::children,
             folder_controller::store,
+            file_controller::index,
+            file_controller::show,
+            file_controller::store_file,
+            file_controller::store,
         ])
         .launch();
 }

@@ -20,3 +20,5 @@ chrono = { version = "0.4.0", features = ["serde"]}
 bcrypt = "0.1"
 rust-crypto = "^0.2"
 frank_jwt = "*"
+time = "*"
+rand = "0.3"

@@ -36,8 +36,15 @@ class FileList extends React.Component<{ root?: number }, { }> {
     }
 
     public render() {
+        const user = AuthService.getUser();
+        let path = "/api/users/" + user.user_id + "/folders/1/files";
+
         return (
-            <div/>
+            <form action={path} method="post" encType="multipart/form-data">
+                <input type="file" name="testing"/>
+
+                <button type="submit" value="Submit"/>
+            </form>
         );
     }
 }
