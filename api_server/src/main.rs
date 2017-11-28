@@ -58,8 +58,11 @@ fn main() {
             folder_controller::show,
             folder_controller::children,
             folder_controller::store,
+            folder_controller::update,
+            folder_controller::delete,
             file_controller::index,
             file_controller::show,
+            file_controller::download,
             file_controller::store_file,
             file_controller::store,
         ])

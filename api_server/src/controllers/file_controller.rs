@@ -20,6 +20,7 @@ use rocket_contrib::Json;
 use time;
 use rand;
 use rand::Rng;
+use std::fs;
 
 #[get("/users/<user_id>/folders/<folder_id>/files")]
 fn index(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32) -> Response<'static> {
@@ -93,6 +94,42 @@ fn show(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, file_id: i32) ->
         .finalize()
 }
 
+#[get("/users/<user_id>/folders/<folder_id>/files/<file_id>/download")]
+fn download(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, file_id: i32) -> Response<'static> {
+    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+        return Response::build().status(Status::Unauthorized).finalize();
+    }
+
+    let folders = match auth.user.folders(&conn) {
+        Ok(folders) => folders,
+        Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
+    };
+
+    let folder = match folders.iter().position( | folder | folder.id == folder_id ) {
+        // We already know the index, we already know one exists there.
+        Some(folder) => folders.get(folder).unwrap(),
+        None => return Response::build().status(Status::NotFound).finalize(),
+    };
+
+    let files = match folder.files(&conn) {
+        Ok(files) => files,
+        Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
+    };
+
+    let found = match files.iter().position( | file | file.id == file_id ) {
+        // We already know the index, we already know one exists there.
+        Some(found) => files.get(found).unwrap(),
+        None => return Response::build().status(Status::NotFound).finalize(),
+    };
+
+    let path = format!("storage/{user_id}/{file_name}", user_id = user_id, file_name = &found.file_name);
+
+    Response::build()
+        .status(Status::Ok)
+        .streamed_body(fs::File::open(path).unwrap())
+        .finalize()
+}
+
 
 #[post("/users/<user_id>/folders/<_folder_id>/files", format="text/plain", data="<file>")]
 fn store_file(conn: DbConn, auth: Auth, user_id: i32, _folder_id: i32, file: Data) -> Response<'static> {
@@ -114,13 +151,10 @@ fn store_file(conn: DbConn, auth: Auth, user_id: i32, _folder_id: i32, file: Dat
     match file.stream_to_file(Path::new(&path)) {
         Ok(_) => Response::build()
             .status(Status::Ok)
-            .header(ContentType::JSON)
             .sized_body(Cursor::new(file_name))
             .finalize(),
-        Err(e) => Response::build()
+        Err(_) => Response::build()
             .status(Status::InternalServerError)
-            .header(ContentType::JSON)
-            .sized_body(Cursor::new(e.to_string()))
             .finalize(),
     }
 }
@@ -141,13 +175,12 @@ fn store(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, request: Json<f
     }
 
     match File::new(request.0.name, request.0.file_name, folder_id, request.0.extension).save(&conn) {
-        Ok(_) => Response::build()
+        Ok(file) => Response::build()
             .status(Status::Created)
-            .header(ContentType::JSON)
+            .sized_body(Cursor::new(serde_json::to_string(&file.into_show()).unwrap()))
             .finalize(),
         Err(_) => Response::build()
             .status(Status::InternalServerError)
-            .header(ContentType::JSON)
             .finalize()
     }
 }

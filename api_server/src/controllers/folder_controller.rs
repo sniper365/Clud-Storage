@@ -129,7 +129,7 @@ fn store(conn: DbConn, auth: Auth, user_id: i32, request: Json<folder_request::S
 
     let parent = match Folder::find(request.0.parent_id, &conn) {
         Ok(parent) => {
-            if parent.user_id == auth.user.id {
+            if parent.user_id != auth.user.id {
                 return Response::build().status(Status::Unauthorized).finalize();
             }
 
@@ -139,13 +139,70 @@ fn store(conn: DbConn, auth: Auth, user_id: i32, request: Json<folder_request::S
     };
 
     match Folder::new(request.0.name, Some(parent.id), auth.user.id).save(&conn) {
-        Ok(_) => Response::build()
+        Ok(folder) => Response::build()
             .status(Status::Created)
-            .header(ContentType::JSON)
+            .sized_body(Cursor::new(serde_json::to_string(&folder.into_show()).unwrap()))
             .finalize(),
         Err(_) => Response::build()
             .status(Status::InternalServerError)
             .header(ContentType::JSON)
             .finalize()
+    }
+}
+
+#[put("/users/<user_id>/folders/<folder_id>", data="<request>")]
+fn update(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, request: Json<folder_request::Store>) -> Response<'static> {
+    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+        return Response::build().status(Status::Unauthorized).finalize();
+    }
+
+    let mut folder = match Folder::find(folder_id, &conn) {
+        Ok(folder) => {
+            if folder.user_id != auth.user.id {
+                return Response::build().status(Status::Unauthorized).finalize();
+            }
+
+            folder
+        },
+        Err(_) => return Response::build().status(Status::BadRequest).finalize(),
+    };
+
+    if folder.parent_id.is_none() {
+        return Response::build().status(Status::Forbidden).finalize()
+    }
+
+    folder.name = request.0.name;
+    folder.parent_id = Some(request.0.parent_id);
+
+    match folder.save(&conn) {
+        Ok(_) => Response::build().status(Status::NoContent).finalize(),
+        Err(_) => Response::build().status(Status::InternalServerError).finalize(),
+    }
+}
+
+#[delete("/users/<user_id>/folders/<folder_id>")]
+fn delete(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32) -> Response<'static> {
+    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+        return Response::build().status(Status::NotFound).finalize();
+    }
+
+    let folder = match Folder::find(folder_id, &conn) {
+        Ok(folder) => {
+            if folder.user_id != auth.user.id {
+                return Response::build().status(Status::Unauthorized).finalize();
+            }
+
+            folder
+        },
+        Err(_) => return Response::build().status(Status::BadRequest).finalize(),
+    };
+
+    if folder.parent_id.is_none() {
+        return Response::build().status(Status::Forbidden).finalize()
+    }
+
+    match folder.delete(&conn) {
+        Ok(_) => Response::build().status(Status::Accepted).finalize(),
+        Err(_) => Response::build().status(Status::InternalServerError).finalize(),
     }
 }

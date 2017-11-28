@@ -3,6 +3,7 @@ use rocket_contrib::Json;
 use pg_pool::DbConn;
 
 use models::user::{ User, Show };
+use models::folder::Folder;
 
 use requests::user_request;
 
@@ -15,6 +16,8 @@ use std::io::Cursor;
 use rocket::Response;
 
 use serde_json;
+
+use std::fs::DirBuilder;
 
 #[get("/users")]
 fn index(conn: DbConn, _admin: Admin) -> Response<'static> {
@@ -62,10 +65,23 @@ fn store(conn: DbConn, _admin: Admin, request: Json<user_request::Store>) -> Res
         Err(_) => return Response::build().status(Status::SeeOther).finalize(),
     };
 
-    let mut response = String::from("/api/users/");
-    response.push(user.id as u8 as char);
+    match Folder::new(String::from("/"), None, user.id).save(&conn) {
+        Ok(_) => {},
+        Err(_) => return Response::build()
+            .status(Status::InternalServerError)
+            .finalize()
+    }
 
-    Response::build().status(Status::Created).finalize()
+    let path = format!("storage/{user_id}", user_id = user.id);
+
+    match DirBuilder::new().create(path) {
+        Ok(_) => {},
+        Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
+    };
+
+    Response::build()
+        .status(Status::Created)
+        .finalize()
 }
 
 #[put("/users/<id>", data="<request>")]
