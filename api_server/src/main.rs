@@ -65,6 +65,8 @@ fn main() {
             file_controller::download,
             file_controller::store_file,
             file_controller::store,
+            file_controller::update,
+            file_controller::delete,
         ])
         .launch();
 }

@@ -184,3 +184,74 @@ fn store(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, request: Json<f
             .finalize()
     }
 }
+
+#[put("/users/<user_id>/folders/<folder_id>/files/<file_id>", data="<request>")]
+fn update(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, file_id: i32, request: Json<file_request::Store>) -> Response<'static> {
+    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+        return Response::build().status(Status::Unauthorized).finalize();
+    }
+
+    let folders = match auth.user.folders(&conn) {
+        Ok(folders) => folders,
+        Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
+    };
+
+    let folder = match folders.iter().position( | folder | folder.id == folder_id ) {
+        // We already know the index, we already know one exists there.
+        Some(folder) => folders.get(folder).unwrap(),
+        None => return Response::build().status(Status::NotFound).finalize(),
+    };
+
+    let mut files = match folder.files(&conn) {
+        Ok(files) => files,
+        Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
+    };
+
+    let file = match files.iter().position( | file | file.id == file_id ) {
+        // We already know the index, we already know one exists there.
+        Some(file) => files.get_mut(file).unwrap(),
+        None => return Response::build().status(Status::NotFound).finalize(),
+    };
+
+    file.name = request.0.name;
+    file.extension = request.0.extension;
+
+    match file.save(&conn) {
+        Ok(_) => Response::build().status(Status::NoContent).finalize(),
+        Err(_) => Response::build().status(Status::InternalServerError).finalize(),
+    }
+}
+
+#[delete("/users/<user_id>/folders/<folder_id>/files/<file_id>")]
+fn delete(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, file_id: i32) -> Response<'static> {
+    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+        return Response::build().status(Status::NotFound).finalize();
+    }
+
+    let folders = match auth.user.folders(&conn) {
+        Ok(folders) => folders,
+        Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
+    };
+
+    let folder = match folders.iter().position( | folder | folder.id == folder_id ) {
+        // We already know the index, we already know one exists there.
+        Some(folder) => folders.get(folder).unwrap(),
+        None => return Response::build().status(Status::NotFound).finalize(),
+    };
+
+    let files = match folder.files(&conn) {
+        Ok(files) => files,
+        Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
+    };
+
+    let file = match files.iter().position( | file | file.id == file_id ) {
+        // We already know the index, we already know one exists there.
+        Some(file) => files.get(file).unwrap(),
+        None => return Response::build().status(Status::NotFound).finalize(),
+    };
+
+    match file.delete(&conn) {
+        Ok(_) => Response::build().status(Status::Accepted).finalize(),
+        Err(_) => Response::build().status(Status::InternalServerError).finalize(),
+    }
+}
