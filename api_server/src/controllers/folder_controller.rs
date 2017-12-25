@@ -9,11 +9,14 @@ use rocket::Response;
 
 use serde_json;
 
-use models::folder::{ Show, Folder };
+use models::folder::Folder;
 
 use requests::folder_request;
 
 use rocket_contrib::Json;
+
+use resources::AsResource;
+use resources::folder::Folder as FolderResource;
 
 #[get("/users/<user_id>/folders")]
 fn index(conn: DbConn, auth: Auth, user_id: i32) -> Response<'static> {
@@ -21,41 +24,14 @@ fn index(conn: DbConn, auth: Auth, user_id: i32) -> Response<'static> {
         return Response::build().status(Status::Unauthorized).finalize();
     }
 
-    let folders = match auth.user.folders(&conn) {
-        Ok(folders) => folders,
+    let folders: Vec<FolderResource> = match auth.user.folders(&conn) {
+        Ok(folders) => folders.into_iter().map( | folder | {
+            folder.as_resource()
+        }).collect(),
         Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
     };
 
-    let response: Vec<Show> = folders.into_iter().map( | folder | {
-        folder.into_show()
-    }).collect();
-
-    let response = serde_json::to_string(&response).unwrap();
-
-    Response::build()
-        .status(Status::Ok)
-        .header(ContentType::JSON)
-        .sized_body(Cursor::new(response))
-        .finalize()
-}
-
-#[get("/users/<user_id>/root")]
-fn root(conn: DbConn, auth: Auth, user_id: i32) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
-        return Response::build().status(Status::Unauthorized).finalize();
-    }
-
-    let folder = match auth.user.roots(&conn) {
-        Ok(folders) => folders,
-        Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
-    };
-
-    let found = match folder.first() {
-        Some(found) => found.into_show(),
-        None => return Response::build().status(Status::NotFound).finalize(),
-    };
-
-    let response = serde_json::to_string(&found).unwrap();
+    let response = serde_json::to_string(&folders).unwrap();
 
     Response::build()
         .status(Status::Ok)
@@ -76,7 +52,7 @@ fn show(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static> {
     };
 
     let found = match folders.iter().position( | folder | folder.id == id ) {
-        Some(found) => folders[found].into_show(),
+        Some(found) => folders[found].as_resource(),
         None => return Response::build().status(Status::NotFound).finalize(),
     };
 
@@ -108,8 +84,8 @@ fn children(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static
         None => return Response::build().status(Status::NotFound).finalize(),
     };
 
-    let response: Vec<Show> = found.into_iter().map( | folder | {
-        folder.into_show()
+    let response: Vec<FolderResource> = found.into_iter().map( | folder | {
+        folder.as_resource()
     }).collect();
 
     let response = serde_json::to_string(&response).unwrap();
@@ -141,7 +117,7 @@ fn store(conn: DbConn, auth: Auth, user_id: i32, request: Json<folder_request::S
     match Folder::new(request.0.name, Some(parent.id), auth.user.id).save(&conn) {
         Ok(folder) => Response::build()
             .status(Status::Created)
-            .sized_body(Cursor::new(serde_json::to_string(&folder.into_show()).unwrap()))
+            .sized_body(Cursor::new(serde_json::to_string(&folder.as_resource()).unwrap()))
             .finalize(),
         Err(_) => Response::build()
             .status(Status::InternalServerError)

@@ -4,8 +4,8 @@ import AuthService from "../../services/Auth";
 import Folder from "./Folder";
 import Header from "./Header";
 
-class FolderList extends React.Component<{ root?: number }, { root?: FolderModel, children?: FolderModel[] }> {
-    constructor() {
+class FolderList extends React.Component<{ root: number }, { root?: FolderModel, children?: FolderModel[] }> {
+    constructor(root) {
         super();
 
         this.state = {
@@ -22,13 +22,11 @@ class FolderList extends React.Component<{ root?: number }, { root?: FolderModel
     }
 
     public loadRoot() {
-        const root = this.props.root ? this.props.root : undefined;
+        const root = this.props.root;
 
         const user = AuthService.getUser();
 
-        const path = ( root === undefined )
-            ? "/api/users/" + user.user_id + "/root"
-            : "/api/users/" + user.user_id + "/folders/" + root;
+        const path = "/api/users/" + user.user_id + "/folders/" + root;
 
         return fetch(path, {
             headers: {

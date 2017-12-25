@@ -3,18 +3,20 @@ import User from "../models/User";
 import AuthPayload from "../responses/AuthPayload";
 
 class AuthService {
-    public isAuthenticated: boolean = false;
-
-    private user: User;
-
-    private token: string;
-
     public getUser(): User {
-        return this.user;
+        return JSON.parse(document.cookie).user;
     }
 
     public getToken(): string {
-        return this.token;
+        return JSON.parse(document.cookie).token;
+    }
+
+    public authenticated(): boolean {
+        try {
+            return JSON.parse(document.cookie).token !== undefined;
+        } catch (_) {
+            return false;
+        }
     }
 
     public authenticate( email: string, password: string ) {
@@ -31,9 +33,9 @@ class AuthService {
             return response.json();
         }).then((response: AuthPayload) => {
             if (response.success) {
-                this.token = response.token;
-
-                this.isAuthenticated = true;
+                document.cookie = JSON.stringify({
+                    token: response.token
+                });
             }
 
             return response;
@@ -50,7 +52,11 @@ class AuthService {
         }).then((response) => {
             return response.json();
         }).then((response: User) => {
-            this.user = response;
+            const cookie = JSON.parse(document.cookie);
+
+            cookie.user = response;
+
+            document.cookie = JSON.stringify(cookie);
         });
     }
 }

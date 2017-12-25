@@ -11,11 +11,14 @@ use std::path::Path;
 
 use serde_json;
 
-use models::file::{ Show, File };
+use models::file::File;
 
 use requests::file_request;
 
 use rocket_contrib::Json;
+
+use resources::AsResource;
+use resources::file::File as FileResource;
 
 use time;
 use rand;
@@ -44,8 +47,8 @@ fn index(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32) -> Response<'st
         Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
     };
 
-    let response: Vec<Show> = files.into_iter().map( | file | {
-        file.into_show()
+    let response: Vec<FileResource> = files.into_iter().map( | file | {
+        file.as_resource()
     }).collect();
 
     let response = serde_json::to_string(&response).unwrap();
@@ -81,7 +84,7 @@ fn show(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, file_id: i32) ->
 
     let found = match files.iter().position( | file | file.id == file_id ) {
         // We already know the index, we already know one exists there.
-        Some(found) => files[found].into_show(),
+        Some(found) => files[found].as_resource(),
         None => return Response::build().status(Status::NotFound).finalize(),
     };
 
@@ -177,7 +180,7 @@ fn store(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, request: Json<f
     match File::new(request.0.name, request.0.file_name, folder_id, request.0.extension).save(&conn) {
         Ok(file) => Response::build()
             .status(Status::Created)
-            .sized_body(Cursor::new(serde_json::to_string(&file.into_show()).unwrap()))
+            .sized_body(Cursor::new(serde_json::to_string(&file.as_resource()).unwrap()))
             .finalize(),
         Err(_) => Response::build()
             .status(Status::InternalServerError)

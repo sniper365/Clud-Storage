@@ -17,6 +17,8 @@ use models::folder::Folder;
 use models::role_user::RoleUser;
 use models::role::Role;
 
+use models::user::new_user::NewUser;
+
 #[derive(Queryable, Associations, Identifiable, Serialize)]
 #[table_name = "users"]
 pub struct User {
@@ -26,31 +28,18 @@ pub struct User {
     pub password: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-
-#[derive(Insertable)]
-#[table_name = "users"]
-pub struct NewUser {
-    pub name: String,
-    pub email: String,
-    pub password: String
-}
-
-#[derive(Serialize)]
-pub struct Show {
-    pub user_id: i32,
-    pub name: String,
-    pub email: String
+    pub root: Option<i32>,
 }
 
 impl User {
-    pub fn new(name: String, email: String, password: String) -> NewUser {
+    pub fn new(name: String, email: String, password: String, root: Option<i32>) -> NewUser {
         use bcrypt::{ DEFAULT_COST, hash };
 
         NewUser {
             name: name,
             email: email,
             password: hash(&password, DEFAULT_COST).unwrap(),
+            root: root,
         }
     }
 
@@ -96,10 +85,13 @@ impl User {
         diesel::delete(users.find(&self.id)).execute(conn.deref())
     }
 
-    pub fn roots(&self, conn: &DbConn) -> Result<Vec<Folder>, Error> {
-        use schema::folders::dsl::{ folders, user_id, parent_id };
+    pub fn root(&self, conn: &DbConn) -> Option<Result<Folder, Error>> {
+        use schema::folders::dsl::{ folders, id };
 
-        folders.filter(user_id.eq(&self.id)).filter(parent_id.is_null()).load::<Folder>(conn.deref())
+        match self.root {
+            Some(root) => Some(folders.filter(id.eq(root)).first::<Folder>(conn.deref())),
+            None => None
+        }
     }
 
     pub fn folders(&self, conn: &DbConn) -> Result<Vec<Folder>, Error> {
@@ -136,27 +128,5 @@ impl User {
         use bcrypt::{ DEFAULT_COST, hash };
 
         self.password = hash(&password, DEFAULT_COST).unwrap();
-    }
-
-    pub fn into_show(&self) -> Show {
-        Show {
-            user_id: self.id,
-            name: self.name.to_string(),
-            email: self.email.to_string()
-        }
-    }
-}
-
-impl NewUser {
-    pub fn save(&self, conn: &DbConn) -> Result<User, Error> {
-        use schema::users;
-
-        let new_user = NewUser {
-            name: self.name.to_string(),
-            email: self.email.to_string(),
-            password: self.password.to_string(),
-        };
-
-        diesel::insert(&new_user).into(users::table).get_result(conn.deref())
     }
 }

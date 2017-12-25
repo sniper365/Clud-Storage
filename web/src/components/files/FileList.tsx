@@ -1,29 +1,29 @@
 import * as React from "react";
 import AuthService from "../../services/Auth";
+import { File as FileModel } from "../../models/File";
+// import FileDrop from "react-file-drop";
+import File from "./File";
 
-class FileList extends React.Component<{ root?: number }, { }> {
-    constructor() {
+class FileList extends React.Component<{ root: number }, { root: number, files: FileModel[] }> {
+    constructor(root) {
         super();
 
         this.state = {
-            root: undefined,
+            root: root,
+            files: [],
         };
 
-        this.loadRoot = this.loadRoot.bind(this);
+        this.loadFiles = this.loadFiles.bind(this);
     }
 
     public componentDidMount() {
-        this.loadRoot();
+        this.loadFiles();
     }
 
-    public loadRoot() {
-        const root = this.props.root ? this.props.root : undefined;
-
+    public loadFiles() {
         const user = AuthService.getUser();
 
-        const path = ( root === undefined )
-            ? "/api/users/" + user.user_id + "/root"
-            : "/api/users/" + user.user_id + "/folders/" + root;
+        const path = "/api/users/" + user.user_id + "/folders/" + this.props.root + "/files";
 
         return fetch(path, {
             headers: {
@@ -32,19 +32,80 @@ class FileList extends React.Component<{ root?: number }, { }> {
             },
         }).then((response) => {
             return response.json();
+        }).then( ( files: FileModel[] ) => {
+            this.setState({
+                files: files,
+            });
         });
     }
 
+    public getFiles() {
+        return this.state.files.map( file =>
+            <File file_id={file.file_id} file={file} key={file.file_id}/>
+        );
+    }
+
     public render() {
-        const user = AuthService.getUser();
-        let path = "/api/users/" + user.user_id + "/folders/1/files";
 
         return (
-            <form action={path} method="post" encType="multipart/form-data">
-                <input type="file" name="testing"/>
-
-                <button type="submit" value="Submit"/>
-            </form>
+            <div className="file-list w3-rest">
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                {this.getFiles()}
+                
+            </div>
         );
     }
 }

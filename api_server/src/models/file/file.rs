@@ -15,6 +15,8 @@ use diesel::result::Error;
 
 use models::folder::Folder;
 
+use models::file::new_file::NewFile;
+
 #[derive(Queryable, Associations, Identifiable, Serialize)]
 #[table_name = "files"]
 pub struct File {
@@ -25,23 +27,6 @@ pub struct File {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub extension: String,
-}
-
-#[derive(Insertable)]
-#[table_name = "files"]
-pub struct NewFile {
-    pub name: String,
-    pub file_name: String,
-    pub extension: String,
-    pub folder_id: i32,
-}
-
-#[derive(Serialize)]
-pub struct Show {
-    file_id: i32,
-    folder_id: i32,
-    name: String,
-    extension: String,
 }
 
 impl File {
@@ -61,7 +46,7 @@ impl File {
         files.find(id).first::<File>(conn.deref())
     }
 
-    pub fn folders(&self, conn: &DbConn) -> Result<Folder, Error> {
+    pub fn folder(&self, conn: &DbConn) -> Result<Folder, Error> {
         use schema::folders::dsl::{ folders, id };
 
         folders.filter(id.eq(&self.folder_id)).first::<Folder>(conn.deref())
@@ -84,30 +69,5 @@ impl File {
         use schema::files::dsl::files;
 
         diesel::delete(files.find(&self.id)).execute(conn.deref())
-    }
-
-    pub fn into_show(&self) -> Show {
-        Show {
-            file_id: self.id,
-            folder_id: self.folder_id,
-            name: self.name.to_string(),
-            extension: self.extension.to_string(),
-        }
-    }
-}
-
-impl NewFile {
-    pub fn save(&self, conn: &DbConn) -> Result<File, Error> {
-        use std::str::FromStr;
-        use schema::files;
-
-        let new_file = NewFile {
-            name: String::from_str(&self.name).unwrap(),
-            file_name: String::from_str(&self.file_name).unwrap(),
-            extension: String::from_str(&self.extension).unwrap(),
-            folder_id: self.folder_id
-        };
-
-        diesel::insert(&new_file).into(files::table).get_result(conn.deref())
     }
 }

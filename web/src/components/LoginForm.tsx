@@ -35,8 +35,6 @@ class LoginForm extends React.Component<
                 if ( response.success ) {
                     AuthService.setUser( response.user_id )
                         .then(() => {
-                            $('[id=title]').html( AuthService.getUser().name );
-
                             this.setState({
                                 authenticated: true,
                             });
@@ -54,7 +52,7 @@ class LoginForm extends React.Component<
     public render() {
         if ( this.state.authenticated ) {
             return (
-                <Redirect to="/folders"/>
+                <Redirect to={"/folders/" + AuthService.getUser().root }/>
             );
         }
 

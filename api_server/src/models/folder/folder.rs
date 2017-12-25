@@ -16,8 +16,11 @@ use diesel::result::Error;
 use models::user::User;
 use models::file::File;
 
+use models::folder::new_folder::NewFolder;
+
 #[derive(Queryable, Associations, Identifiable, Serialize)]
 #[table_name = "folders"]
+#[belongs_to(User)]
 pub struct Folder {
     pub id: i32,
     pub name: String,
@@ -25,22 +28,6 @@ pub struct Folder {
     pub user_id: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-
-#[derive(Insertable)]
-#[table_name = "folders"]
-pub struct NewFolder {
-    pub name: String,
-    pub parent_id: Option<i32>,
-    pub user_id: i32,
-}
-
-#[derive(Serialize)]
-pub struct Show {
-    folder_id: i32,
-    name: String,
-    parent_id: Option<i32>,
-    user_id: i32,
 }
 
 impl Folder {
@@ -111,29 +98,5 @@ impl Folder {
         }
 
         diesel::delete(folders.find(&self.id)).execute(conn.deref())
-    }
-
-    pub fn into_show(&self) -> Show {
-        Show {
-            folder_id: self.id,
-            name: self.name.to_string(),
-            parent_id: self.parent_id,
-            user_id: self.user_id,
-        }
-    }
-}
-
-impl NewFolder {
-    pub fn save(&self, conn: &DbConn) -> Result<Folder, Error> {
-        use std::str::FromStr;
-        use schema::folders;
-
-        let new_folder = NewFolder {
-            name: String::from_str(&self.name).unwrap(),
-            parent_id: self.parent_id,
-            user_id: self.user_id
-        };
-
-        diesel::insert(&new_folder).into(folders::table).get_result(conn.deref())
     }
 }

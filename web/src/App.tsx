@@ -5,6 +5,7 @@ import {
     BrowserRouter as Router,
     Redirect,
     Route,
+    Switch,
 } from "react-router-dom";
 
 import LoginForm from "./components/LoginForm";
@@ -15,7 +16,7 @@ import AuthService from "./services/Auth";
 
 const PrivateRoute  = ({ component: Component, ...rest }) => (
     <Route {...rest} render={ props => (
-        AuthService.isAuthenticated
+        AuthService.authenticated()
             ? <Component {...props} />
             : <Redirect to={{ pathname: "/login", state: { from: props.location }}}/>
     )} />
@@ -32,8 +33,11 @@ class App extends React.Component<{}, {}> {
         <div id="app">
             <Nav />
 
-            <Route exact={true} path="/login" component={LoginForm} />
-            <PrivateRoute path="/folders" component={Viewport} />
+            <Switch>
+                <Route path="/login" component={LoginForm} />
+                <PrivateRoute path="/" component={Viewport} />
+                <PrivateRoute path="/folders/:folder_id" component={Viewport} />
+            </Switch>
         </div>
       </Router>
     );

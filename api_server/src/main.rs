@@ -31,8 +31,8 @@ mod controllers;
 mod models;
 mod guards;
 mod requests;
-mod responses;
 mod libraries;
+mod resources;
 
 use dotenv::dotenv;
 use std::env;
@@ -53,7 +53,6 @@ fn main() {
             user_controller::store,
             user_controller::update,
             user_controller::delete,
-            folder_controller::root,
             folder_controller::index,
             folder_controller::show,
             folder_controller::children,

@@ -2,7 +2,7 @@ use rocket_contrib::Json;
 
 use pg_pool::DbConn;
 
-use models::user::{ User, Show };
+use models::user::User;
 use models::folder::Folder;
 
 use requests::user_request;
@@ -19,12 +19,15 @@ use serde_json;
 
 use std::fs::DirBuilder;
 
+use resources::AsResource;
+use resources::user::User as UserResource;
+
 #[get("/users")]
 fn index(conn: DbConn, _admin: Admin) -> Response<'static> {
     let users = User::all(&conn).unwrap();
 
-    let response: Vec<Show> = users.into_iter().map(| user | {
-        user.into_show()
+    let response: Vec<UserResource> = users.into_iter().map(| user | {
+        user.as_resource()
     }).collect();
 
     let response = serde_json::to_string(&response).unwrap();
@@ -43,7 +46,7 @@ fn show(conn: DbConn, auth: Auth, id: i32) -> Response<'static> {
     }
 
     let user = match User::find(id, &conn) {
-        Ok(user) => user.into_show(),
+        Ok(user) => user.as_resource(),
         Err(_) => return Response::build().status(Status::NotFound).finalize(),
     };
 
@@ -58,14 +61,23 @@ fn show(conn: DbConn, auth: Auth, id: i32) -> Response<'static> {
 
 #[post("/users", data="<request>")]
 fn store(conn: DbConn, _admin: Admin, request: Json<user_request::Store>) -> Response<'static> {
-    let new_user = User::new(request.0.name, request.0.email, request.0.password);
+    let new_user = User::new(request.0.name, request.0.email, request.0.password, None);
 
-    let user = match new_user.save(&conn) {
+    let mut user = match new_user.save(&conn) {
         Ok(user) => user,
         Err(_) => return Response::build().status(Status::SeeOther).finalize(),
     };
 
-    match Folder::new(String::from("/"), None, user.id).save(&conn) {
+    let root = match Folder::new(String::from("/"), None, user.id).save(&conn) {
+        Ok( folder ) => { folder.id },
+        Err(_) => return Response::build()
+            .status(Status::InternalServerError)
+            .finalize()
+    };
+
+    user.root = Some(root);
+
+    match user.save(&conn) {
         Ok(_) => {},
         Err(_) => return Response::build()
             .status(Status::InternalServerError)
