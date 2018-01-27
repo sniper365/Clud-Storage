@@ -20,7 +20,7 @@ use resources::folder::Folder as FolderResource;
 
 #[get("/users/<user_id>/folders")]
 fn index(conn: DbConn, auth: Auth, user_id: i32) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+    if auth.user.id != user_id {
         return Response::build().status(Status::Unauthorized).finalize();
     }
 
@@ -42,7 +42,7 @@ fn index(conn: DbConn, auth: Auth, user_id: i32) -> Response<'static> {
 
 #[get("/users/<user_id>/folders/<id>")]
 fn show(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+    if auth.user.id != user_id {
         return Response::build().status(Status::Unauthorized).finalize();
     }
 
@@ -67,7 +67,7 @@ fn show(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static> {
 
 #[get("/users/<user_id>/folders/<id>/children")]
 fn children(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+    if auth.user.id != user_id {
         return Response::build().status(Status::Unauthorized).finalize();
     }
 
@@ -99,7 +99,7 @@ fn children(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static
 
 #[post("/users/<user_id>/folders", data="<request>")]
 fn store(conn: DbConn, auth: Auth, user_id: i32, request: Json<folder_request::Store>) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+    if auth.user.id != user_id {
         return Response::build().status(Status::Unauthorized).finalize();
     }
 
@@ -128,7 +128,7 @@ fn store(conn: DbConn, auth: Auth, user_id: i32, request: Json<folder_request::S
 
 #[put("/users/<user_id>/folders/<folder_id>", data="<request>")]
 fn update(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, request: Json<folder_request::Store>) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+    if auth.user.id != user_id {
         return Response::build().status(Status::Unauthorized).finalize();
     }
 
@@ -158,7 +158,7 @@ fn update(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, request: Json<
 
 #[delete("/users/<user_id>/folders/<folder_id>")]
 fn delete(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+    if auth.user.id != user_id {
         return Response::build().status(Status::NotFound).finalize();
     }
 

@@ -15,6 +15,7 @@ impl AsResource for File {
             folder_id: self.folder_id,
             name: self.name.to_string(),
             extension: self.extension.to_string(),
+            created_at: self.created_at,
         }
     }
 }

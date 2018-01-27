@@ -1,7 +1,8 @@
+use resources::user::User;
+
 #[derive(Serialize)]
-pub struct Login {
-    pub success: bool,
-    pub user_id: Option<i32>,
-    pub token: Option<String>,
-    pub message: String,
+pub struct Session {
+    pub user_id: i32,
+    pub token: String,
+    pub user: User,
 }

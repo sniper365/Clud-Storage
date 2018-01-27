@@ -1,7 +1,8 @@
 class AuthPayload {
     token: string;
     user_id: number;
-    success: boolean;
+    name: string;
+    email: string;
 }
 
 export default AuthPayload;

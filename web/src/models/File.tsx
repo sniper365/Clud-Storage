@@ -3,6 +3,7 @@ export class File {
     folder_id: number;
     name: string;
     extension: string;
+    created_at: string;
 }
 
 export default File;

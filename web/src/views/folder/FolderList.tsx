@@ -3,18 +3,18 @@ import * as React from "react";
 import AuthService from "../../services/Auth";
 import TokenService from "../../services/Token";
 
-import { File as FileModel } from "../../models/File";
+import { Folder as FolderModel } from "../../models/Folder";
 
-import File from "./File";
+import Folder from "./Folder";
 
-import { Col } from 'reactstrap';
+import { ListGroup } from 'reactstrap';
 
-class FileList extends React.Component<{ root: number }, { files: FileModel[] }> {
+class FolderList extends React.Component<{ root: number }, { folders: FolderModel[] }> {
     constructor() {
         super();
 
         this.state = {
-            files: [],
+            folders: [],
         };
 
         this.load = this.load.bind(this);
@@ -24,7 +24,7 @@ class FileList extends React.Component<{ root: number }, { files: FileModel[] }>
 
     public load() {
         AuthService.user().then((user) => {
-            const path = "/api/users/" + user.user_id + "/folders/" + this.props.root + '/files';
+            const path = "/api/users/" + user.user_id + "/folders/" + this.props.root + '/children';
 
             fetch(path, {
                 headers: {
@@ -33,9 +33,9 @@ class FileList extends React.Component<{ root: number }, { files: FileModel[] }>
                 }
             }).then((response) => {
                 return response.json();
-            }).then((response: FileModel[]) => {
+            }).then((response: FolderModel[]) => {
                 this.setState({
-                    files: response
+                    folders: response
                 });
             });
         });
@@ -43,11 +43,11 @@ class FileList extends React.Component<{ root: number }, { files: FileModel[] }>
 
     public render() {
         return (
-            <Col md={10} className="fill">
-                {this.state.files.map( file => <File file={file} key={file.file_id}/>)}
-            </Col>
+            <ListGroup flush={true} className="folder-list fade-in">
+                {this.state.folders.map( folder => <Folder folder={folder} key={folder.folder_id}/> )}
+            </ListGroup>
         );
     }
 }
 
-export default FileList;
+export default FolderList;

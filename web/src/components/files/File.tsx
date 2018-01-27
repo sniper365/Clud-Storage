@@ -1,37 +1,57 @@
 import * as React from "react";
+
 import { File as FileModel } from "../../models/File";
 
-class File extends React.Component<{ file_id: number, file: FileModel, key: number }, { }> {
-    constructor( ) {
+import AuthService from "../../services/Auth";
+import TokenService from "../../services/Token";
+
+import { Card, CardImg, CardImgOverlay } from 'reactstrap';
+
+class File extends React.Component<{ file: FileModel }, { background: string }> {
+    constructor() {
         super();
 
-        this.getHeader = this.getHeader.bind(this);
+        this.state = {
+            background: "none",
+        };
+
+        this.load = this.load.bind(this);
+
+        this.load();
     }
 
-    public getHeader() {
-        switch(this.props.file.extension) {
-            case 'jpg':
+    public load() {
+        AuthService.user().then((user) => {
+            const path = "/api/users/" +
+                user.user_id + "/folders/" +
+                this.props.file.folder_id + "/files/" +
+                this.props.file.file_id + "/download";
 
-        }
+            fetch(path, {
+                headers: {
+                    'Authorization': 'Bearer ' + TokenService.getToken(),
+                    'Content-Type': 'application/json'
+                }
+            }).then((response) => {
+                return response.blob();
+            }).then((response) => {
+                const url = URL.createObjectURL(response);
+
+                this.setState({
+                    background: url
+                });
+            });
+        });
     }
 
     public render() {
         return (
-            <div className="file w3-blue-gray w3-card-2">
-                <div className="file-header" data-file-id={this.props.file_id}>
-                    {this.getHeader()}
-                    .{this.props.file.extension}
-                </div>
-
-                <div className="file-body w3-row">
-                    <div className="w3-col s7 file-name">
-                        {this.props.file.name}
-                    </div>
-                    <div className="w3-col s5 file-action">
-                        <button className="w3-btn w3-ripple download-btn">Download</button>
-                    </div>
-                </div>
-            </div>
+            <Card className="file m-3">
+                <CardImg src={this.state.background}/>
+                <CardImgOverlay>
+                    {this.props.file.name}
+                </CardImgOverlay>
+            </Card>
         );
     }
 }

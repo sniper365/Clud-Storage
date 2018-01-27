@@ -8,10 +8,9 @@ import {
     Switch,
 } from "react-router-dom";
 
-import LoginForm from "./components/LoginForm";
-import Nav from "./components/Nav";
-import Viewport from "./components/Viewport";
-
+import Nav from "./Navbar";
+import Viewport from "./Viewport";
+import Login from "./views/Login";
 import AuthService from "./services/Auth";
 
 const PrivateRoute  = ({ component: Component, ...rest }) => (
@@ -34,8 +33,8 @@ class App extends React.Component<{}, {}> {
             <Nav />
 
             <Switch>
-                <Route path="/login" component={LoginForm} />
-                <PrivateRoute path="/" component={Viewport} />
+                <Route path="/login" component={Login} />
+                <PrivateRoute path="" component={Viewport} />
                 <PrivateRoute path="/folders/:folder_id" component={Viewport} />
             </Switch>
         </div>

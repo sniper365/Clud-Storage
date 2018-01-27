@@ -1,22 +1,39 @@
 import User from "../models/User";
-
-import AuthPayload from "../responses/AuthPayload";
+import TokenService from "./Token";
 
 class AuthService {
-    public getUser(): User {
-        return JSON.parse(document.cookie).user;
-    }
-
-    public getToken(): string {
-        return JSON.parse(document.cookie).token;
-    }
+    private auth_user: User;
 
     public authenticated(): boolean {
-        try {
-            return JSON.parse(document.cookie).token !== undefined;
-        } catch (_) {
-            return false;
+        return (typeof TokenService.getToken() === 'string') ? true : false;
+    }
+
+    public user(): Promise<User> {
+        const token = TokenService.payload();
+
+        if ( typeof this.auth_user !== 'undefined' ) {
+            return Promise.resolve(this.auth_user);
         }
+
+        if ( typeof token === 'undefined' ) {
+            return Promise.reject("No session found");
+        }
+
+        return fetch( "/api/users/" + token.user_id, {
+            headers: {
+                'Authorization': 'Bearer ' + TokenService.getToken(),
+            }
+        }).then((response) => {
+            return response.json();
+        }).then((user: User) => {
+            this.auth_user = user;
+
+            return user;
+        });
+    }
+
+    public logout() {
+        TokenService.setToken("");
     }
 
     public authenticate( email: string, password: string ) {
@@ -30,33 +47,17 @@ class AuthService {
             },
             method: 'POST',
         }).then((response) => {
-            return response.json();
-        }).then((response: AuthPayload) => {
-            if (response.success) {
-                document.cookie = JSON.stringify({
-                    token: response.token
-                });
+            if (!response.ok) {
+                throw Error(response.statusText);
             }
 
-            return response;
-        });
-    }
-
-    public setUser(user_id: number) {
-        return fetch('api/users/' + user_id, {
-            headers: {
-                'Authorization': 'Bearer ' + this.getToken(),
-                'Content-Type': 'application/json',
-            },
-            method: 'GET',
-        }).then((response) => {
             return response.json();
-        }).then((response: User) => {
-            const cookie = JSON.parse(document.cookie);
+        }).then((response) => {
+            TokenService.setToken(response.token);
 
-            cookie.user = response;
+            this.auth_user = response.user;
 
-            document.cookie = JSON.stringify(cookie);
+            return response;
         });
     }
 }

@@ -13,128 +13,101 @@ body, html {
 }
 
 #viewport {
-    height: calc(100% - 66px);
+    height: calc(100% - 56px);
 }
 
-.w3-bar {
-    /*box-shadow: 0 2px 2px #212121;*/
-    border-bottom: 1px solid #424242;
-}
-
-.nav {
-}
-
-.nav-item {
-    color: #EEEEEE;
-    margin: 10px;
-}
-
-.folder {
-    border-bottom: 1px solid #9E9E9E;
-    font-size: 22px;
-    word-wrap: break-word;
-}
-
-.folder a {
-    display: block;
-    text-decoration: none;
-    width: 100%;
+.fill {
     height: 100%;
 }
 
-.folder:hover {
-    background-color: #BDBDBD;
+.blue-bar {
+    background-color: #607D8B;
+    box-shadow: 0 2px 5px rgba(0,0,0,.26);
+    color: #FAFAFA;
 }
 
-.folder-list {
-    max-width: 300px;
-    overflow-y: auto;
-    height: 100%;
-    padding: 10px;
-    float: left;
+.blue-bar a {
+    color: #FAFAFA;
 }
 
-.folder-list::-webkit-scrollbar
-{
-    width: 0px;
+.panel-blue-gray {
+    background-color: #607D8B;
+    color: #424242;
+    box-shadow: 0 2px 5px rgba(0,0,0,.26);
 }
 
-.login-form {
-    width: 500px;
-    margin: auto;
-    margin-top: 100px;
-    padding: 10px;
-    box-shadow: 0 2px 2px #212121;
+.panel-heading-blue-gray {
+    color: #FAFAFA;
+    padding: 1rem;
+    border-bottom: 1px solid #FAFAFA;
 }
 
-.login-btn {
+.panel-body-blue-gray {
+    padding: 1rem;
+}
+
+.panel-footer-blue-gray {
+    border-top: 1px solid #FAFAFA;
+    padding: 1rem;
+}
+
+.folder-list, .folder-list .folder {
+    background: none;
+    color: #424242;
+}
+
+.action-set {
+    text-align: center;
+    padding: .5rem;
+    font-size: 1rem;
+    border-top: 1px solid rgba(0,0,0,.125)
+}
+
+.folder-list a:hover, .folder-list .action:hover {
+    background-color: rgba(66,66,66,.26);
+    color: #212121;
+}
+
+.display {
+    display: inherit;
+}
+
+.fade-in {
+    animation-name: fade-in;
+    animation-duration: .75s;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0.0;
+    }
+    to {
+        opacity: 1.0;
+    }
+}
+
+.input, .input:focus {
     background-color: #424242;
-    float: right;
-}
-
-.w3-btn:hover {
+    border: 1px solid #424242;
+    border-radius: 0px;
+    color: #FAFAFA;
     box-shadow: none;
 }
 
-.w3-dark-grey {
-    background-color: #424242 !important;
+.button, .button:hover {
+    border: none;
+    border-radius: 0px;
+    color: #FAFAFA;
+    box-shadow: none;
+    animation: none;
 }
 
-.alert {
-    margin: 0px;
-}
-
-.file-list {
-    overflow-y: auto;
-    height: calc(100%);
-    padding: 10px;
+.button-primary {
+    background-color: #424242;
 }
 
 .file {
-    border: 1px solid #424242;
-    width: 240px;
-    height: 150px;
+    width: 250px;
+    height: 150-px;
     float: left;
-    margin: 10px;
-    color: #EEEEEE;
-}
-
-.file-header {
-    background-color: #424242;
-    text-align: center;
-    vertical-align: middle;
-    font-size: 40px;
-    height: 100px;
-    line-height: 100px;
-    font-family: 'Alef', "Lucida Grande", sans-serif;
-    font-style: italic;
-}
-
-.file-body {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    height: 50px;
-}
-
-.file-name, .file-action {
-}
-
-.file-action {
-}
-
-.file-name {
-    text-align: center;
-    line-height: 50px;
-    vertical-align: middle;
-    padding: 0px 10px 0px 10px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.download-btn {
-    background-color: #424242;
-    height: 35px;
-    padding: 0px 10px 0px 10px;
-    line-height: 35px;
-    margin: 7px;
 }

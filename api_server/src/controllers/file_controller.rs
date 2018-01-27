@@ -27,7 +27,7 @@ use std::fs;
 
 #[get("/users/<user_id>/folders/<folder_id>/files")]
 fn index(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+    if auth.user.id != user_id {
         return Response::build().status(Status::Unauthorized).finalize();
     }
 
@@ -62,7 +62,7 @@ fn index(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32) -> Response<'st
 
 #[get("/users/<user_id>/folders/<folder_id>/files/<file_id>")]
 fn show(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, file_id: i32) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+    if auth.user.id != user_id {
         return Response::build().status(Status::Unauthorized).finalize();
     }
 
@@ -99,7 +99,7 @@ fn show(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, file_id: i32) ->
 
 #[get("/users/<user_id>/folders/<folder_id>/files/<file_id>/download")]
 fn download(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, file_id: i32) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+    if auth.user.id != user_id {
         return Response::build().status(Status::Unauthorized).finalize();
     }
 
@@ -135,8 +135,8 @@ fn download(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, file_id: i32
 
 
 #[post("/users/<user_id>/folders/<_folder_id>/files", format="text/plain", data="<file>")]
-fn store_file(conn: DbConn, auth: Auth, user_id: i32, _folder_id: i32, file: Data) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+fn store_file(auth: Auth, user_id: i32, _folder_id: i32, file: Data) -> Response<'static> {
+    if auth.user.id != user_id {
         return Response::build().status(Status::Unauthorized).finalize();
     }
 
@@ -164,7 +164,7 @@ fn store_file(conn: DbConn, auth: Auth, user_id: i32, _folder_id: i32, file: Dat
 
 #[post("/users/<user_id>/folders/<folder_id>/files", format="application/json", data="<request>")]
 fn store(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, request: Json<file_request::Store>) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+    if auth.user.id != user_id {
         return Response::build().status(Status::Unauthorized).finalize();
     }
 
@@ -190,7 +190,7 @@ fn store(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, request: Json<f
 
 #[put("/users/<user_id>/folders/<folder_id>/files/<file_id>", data="<request>")]
 fn update(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, file_id: i32, request: Json<file_request::Store>) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+    if auth.user.id != user_id {
         return Response::build().status(Status::Unauthorized).finalize();
     }
 
@@ -227,7 +227,7 @@ fn update(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, file_id: i32, 
 
 #[delete("/users/<user_id>/folders/<folder_id>/files/<file_id>")]
 fn delete(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, file_id: i32) -> Response<'static> {
-    if auth.user.id != user_id && !auth.user.is_admin(&conn) {
+    if auth.user.id != user_id {
         return Response::build().status(Status::NotFound).finalize();
     }
 

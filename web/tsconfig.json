@@ -8,14 +8,19 @@
     "allowJs": true,
     "jsx": "react",
     "moduleResolution": "node",
-    "rootDir": "src",
+    "rootDir": ".",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": false,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "baseUrl": "src",
+    "paths": {
+        "@views/src/*": ["src/views/*"],
+        "@services/*": ["services/*"]
+    }
   },
   "exclude": [
     "node_modules",
