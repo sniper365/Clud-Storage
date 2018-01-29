@@ -111,3 +111,17 @@ body, html {
     height: 150-px;
     float: left;
 }
+
+.file-drop {
+    border-top: 1px solid rgba(0,0,0,.125);
+}
+
+.file-drop-target {
+    height: 100%;
+}
+
+.file-drop > .file-drop-target.file-drop-dragging-over-target {
+    background-color: rgba(66,66,66,.26);
+    border: 1px solid rgba(66,66,66,.26);
+    box-shadow: 0 0 3px #424242;
+}
