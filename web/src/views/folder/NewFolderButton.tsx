@@ -44,7 +44,7 @@ class NewFolderButton extends React.Component< {
 
     public render() {
         return (
-            <Col md={4} className="action" onClick={this.on_click}>
+            <Col md={4} className="action p-2" onClick={this.on_click}>
                 <img className="" src={require('../../icons/ic_create_new_folder_black_24px.svg')}/>
 
                 <Modal isOpen={this.state.modal} toggle={this.show_modal}>

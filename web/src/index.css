@@ -58,12 +58,12 @@ body, html {
 
 .action-set {
     text-align: center;
-    padding: .5rem;
+    /*padding: .5rem;*/
     font-size: 1rem;
     border-top: 1px solid rgba(0,0,0,.125)
 }
 
-.folder-list a:hover, .folder-list .action:hover {
+.folder-list a:hover, .action-set .action:hover {
     background-color: rgba(66,66,66,.26);
     color: #212121;
 }
