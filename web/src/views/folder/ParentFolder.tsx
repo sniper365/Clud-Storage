@@ -41,7 +41,7 @@ class ParentFolder extends React.Component<{ root: number }, { root?: FolderMode
     public render() {
         if ( this.state.root && this.state.root.parent_id ) {
             return (
-                <Link to={"/folders/" + this.state.root.parent_id} className="col-md-8 action">
+                <Link to={"/folders/" + this.state.root.parent_id} className="col-md-8 action p-2">
                 <img className="" src={require('../../icons/ic_arrow_upward_black_24px.svg')}/>
                 </Link>
             );
