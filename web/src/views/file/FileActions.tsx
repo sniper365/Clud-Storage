@@ -57,7 +57,7 @@ class File extends React.Component<{ file: FileModel }, { is_open: boolean, down
                 </DropdownToggle>
 
                 <DropdownMenu className="s-dropdown-menu">
-                    <DropdownItem className="dropdown-item" onClick={this.download}>
+                    <DropdownItem className="s-dropdown-item" onClick={this.download}>
                         Download
                     </DropdownItem>
                 </DropdownMenu>
