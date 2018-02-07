@@ -3,35 +3,14 @@ import * as React from "react";
 import AuthService from "../../services/Auth";
 import TokenService from "../../services/Token";
 
-import { File as FileModel } from "../../models/File";
-
-import FileSetItem from "./FileSetItem";
-
-import NewFileButton from "./NewFileButton";
-
-class FileSet extends React.Component<{ root: number }, { files: FileModel[] }> {
-    private uploading;
-
+class NewFileButton extends React.Component<{ root: number, onUpload: Function }, {  }> {
     constructor() {
         super();
 
-        this.state = {
-            files: [],
-        };
-
-        this.load = this.load.bind(this);
         this.upload = this.upload.bind(this);
-
-        this.load();
     }
 
     public upload(files) {
-        if(this.uploading) {
-            return;
-        }
-
-        this.uploading = true;
-
         AuthService.user().then((user) => {
             const path = "/api/users/" + user.user_id + "/folders/" + this.props.root + '/files';
 
@@ -46,9 +25,6 @@ class FileSet extends React.Component<{ root: number }, { files: FileModel[] }> 
                 }).then((response) => {
                     return response.text();
                 }).then((response) => {
-                    console.log(files[i]);
-                    console.log(response);
-
                     let file_name = files[i].name.split('.');
 
                     fetch(path, {
@@ -65,43 +41,23 @@ class FileSet extends React.Component<{ root: number }, { files: FileModel[] }> 
                     }).then((response) => {
                         return response.json();
                     }).then((response) => {
-                        this.load();
+                        this.props.onUpload();
                     });
                 });
             }
-        });
-
-        this.uploading = false;
-    }
-
-    public load() {
-        AuthService.user().then((user) => {
-            const path = "/api/users/" + user.user_id + "/folders/" + this.props.root + '/files';
-
-            fetch(path, {
-                headers: {
-                    'Authorization': 'Bearer ' + TokenService.getToken(),
-                    'Content-Type': 'application/json'
-                }
-            }).then((response) => {
-                return response.json();
-            }).then((response: FileModel[]) => {
-                this.setState({
-                    files: response
-                });
-            });
         });
     }
 
     public render() {
         return (
-            <div className="file-set">
-                {this.state.files.map( file => <FileSetItem file={file} key={file.file_id}/> )}
-
-                <NewFileButton root={this.props.root} onUpload={this.load}/>
+            <div>
+                <label htmlFor="new-file-button" className="s-floating-action-button button">
+                    <img height="100%" className="s-floading-action-image" src={require('../../icons/ic_add_black_24px.svg')}/>
+                </label>
+                <input id="new-file-button" type="file" hidden multiple onChange={(e) => this.upload(e.target.files)}/>
             </div>
         );
     }
 }
 
-export default FileSet;
+export default NewFileButton;

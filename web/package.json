@@ -17,7 +17,7 @@
     "react-cookie": "^2.1.1",
     "react-dom": "^16.0.0",
     "react-file-download": "^0.3.5",
-    "react-file-drop": "^0.1.9",
+    "react-file-drop": "https://github.com/sarink/react-file-drop.git",
     "react-portal": "^4.0.0",
     "react-redux": "^5.0.6",
     "react-router": "^4.2.0",

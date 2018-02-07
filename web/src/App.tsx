@@ -34,6 +34,14 @@ class App extends React.Component<{}, {}> {
 
             <Switch>
                 <Route path="/login" component={Login} />
+                <Route path="/logout" render={ () => {
+                    AuthService.logout();
+
+                    return (
+                        <Redirect to="/login" />
+                    )
+                }}/>
+                <PrivateRoute path="/settings" component={Viewport} />
                 <PrivateRoute path="" component={Viewport} />
                 <PrivateRoute path="/folders/:folder_id" component={Viewport} />
             </Switch>

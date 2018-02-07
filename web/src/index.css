@@ -35,7 +35,19 @@ input {
     z-index: 1035;
 }
 
-.top-bar a {
+.s-navbar-brand, .s-navbar-brand:hover {
+    color: rgba(250, 250, 250, 1);
+}
+
+.s-nav-item {
+    color: rgba(250, 250, 250, .50);
+}
+
+.s-nav-item-active {
+    color: rgba(250, 250, 250, 1);
+}
+
+.s-nav-item:hover {
     color: rgba(250, 250, 250, 1);
 }
 
@@ -136,6 +148,7 @@ input {
 
 .file-set {
     overflow-y: scroll;
+    height: 100%;
 }
 
 .file {
@@ -212,5 +225,22 @@ input {
 
 .s-dropdown-item:hover {
     background-color: #FF5722;
-    color: rgba(33, 33, 33, .87);
+    color: rgba(250, 250, 250, .87);
+}
+
+.s-floating-action-button, .s-floating-action-button:hover {
+    background-color: #FF5722;
+    padding: .75rem;
+    position: absolute;
+    bottom: 2rem;
+    right: 3rem;
+    border-radius: 50%;
+    width: 4rem;
+    height: 4rem;
+    box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2),
+    0px 6px 10px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+}
+
+.s-floating-action-image {
 }
