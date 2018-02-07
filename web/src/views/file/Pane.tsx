@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { Col } from 'reactstrap';
 
-import FileList from './FileList';
+import FileSet from './FileSet';
 
 class Pane extends React.Component<{ root: number }, {  }> {
     constructor() {
@@ -12,7 +12,7 @@ class Pane extends React.Component<{ root: number }, {  }> {
     public render() {
         return (
             <Col md={10} className="fill p-0">
-                <FileList root={this.props.root}/>
+                <FileSet root={this.props.root}/>
             </Col>
         );
     }

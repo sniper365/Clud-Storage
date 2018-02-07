@@ -11,7 +11,7 @@ class Folder extends React.Component<{ folder: FolderModel }, {}> {
 
     public render() {
         return (
-            <Link to={"/folders/" + this.props.folder.folder_id} className="list-group-item folder">
+            <Link to={"/folders/" + this.props.folder.folder_id} className="list-group-item folder fade-in">
                 <img className="" src={require('../../icons/ic_folder_black_24px.svg')}/>&nbsp;&nbsp;{this.props.folder.name}
             </Link>
         );

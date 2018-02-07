@@ -16,24 +16,33 @@ body, html {
     height: calc(100% - 56px);
 }
 
+input {
+    background: transparent;
+    border: none;
+    color: rgba(250, 250, 250, .87);
+}
+
 .fill {
     height: 100%;
 }
 
-.blue-bar {
+.top-bar {
     background-color: #607D8B;
-    box-shadow: 0 2px 5px rgba(0,0,0,.26);
-    color: #FAFAFA;
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.24),
+    0px 4px 5px 0px rgba(0, 0, 0, 0.22),
+    0px 1px 10px 0px rgba(0, 0, 0, 0.2);
+    color: rgba(250, 250, 250, 1);
+    z-index: 1035;
 }
 
-.blue-bar a {
-    color: #FAFAFA;
+.top-bar a {
+    color: rgba(250, 250, 250, 1);
 }
 
 .panel-blue-gray {
     background-color: #607D8B;
-    color: #424242;
-    box-shadow: 0 2px 5px rgba(0,0,0,.26);
+    color: rgba(250, 250, 250, .87);
+    box-shadow: 0 2px 5px rgba(0,0,0,.75);
 }
 
 .panel-heading-blue-gray {
@@ -51,6 +60,12 @@ body, html {
     padding: 1rem;
 }
 
+.s-nav {
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
+    0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+}
+
 .folder-list, .folder-list .folder {
     background: none;
     color: #424242;
@@ -58,7 +73,6 @@ body, html {
 
 .action-set {
     text-align: center;
-    /*padding: .5rem;*/
     font-size: 1rem;
     border-top: 1px solid rgba(0,0,0,.125)
 }
@@ -74,7 +88,7 @@ body, html {
 
 .fade-in {
     animation-name: fade-in;
-    animation-duration: .75s;
+    animation-duration: .3s;
 }
 
 @keyframes fade-in {
@@ -83,6 +97,20 @@ body, html {
     }
     to {
         opacity: 1.0;
+    }
+}
+
+.slide-in {
+    animation-name: slide-in;
+    animation-duration: .1s;
+}
+
+@keyframes slide-in {
+    from {
+        right: 100%;
+    }
+    to {
+        right: 0%;
     }
 }
 
@@ -106,10 +134,48 @@ body, html {
     background-color: #424242;
 }
 
+.file-set {
+    overflow-y: scroll;
+}
+
 .file {
-    width: 250px;
-    height: 150-px;
+    width: 15rem;
     float: left;
+    background-color: #424242;
+    margin: 2.5rem 1.5rem 2.5rem 1.5rem;
+    box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.2),
+    0px 2px 2px 0px rgba(0, 0, 0, 0.14),
+    0px 3px 1px -2px rgba(0, 0, 0, 0.12);
+}
+
+.file-header {
+    width: 100%;
+    height: 9rem;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.file-body {
+    height: 3rem;
+    width: 100%;
+    background-color: #607D8B;
+    vertical-align: middle;
+    text-overflow: ellipsis;
+}
+
+.file-name {
+    color: rgba(250, 250, 250, .87);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 100%;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.file-actions {
+    height: 100%;
+    width: 100%;
 }
 
 .file-drop {
@@ -121,7 +187,18 @@ body, html {
 }
 
 .file-drop > .file-drop-target.file-drop-dragging-over-target {
-    background-color: rgba(66,66,66,.26);
-    border: 1px solid rgba(66,66,66,.26);
-    box-shadow: 0 0 3px #424242;
+    background-color: rgba(66,66,66,.13);
+}
+
+.s-dropdown-menu {
+    border-radius: 0;
+    padding: 0;
+    background-color: #424242;
+}
+
+.s-dropdown-toggle, .s-dropdown-toggle:hover, .s-dropdown-toggle:active {
+    background: none;
+    padding-left: 0px;
+    padding-right: 0px;
+    width: 100%;
 }

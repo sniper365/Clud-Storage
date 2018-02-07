@@ -3,6 +3,7 @@ import * as React from "react";
 import AuthService from "../services/Auth";
 
 import Nav from "./folder/Nav";
+import Pane from "./file/Pane";
 
 class HomeView extends React.Component<{ }, { root?: number}> {
     constructor() {
@@ -23,6 +24,8 @@ class HomeView extends React.Component<{ }, { root?: number}> {
         return (
             <div className="row fill">
                 { this.state.root && <Nav root={this.state.root}/> }
+
+                { this.state.root && <Pane root={this.state.root}/> }
             </div>
         );
     }

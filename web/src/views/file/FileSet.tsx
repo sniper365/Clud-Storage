@@ -7,7 +7,9 @@ import { File as FileModel } from "../../models/File";
 
 import FileDrop from 'react-file-drop';
 
-class FileList extends React.Component<{ root: number }, { files: FileModel[] }> {
+import FileSetItem from "./FileSetItem";
+
+class FileSet extends React.Component<{ root: number }, { files: FileModel[] }> {
     constructor() {
         super();
 
@@ -83,11 +85,11 @@ class FileList extends React.Component<{ root: number }, { files: FileModel[] }>
 
     public render() {
         return (
-            <FileDrop className="fill" frame={document} onDrop={this.upload}>
-                aaaa
+            <FileDrop className="fill file-set pl-3" frame={document} onDrop={this.upload} targetAlwaysVisible={true}>
+                {this.state.files.map( file => <FileSetItem file={file} key={file.file_id}/> )}
             </FileDrop>
         );
     }
 }
 
-export default FileList;
+export default FileSet;

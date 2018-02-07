@@ -36,8 +36,6 @@ class LoginForm extends React.Component<
     }
 
     public login( e: React.MouseEvent<HTMLButtonElement> ) {
-        e.preventDefault();
-
         this.setState({
             pending: true,
         });
@@ -69,7 +67,7 @@ class LoginForm extends React.Component<
                     <Input id="password" type="password" className="input" onChange={this.set_password}/>
                 </FormGroup>
 
-                <Button className="button button-primary float-right" onClick={this.login} type="submit">
+                <Button className="button button-primary float-right" onClick={this.login}>
                     {this.state.pending ? 'Logging In...' : 'Login'}
                 </Button>
 

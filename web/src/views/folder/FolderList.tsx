@@ -43,7 +43,7 @@ class FolderList extends React.Component<{ root: number }, { folders: FolderMode
 
     public render() {
         return (
-            <ListGroup flush={true} className="folder-list fade-in">
+            <ListGroup flush={true} className="folder-list">
                 {this.state.folders.map( folder => <Folder folder={folder} key={folder.folder_id}/> )}
             </ListGroup>
         );

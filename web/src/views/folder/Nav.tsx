@@ -15,7 +15,7 @@ class Nav extends React.Component<{ root: number }, { }> {
 
     public render() {
         return (
-            <Col md={2} className="fill p-0">
+            <Col md={2} className="fill p-0 s-nav">
                 <Container className="action-set">
                     <Row>
                         <ParentFolder root={this.props.root}/>

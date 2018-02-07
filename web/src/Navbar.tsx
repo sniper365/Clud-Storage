@@ -8,7 +8,7 @@ class Nav extends React.Component<{}, { }> {
 
     public render() {
         return (
-            <Navbar className="blue-bar box-shadow-bottom">
+            <Navbar className="top-bar box-shadow-bottom">
                     <NavbarBrand href="/">
                         Storage
                     </NavbarBrand>
