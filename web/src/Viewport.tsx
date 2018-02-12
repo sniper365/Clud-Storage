@@ -3,6 +3,7 @@ import { Route, Switch } from "react-router-dom";
 
 import FolderView from "./views/Folder";
 import HomeView from "./views/Home";
+import SettingsView from "./views/Settings";
 
 class Viewport extends React.Component<{}, { }> {
     constructor() {
@@ -15,6 +16,10 @@ class Viewport extends React.Component<{}, { }> {
                 <Switch>
                     <Route path="/folders/:folder_id" component={({ match }) => (
                         <FolderView root={match.params.folder_id}/>
+                    )}/>
+
+                    <Route path="/settings" component={() => (
+                        <SettingsView/>
                     )}/>
 
                     <Route path="" component={() => (

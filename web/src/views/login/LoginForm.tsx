@@ -51,7 +51,7 @@ class LoginForm extends React.Component<
     public render() {
         if ( AuthService.authenticated() ) {
             return (
-                <Redirect to="/"/>
+                <Redirect to="/home"/>
             );
         }
 

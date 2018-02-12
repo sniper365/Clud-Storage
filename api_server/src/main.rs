@@ -54,6 +54,7 @@ fn main() {
             user_controller::show,
             user_controller::store,
             user_controller::update,
+            user_controller::password,
             user_controller::delete,
             folder_controller::index,
             folder_controller::show,

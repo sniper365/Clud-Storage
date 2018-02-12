@@ -19,6 +19,6 @@ serde_derive = "1.0"
 chrono = { version = "0.4.0", features = ["serde"]}
 bcrypt = "0.1"
 rust-crypto = "^0.2"
-frank_jwt = "*"
+frank_jwt = "2.5.1"
 time = "*"
 rand = "0.3"

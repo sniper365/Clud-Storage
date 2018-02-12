@@ -41,9 +41,7 @@ class App extends React.Component<{}, {}> {
                         <Redirect to="/login" />
                     )
                 }}/>
-                <PrivateRoute path="/settings" component={Viewport} />
                 <PrivateRoute path="" component={Viewport} />
-                <PrivateRoute path="/folders/:folder_id" component={Viewport} />
             </Switch>
         </div>
       </Router>

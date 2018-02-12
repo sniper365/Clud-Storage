@@ -97,7 +97,7 @@ fn store(conn: DbConn, _admin: Admin, request: Json<user_request::Store>) -> Res
 }
 
 #[put("/users/<id>", data="<request>")]
-fn update(conn: DbConn, auth: Auth, id: i32, request: Json<user_request::Store>) -> Response<'static> {
+fn update(conn: DbConn, auth: Auth, id: i32, request: Json<user_request::Update>) -> Response<'static> {
     if auth.user.id != id && !auth.user.is_admin(&conn) {
         return Response::build().status(Status::NotFound).finalize();
     }
@@ -110,8 +110,28 @@ fn update(conn: DbConn, auth: Auth, id: i32, request: Json<user_request::Store>)
     user.name = request.0.name;
     user.email = request.0.email;
 
-    if request.0.password.trim() != "" {
+    match user.save(&conn) {
+        Ok(_) => Response::build().status(Status::NoContent).finalize(),
+        Err(_) => Response::build().status(Status::InternalServerError).finalize(),
+    }
+}
+
+#[put("/users/<id>/password", data="<request>")]
+fn password(conn: DbConn, auth: Auth, id: i32, request: Json<user_request::Password>) -> Response<'static> {
+    if auth.user.id != id && !auth.user.is_admin(&conn) {
+        return Response::build().status(Status::NotFound).finalize();
+    }
+
+    let mut user = match User::find(id, &conn) {
+        Ok(user) => user,
+        Err(_) => return Response::build().status(Status::NotFound).finalize(),
+    };
+
+    if request.0.password == request.0.password_confirmation {
         user.set_password(request.0.password);
+    }
+    else {
+        return Response::build().status(Status::PreconditionFailed).finalize()
     }
 
     match user.save(&conn) {
