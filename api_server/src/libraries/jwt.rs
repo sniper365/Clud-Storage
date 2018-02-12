@@ -1,4 +1,6 @@
-use frank_jwt::{Header, Payload, Algorithm, encode, decode, Error};
+use frank_jwt::{Header, Payload, Algorithm, encode, decode };
+
+use frank_jwt::error::Error;
 
 pub struct Token {
     user_id: i32,
