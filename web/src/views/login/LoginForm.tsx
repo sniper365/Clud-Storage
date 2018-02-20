@@ -9,8 +9,6 @@ import {
     Label,
 } from 'reactstrap';
 
-import { Redirect } from "react-router-dom";
-
 import Error from "../../models/Error";
 import Session from "../../models/Session";
 
@@ -22,7 +20,6 @@ interface Props {
 interface State {
     email: string;
     password: string;
-    authenticated: boolean;
     pending: boolean;
 }
 
@@ -35,7 +32,6 @@ class LoginForm extends React.Component<Props, State> {
         this.set_password = this.set_password.bind(this);
 
         this.state = {
-            authenticated: false,
             email: '',
             password: '',
             pending: false,
@@ -51,19 +47,15 @@ class LoginForm extends React.Component<Props, State> {
 
         AuthService.authenticate( this.state.email, this.state.password )
             .then((response) => {
-                if ( AuthService.authenticated() ) {
-                    this.setState({
-                        authenticated: true,
-                    });
+                this.setState({
+                    pending: false,
+                });
 
+                if ( AuthService.authenticated() ) {
                     if ( this.props.on_success ) {
                         this.props.on_success(response);
                     }
                 } else {
-                    this.setState({
-                        pending: false,
-                    });
-
                     if ( this.props.on_error ) {
                         this.props.on_error(response);
                     }
@@ -72,11 +64,6 @@ class LoginForm extends React.Component<Props, State> {
     }
 
     public render() {
-        if ( AuthService.authenticated() ) {
-            return (
-                <Redirect to="/home"/>
-            );
-        }
 
         return (
             <Form>

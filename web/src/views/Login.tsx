@@ -61,7 +61,7 @@ class LoginView extends React.Component<{}, State> {
                             </PanelHeader>
 
                             <PanelBody>
-                                <LoginForm on_error={this.on_error}/>
+                                <LoginForm on_success={this.on_success} on_error={this.on_error}/>
                             </PanelBody>
                         </Panel>
                     </Col>
