@@ -11,20 +11,23 @@ import {
 
 import { Redirect } from "react-router-dom";
 
+import Error from "../../models/Error";
+import Session from "../../models/Session";
+
 interface Props {
-    on_success?: (response) => void,
-    on_error?: (error) => void,
+    on_success?: (response: Session) => void;
+    on_error?: (error: Error) => void;
 }
 
 interface State {
-    email: string,
-    password: string,
-    authenticated: boolean,
-    pending: boolean,
+    email: string;
+    password: string;
+    authenticated: boolean;
+    pending: boolean;
 }
 
 class LoginForm extends React.Component<Props, State> {
-    constructor(_props) {
+    constructor(_props: Props) {
         super(_props);
 
         this.login = this.login.bind(this);
@@ -48,21 +51,20 @@ class LoginForm extends React.Component<Props, State> {
 
         AuthService.authenticate( this.state.email, this.state.password )
             .then((response) => {
-                if(AuthService.authenticated()) {
+                if ( AuthService.authenticated() ) {
                     this.setState({
                         authenticated: true,
                     });
 
-                    if(this.props.on_success) {
+                    if ( this.props.on_success ) {
                         this.props.on_success(response);
                     }
-                }
-                else {
+                } else {
                     this.setState({
                         pending: false,
                     });
 
-                    if(this.props.on_error) {
+                    if ( this.props.on_error ) {
                         this.props.on_error(response);
                     }
                 }

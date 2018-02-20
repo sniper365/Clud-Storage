@@ -3,7 +3,11 @@ import * as React from "react";
 import Nav from "./folder/Nav";
 import Pane from "./file/Pane";
 
-class FolderView extends React.Component<{ root: number }, {}> {
+interface State {
+    root: number;
+}
+
+class FolderView extends React.Component<State, {}> {
     constructor() {
         super();
     }

@@ -9,18 +9,15 @@ import { Panel, PanelBody, PanelHeader } from "../components/utils/Panel";
 
 import Error from "../components/utils/Error";
 
-import ErrorMessage from "../models/Error";
-
-interface Props {
-
-}
+import ErrorModel from "../models/Error";
+import SessionModel from "../models/Session";
 
 interface State {
-    authenticated: boolean,
-    error?: string,
+    authenticated: boolean;
+    error?: string;
 }
 
-class LoginView extends React.Component<Props, State> {
+class LoginView extends React.Component<{}, State> {
     constructor() {
         super();
 
@@ -33,16 +30,16 @@ class LoginView extends React.Component<Props, State> {
         this.on_success = this.on_success.bind(this);
     }
 
-    public on_error(error: ErrorMessage) {
+    public on_error(error: ErrorModel) {
         this.setState({
             error: error.message
         });
     }
 
-    public on_success(_response) {
+    public on_success(_response: SessionModel) {
         this.setState({
             authenticated: true
-        })
+        });
     }
 
     public render() {
