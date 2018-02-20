@@ -7,6 +7,7 @@ import { Panel, PanelBody } from "../components/utils/Panel";
 
 import SettingsList from "./settings/SettingsList";
 import UserForm from "./settings/UserForm";
+import AuthForm from "./settings/AuthForm";
 
 class Settings extends React.Component<{}, {}> {
     public render() {
@@ -21,6 +22,7 @@ class Settings extends React.Component<{}, {}> {
                                 <Switch>
                                     <Route exact path="/settings" component={UserForm}/>
                                     <Route path="/settings/me" component={UserForm}/>
+                                    <Route path="/settings/auth" component={AuthForm}/>
                                 </Switch>
                             </PanelBody>
                         </Panel>

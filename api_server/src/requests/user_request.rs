@@ -15,6 +15,7 @@ pub struct Update {
 #[derive(Deserialize)]
 pub struct Password {
     pub user_id: i64,
+    pub current_password: String,
     pub password: String,
     pub password_confirmation: String,
 }

@@ -6,6 +6,7 @@ use rocket::http::{ Status, ContentType };
 use std::io::Cursor;
 
 use rocket::Response;
+use rocket::response::Failure;
 
 use serde_json;
 
@@ -19,69 +20,69 @@ use resources::AsResource;
 use resources::folder::Folder as FolderResource;
 
 #[get("/users/<user_id>/folders")]
-fn index(conn: DbConn, auth: Auth, user_id: i32) -> Response<'static> {
+fn index(conn: DbConn, auth: Auth, user_id: i32) -> Result<Response<'static>, Failure> {
     if auth.user.id != user_id {
-        return Response::build().status(Status::Unauthorized).finalize();
+        return Err(Failure(Status::Unauthorized));
     }
 
     let folders: Vec<FolderResource> = match auth.user.folders(&conn) {
         Ok(folders) => folders.into_iter().map( | folder | {
             folder.as_resource()
         }).collect(),
-        Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
+        Err(_) => return Err(Failure(Status::InternalServerError)),
     };
 
     let response = serde_json::to_string(&folders).unwrap();
 
-    Response::build()
+    Ok(Response::build()
         .status(Status::Ok)
         .header(ContentType::JSON)
         .sized_body(Cursor::new(response))
-        .finalize()
+        .finalize())
 }
 
 #[get("/users/<user_id>/folders/<id>")]
-fn show(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static> {
+fn show(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Result<Response<'static>, Failure> {
     if auth.user.id != user_id {
-        return Response::build().status(Status::Unauthorized).finalize();
+        return Err(Failure(Status::Unauthorized));
     }
 
     let folders = match auth.user.folders(&conn) {
         Ok(folders) => folders,
-        Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
+        Err(_) => return Err(Failure(Status::InternalServerError)),
     };
 
     let found = match folders.iter().position( | folder | folder.id == id ) {
         Some(found) => folders[found].as_resource(),
-        None => return Response::build().status(Status::NotFound).finalize(),
+        None => return Err(Failure(Status::NotFound)),
     };
 
     let response = serde_json::to_string(&found).unwrap();
 
-    Response::build()
+    Ok(Response::build()
         .status(Status::Ok)
         .header(ContentType::JSON)
         .sized_body(Cursor::new(response))
-        .finalize()
+        .finalize())
 }
 
 #[get("/users/<user_id>/folders/<id>/children")]
-fn children(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static> {
+fn children(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Result<Response<'static>, Failure> {
     if auth.user.id != user_id {
-        return Response::build().status(Status::Unauthorized).finalize();
+        return Err(Failure(Status::Unauthorized));
     }
 
     let folders = match auth.user.folders(&conn) {
         Ok(folders) => folders,
-        Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
+        Err(_) => return Err(Failure(Status::InternalServerError)),
     };
 
     let found = match folders.iter().position( | folder | folder.id == id ) {
         Some(found) => match folders[found].children(&conn) {
             Ok(children) => children,
-            Err(_) => return Response::build().status(Status::InternalServerError).finalize(),
+            Err(_) => return Err(Failure(Status::InternalServerError)),
         },
-        None => return Response::build().status(Status::NotFound).finalize(),
+        None => return Err(Failure(Status::NotFound)),
     };
 
     let response: Vec<FolderResource> = found.into_iter().map( | folder | {
@@ -90,95 +91,92 @@ fn children(conn: DbConn, auth: Auth, user_id: i32, id: i32) -> Response<'static
 
     let response = serde_json::to_string(&response).unwrap();
 
-    Response::build()
+    Ok(Response::build()
         .status(Status::Ok)
         .header(ContentType::JSON)
         .sized_body(Cursor::new(response))
-        .finalize()
+        .finalize())
 }
 
 #[post("/users/<user_id>/folders", data="<request>")]
-fn store(conn: DbConn, auth: Auth, user_id: i32, request: Json<folder_request::Store>) -> Response<'static> {
+fn store(conn: DbConn, auth: Auth, user_id: i32, request: Json<folder_request::Store>) -> Result<Response<'static>, Failure> {
     if auth.user.id != user_id {
-        return Response::build().status(Status::Unauthorized).finalize();
+        return Err(Failure(Status::Unauthorized));
     }
 
     let parent = match Folder::find(request.0.parent_id, &conn) {
         Ok(parent) => {
             if parent.user_id != auth.user.id {
-                return Response::build().status(Status::Unauthorized).finalize();
+                return Err(Failure(Status::Unauthorized));
             }
 
             parent
         },
-        Err(_) => return Response::build().status(Status::BadRequest).finalize(),
+        Err(_) => return Err(Failure(Status::BadRequest)),
     };
 
     match Folder::new(request.0.name, Some(parent.id), auth.user.id).save(&conn) {
-        Ok(folder) => Response::build()
+        Ok(folder) => Ok(Response::build()
             .status(Status::Created)
             .sized_body(Cursor::new(serde_json::to_string(&folder.as_resource()).unwrap()))
-            .finalize(),
-        Err(_) => Response::build()
-            .status(Status::InternalServerError)
-            .header(ContentType::JSON)
-            .finalize()
+            .finalize()),
+        Err(_) => Err(Failure(Status::InternalServerError))
     }
 }
 
 #[put("/users/<user_id>/folders/<folder_id>", data="<request>")]
-fn update(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, request: Json<folder_request::Store>) -> Response<'static> {
+fn update(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, request: Json<folder_request::Store>) -> Result<Response<'static>, Failure> {
     if auth.user.id != user_id {
-        return Response::build().status(Status::Unauthorized).finalize();
+        return Err(Failure(Status::Unauthorized));
     }
 
     let mut folder = match Folder::find(folder_id, &conn) {
         Ok(folder) => {
             if folder.user_id != auth.user.id {
-                return Response::build().status(Status::Unauthorized).finalize();
+                return Err(Failure(Status::Unauthorized));
             }
 
             folder
         },
-        Err(_) => return Response::build().status(Status::BadRequest).finalize(),
+        Err(_) => return Err(Failure(Status::BadRequest)),
     };
 
     if folder.parent_id.is_none() {
-        return Response::build().status(Status::Forbidden).finalize()
+        return Err(Failure(Status::Forbidden))
     }
 
     folder.name = request.0.name;
     folder.parent_id = Some(request.0.parent_id);
 
     match folder.save(&conn) {
-        Ok(_) => Response::build().status(Status::NoContent).finalize(),
-        Err(_) => Response::build().status(Status::InternalServerError).finalize(),
+        Ok(_) => Ok(Response::build().status(Status::NoContent).finalize()),
+        Err(_) => Err(Failure(Status::InternalServerError)),
     }
 }
 
 #[delete("/users/<user_id>/folders/<folder_id>")]
-fn delete(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32) -> Response<'static> {
+fn delete(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32) -> Result<Response<'static>, Failure> {
     if auth.user.id != user_id {
-        return Response::build().status(Status::NotFound).finalize();
+        return Err(Failure(Status::NotFound));
     }
 
     let folder = match Folder::find(folder_id, &conn) {
         Ok(folder) => {
             if folder.user_id != auth.user.id {
-                return Response::build().status(Status::Unauthorized).finalize();
+                return Err(Failure(Status::Unauthorized));
             }
 
             folder
         },
-        Err(_) => return Response::build().status(Status::BadRequest).finalize(),
+        Err(_) => return Err(Failure(Status::BadRequest)),
     };
 
     if folder.parent_id.is_none() {
-        return Response::build().status(Status::Forbidden).finalize()
+        return Err(Failure(Status::Forbidden))
     }
 
     match folder.delete(&conn) {
-        Ok(_) => Response::build().status(Status::Accepted).finalize(),
-        Err(_) => Response::build().status(Status::InternalServerError).finalize(),
+        Ok(_) => Ok(Response::build().status(Status::Accepted).finalize()),
+        Err(_) => Err(Failure(Status::InternalServerError)),
     }
 }

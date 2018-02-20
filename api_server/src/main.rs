@@ -70,5 +70,12 @@ fn main() {
             file_controller::update,
             file_controller::delete,
         ])
+        .catch(errors![
+            error_controller::bad_request,
+            error_controller::unauthorized,
+            error_controller::forbidden,
+            error_controller::not_found,
+            error_controller::internal_server_error,
+        ])
         .launch();
 }

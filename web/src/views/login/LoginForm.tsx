@@ -11,17 +11,21 @@ import {
 
 import { Redirect } from "react-router-dom";
 
-class LoginForm extends React.Component<
-    {},
-    {
-        email: string,
-        password: string,
-        authenticated: boolean,
-        pending: boolean
-    }> {
+interface Props {
+    on_success?: (response) => void,
+    on_error?: (error) => void,
+}
 
-    constructor() {
-        super();
+interface State {
+    email: string,
+    password: string,
+    authenticated: boolean,
+    pending: boolean,
+}
+
+class LoginForm extends React.Component<Props, State> {
+    constructor(_props) {
+        super(_props);
 
         this.login = this.login.bind(this);
         this.set_email = this.set_email.bind(this);
@@ -36,15 +40,32 @@ class LoginForm extends React.Component<
     }
 
     public login( e: React.MouseEvent<HTMLButtonElement> ) {
+        e.preventDefault();
+
         this.setState({
             pending: true,
         });
 
         AuthService.authenticate( this.state.email, this.state.password )
-            .then(() => {
-                this.setState({
-                    authenticated: true,
-                });
+            .then((response) => {
+                if(AuthService.authenticated()) {
+                    this.setState({
+                        authenticated: true,
+                    });
+
+                    if(this.props.on_success) {
+                        this.props.on_success(response);
+                    }
+                }
+                else {
+                    this.setState({
+                        pending: false,
+                    });
+
+                    if(this.props.on_error) {
+                        this.props.on_error(response);
+                    }
+                }
             });
     }
 
@@ -67,7 +88,7 @@ class LoginForm extends React.Component<
                     <Input id="password" type="password" className="input" onChange={this.set_password}/>
                 </FormGroup>
 
-                <Button className="button button-primary float-right" onClick={this.login}>
+                <Button className="button button-primary float-right" type="submit" onClick={this.login}>
                     {this.state.pending ? 'Logging In...' : 'Login'}
                 </Button>
 

@@ -1,4 +1,5 @@
 import User from "../models/User";
+
 import TokenService from "./Token";
 
 class AuthService {
@@ -47,15 +48,13 @@ class AuthService {
             },
             method: 'POST',
         }).then((response) => {
-            if (!response.ok) {
-                throw Error(response.statusText);
-            }
-
             return response.json();
         }).then((response) => {
-            TokenService.setToken(response.token);
+            if(response['token'] && response['user']) {
+                TokenService.setToken(response['token']);
 
-            this.auth_user = response.user;
+                this.auth_user = response['user'];
+            }
 
             return response;
         });

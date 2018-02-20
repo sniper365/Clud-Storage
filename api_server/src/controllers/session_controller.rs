@@ -16,32 +16,27 @@ use models::session::Session;
 use libraries::jwt::Token;
 
 use rocket::Response;
+use rocket::response::Failure;
 use rocket::http::{ Status, ContentType };
 use std::io::Cursor;
 
 use resources::AsResource;
 
 #[post("/login", data="<request>")]
-fn login(conn: DbConn, request: Json<session_request::Login>) -> Response<'static> {
+fn login(conn: DbConn, request: Json<session_request::Login>) -> Result<Response<'static>, Failure> {
     use schema::users::dsl::{users, email as user_email };
 
     // Find the user in the database that they claim to be
     let user = match users.filter(user_email.eq(request.0.email))
         .first::<User>(&*conn) {
         Ok(user) => user,
-        Err(_) => return Response::build()
-            .status(Status::Unauthorized)
-            .header(ContentType::JSON)
-            .finalize(),
+        Err(_) => return Err(Failure(Status::Unauthorized)),
     };
 
     // Check their password: if it fails to encrypt: their password is unacceptable
     let matched = match verify(&request.0.password, &user.password) {
         Ok(matched) => matched,
-        Err(_) => return Response::build()
-            .status(Status::Unauthorized)
-            .header(ContentType::JSON)
-            .finalize(),
+        Err(_) => return Err(Failure(Status::Unauthorized)),
     };
 
     // If it matched: make a token of their identity and return it
@@ -50,15 +45,12 @@ fn login(conn: DbConn, request: Json<session_request::Login>) -> Response<'stati
 
         let response = Session::new(token, user);
 
-        return Response::build()
+        return Ok(Response::build()
             .status(Status::Ok)
             .header(ContentType::JSON)
             .sized_body(Cursor::new(response.as_response()))
-            .finalize();
+            .finalize());
     }
 
-    Response::build()
-        .status(Status::Unauthorized)
-        .header(ContentType::JSON)
-        .finalize()
+    Err(Failure(Status::Unauthorized))
 }
