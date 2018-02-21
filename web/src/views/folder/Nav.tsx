@@ -48,13 +48,13 @@ class Nav extends React.Component<Props, State> {
 
                 <Container className="action-set">
                     <Row>
-                        <ParentFolder root={this.props.root}/>
+                        <ParentFolder root={this.props.root} on_error={this.on_error}/>
 
                         <NewFolderButton root={this.props.root} on_save={this.on_save} on_error={this.on_error}/>
                     </Row>
                 </Container>
 
-                <FolderList root={this.props.root} on_error={this.on_error} key={Math.random()}/>
+                <FolderList root={this.props.root} key={Math.random()}/>
             </Col>
         );
     }

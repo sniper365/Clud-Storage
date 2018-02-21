@@ -52,7 +52,7 @@ class LoginForm extends React.Component<Props, State> {
                 });
 
                 if ( AuthService.authenticated() ) {
-                    this.props.on_success && this.props.on_success(response);
+                    if (this.props.on_success) { this.props.on_success(response); }
                 } else {
                     if ( this.props.on_error ) {
                         this.props.on_error(response);
@@ -62,7 +62,6 @@ class LoginForm extends React.Component<Props, State> {
     }
 
     public render() {
-
         return (
             <Form>
                 <FormGroup>

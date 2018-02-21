@@ -14,10 +14,11 @@ interface Props {
     on_error?: (error: ErrorModel) => void;
 }
 
-class NewFolderButton extends React.Component<Props, {
-            modal: boolean
-        }> {
+interface State {
+    modal: boolean;
+}
 
+class NewFolderButton extends React.Component<Props, State> {
     constructor() {
         super();
 
@@ -32,7 +33,7 @@ class NewFolderButton extends React.Component<Props, {
     }
 
     public on_click() {
-        this.props.on_click && this.props.on_click();
+        if (this.props.on_click) { this.props.on_click(); }
 
         this.show_modal();
     }
@@ -40,13 +41,13 @@ class NewFolderButton extends React.Component<Props, {
     public on_save(response: FolderModel) {
         this.show_modal();
 
-        this.props.on_save && this.props.on_save(response);
+        if (this.props.on_save) { this.props.on_save(response); }
     }
 
     public on_error(response: ErrorModel) {
         this.show_modal();
 
-        this.props.on_error && this.props.on_error(response);
+        if (this.props.on_error) { this.props.on_error(response); }
     }
 
     public show_modal() {

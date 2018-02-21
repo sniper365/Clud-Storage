@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import Nav from "./folder/Nav";
 import Pane from "./file/Pane";
+import Nav from "./folder/Nav";
 
 interface Props {
     root: number;

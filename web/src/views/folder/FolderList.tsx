@@ -6,6 +6,7 @@ import TokenService from "../../services/Token";
 import ErrorModel from "../../models/Error";
 import { Folder as FolderModel } from "../../models/Folder";
 
+import Error from "../../components/utils/Error";
 import Folder from "./Folder";
 
 import { ListGroup } from 'reactstrap';
@@ -18,6 +19,7 @@ interface Props {
 
 interface State {
     folders: FolderModel[];
+    error?: string;
 }
 
 class FolderList extends React.Component<Props, State> {
@@ -25,12 +27,19 @@ class FolderList extends React.Component<Props, State> {
         super();
 
         this.state = {
+            error: undefined,
             folders: [],
         };
 
         this.load = this.load.bind(this);
 
         this.load();
+    }
+
+    public on_error(error: ErrorModel) {
+        this.setState({
+            error: error.message
+        });
     }
 
     public load() {
@@ -46,6 +55,8 @@ class FolderList extends React.Component<Props, State> {
                 return response.json();
             }).then((response) => {
                 if (response.status_code >= 400) {
+                    this.on_error(response);
+
                     if (this.props.on_error) {
                         this.props.on_error(response);
                     }
@@ -66,9 +77,13 @@ class FolderList extends React.Component<Props, State> {
 
     public render() {
         return (
-            <ListGroup flush={true} className="folder-list">
-                {this.state.folders.map( folder => <Folder folder={folder} key={folder.folder_id}/> )}
-            </ListGroup>
+            <div>
+                {this.state.error && <Error message={this.state.error}/>}
+
+                <ListGroup flush={true} className="folder-list">
+                    {this.state.folders.map( folder => <Folder folder={folder} key={folder.folder_id}/> )}
+                </ListGroup>
+            </div>
         );
     }
 }

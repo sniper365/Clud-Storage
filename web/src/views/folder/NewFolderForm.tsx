@@ -6,14 +6,8 @@ import TokenService from "../../services/Token";
 import ErrorModel from "../../models/Error";
 import { Folder as FolderModel } from "../../models/Folder";
 
+import { Button, Form, FormGroup, Input, Label } from 'reactstrap';
 import { Panel, PanelBody, PanelHeader } from "../../components/utils/Panel";
-import {
-    Button,
-    Form,
-    FormGroup,
-    Input,
-    Label,
-} from 'reactstrap';
 
 interface Props {
     root: number;
@@ -21,7 +15,12 @@ interface Props {
     on_error?: (response: ErrorModel) => void;
 }
 
-class NewFolderForm extends React.Component<Props, { name: string, pending: boolean }> {
+interface State {
+    name: string;
+    pending: boolean;
+}
+
+class NewFolderForm extends React.Component<Props, State> {
     constructor() {
         super();
 
@@ -34,7 +33,7 @@ class NewFolderForm extends React.Component<Props, { name: string, pending: bool
         this.save = this.save.bind(this);
     }
 
-    public save(e) {
+    public save(e: React.MouseEvent<HTMLButtonElement>) {
         e.preventDefault();
 
         this.setState({
@@ -45,26 +44,25 @@ class NewFolderForm extends React.Component<Props, { name: string, pending: bool
             const path = "/api/users/" + user.user_id + "/folders/";
 
             fetch(path, {
-                method: 'post',
-                headers: {
-                    'Authorization': 'Bearer ' + TokenService.getToken(),
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({
                     name: this.state.name,
                     parent_id: Number(this.props.root),
                 }),
+                headers: {
+                    'Authorization': 'Bearer ' + TokenService.getToken(),
+                    'Content-Type': 'application/json'
+                },
+                method: 'post',
             }).then((response) => {
                 return response.json();
             }).then((response) => {
                 if (response.status_code >= 400) {
-                    this.props.on_error && this.props.on_error(response);
+                    if (this.props.on_error) { this.props.on_error(response); }
                 } else {
-                    this.props.on_save && this.props.on_save(response);
+                    if (this.props.on_save) { this.props.on_save(response); }
                 }
             });
         });
-
     }
 
     public render() {
@@ -98,6 +96,5 @@ class NewFolderForm extends React.Component<Props, { name: string, pending: bool
         });
     }
 }
-
 
 export default NewFolderForm;

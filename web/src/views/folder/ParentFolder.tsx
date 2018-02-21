@@ -1,14 +1,24 @@
 import * as React from "react";
 
-import { Folder as FolderModel } from "../../models/Folder";
-
 import AuthService from "../../services/Auth";
 import TokenService from "../../services/Token";
 
 import { Link } from "react-router-dom";
 import { Col } from 'reactstrap';
 
-class ParentFolder extends React.Component<{ root: number }, { root?: FolderModel}> {
+import ErrorModel from "../../models/Error";
+import FolderModel from "../../models/Folder";
+
+interface Props {
+    root: number;
+    on_error?: (error: ErrorModel) => void;
+}
+
+interface State {
+    root?: FolderModel;
+}
+
+class ParentFolder extends React.Component<Props, State> {
     constructor() {
         super();
 
@@ -30,10 +40,14 @@ class ParentFolder extends React.Component<{ root: number }, { root?: FolderMode
                 }
             }).then((response) => {
                 return response.json();
-            }).then((response: FolderModel) => {
-                this.setState({
-                    root: response
-                });
+            }).then((response) => {
+                if (response.status_code >= 400) {
+                    if (this.props.on_error) { this.props.on_error(response); }
+                } else {
+                    this.setState({
+                        root: response
+                    });
+                }
             });
         });
     }
@@ -49,7 +63,7 @@ class ParentFolder extends React.Component<{ root: number }, { root?: FolderMode
 
         return (
             <Col md={8} className="p-2"/>
-        )
+        );
     }
 }
 
