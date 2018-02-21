@@ -1,9 +1,10 @@
 import * as React from "react";
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
 
 import AuthService from "../../services/Auth";
-import TokenService from "../../services/Token"
+import TokenService from "../../services/Token";
+
+import ErrorModel from "../../models/Error";
+import { Folder as FolderModel } from "../../models/Folder";
 
 import { Panel, PanelBody, PanelHeader } from "../../components/utils/Panel";
 import {
@@ -14,13 +15,13 @@ import {
     Label,
 } from 'reactstrap';
 
-class NewFolderForm extends React.Component<{ root: number, onSave?: Function, match, location, history }, { name: string, pending: boolean }> {
-    static propTypes = {
-        match: PropTypes.object.isRequired,
-        location: PropTypes.object.isRequired,
-        history: PropTypes.object.isRequired
-    }
+interface Props {
+    root: number;
+    on_save?: (response: FolderModel) => void;
+    on_error?: (response: ErrorModel) => void;
+}
 
+class NewFolderForm extends React.Component<Props, { name: string, pending: boolean }> {
     constructor() {
         super();
 
@@ -56,9 +57,11 @@ class NewFolderForm extends React.Component<{ root: number, onSave?: Function, m
             }).then((response) => {
                 return response.json();
             }).then((response) => {
-                this.props.onSave && this.props.onSave();
-
-                this.props.history.push('/folders/' + response.folder_id);
+                if (response.status_code >= 400) {
+                    this.props.on_error && this.props.on_error(response);
+                } else {
+                    this.props.on_save && this.props.on_save(response);
+                }
             });
         });
 
@@ -97,4 +100,4 @@ class NewFolderForm extends React.Component<{ root: number, onSave?: Function, m
 }
 
 
-export default withRouter(NewFolderForm);
+export default NewFolderForm;

@@ -4,11 +4,17 @@ import { Col, Modal } from 'reactstrap';
 
 import NewFolderForm from "./NewFolderForm";
 
-class NewFolderButton extends React.Component< {
-            root: number,
-            onClick?: Function,
-            onSave?: Function,
-        }, {
+import ErrorModel from "../../models/Error";
+import { Folder as FolderModel } from "../../models/Folder";
+
+interface Props {
+    root: number;
+    on_click?: () => void;
+    on_save?: (response: FolderModel) => void;
+    on_error?: (error: ErrorModel) => void;
+}
+
+class NewFolderButton extends React.Component<Props, {
             modal: boolean
         }> {
 
@@ -22,18 +28,25 @@ class NewFolderButton extends React.Component< {
         this.show_modal = this.show_modal.bind(this);
         this.on_click = this.on_click.bind(this);
         this.on_save = this.on_save.bind(this);
+        this.on_error = this.on_error.bind(this);
     }
 
     public on_click() {
-        this.props.onClick && this.props.onClick();
+        this.props.on_click && this.props.on_click();
 
         this.show_modal();
     }
 
-    public on_save() {
+    public on_save(response: FolderModel) {
         this.show_modal();
 
-        this.props.onSave && this.props.onSave();
+        this.props.on_save && this.props.on_save(response);
+    }
+
+    public on_error(response: ErrorModel) {
+        this.show_modal();
+
+        this.props.on_error && this.props.on_error(response);
     }
 
     public show_modal() {
@@ -48,7 +61,7 @@ class NewFolderButton extends React.Component< {
                 <img className="" src={require('../../icons/ic_create_new_folder_black_24px.svg')}/>
 
                 <Modal isOpen={this.state.modal} toggle={this.show_modal}>
-                    <NewFolderForm root={this.props.root} onSave={this.on_save}/>
+                    <NewFolderForm root={this.props.root} on_save={this.on_save} on_error={this.on_error}/>
                 </Modal>
             </Col>
         );
