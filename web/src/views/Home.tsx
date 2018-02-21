@@ -2,8 +2,8 @@ import * as React from "react";
 
 import AuthService from "../services/Auth";
 
-import Nav from "./folder/Nav";
 import Pane from "./file/Pane";
+import Nav from "./folder/Nav";
 
 class HomeView extends React.Component<{ }, { root?: number}> {
     constructor() {

@@ -50,10 +50,10 @@ class AuthService {
         }).then((response) => {
             return response.json();
         }).then((response) => {
-            if(response['token'] && response['user']) {
-                TokenService.setToken(response['token']);
+            if (response.token && response.user) {
+                TokenService.setToken(response.token);
 
-                this.auth_user = response['user'];
+                this.auth_user = response.user;
             }
 
             return response;

@@ -1,8 +1,8 @@
 export class User {
-    email: string;
-    name: string;
-    user_id: number;
-    root: number;
+    public email: string;
+    public name: string;
+    public user_id: number;
+    public root: number;
 }
 
 export default User;

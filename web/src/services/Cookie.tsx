@@ -12,7 +12,7 @@ class Cookie {
 
         try {
             prop = JSON.parse(document.cookie)[property];
-        } catch(_) {
+        } catch (_) {
             this.destroy();
             prop = undefined;
         }
@@ -29,12 +29,12 @@ class Cookie {
     }
 
     public destroy() {
-        var cookies = document.cookie.split(";");
+        const cookies = document.cookie.split(";");
 
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i];
-            var eqPos = cookie.indexOf("=");
-            var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        for (const i of cookies) {
+            const cookie = cookies[i];
+            const eqPos = cookie.indexOf("=");
+            const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
             document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
         }
     }

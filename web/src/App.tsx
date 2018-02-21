@@ -9,9 +9,9 @@ import {
 } from "react-router-dom";
 
 import Nav from "./Navbar";
+import AuthService from "./services/Auth";
 import Viewport from "./Viewport";
 import Login from "./views/Login";
-import AuthService from "./services/Auth";
 
 const PrivateRoute  = ({ component: Component, ...rest }) => (
     <Route {...rest} render={ props => (
@@ -39,7 +39,7 @@ class App extends React.Component<{}, {}> {
 
                     return (
                         <Redirect to="/login" />
-                    )
+                    );
                 }}/>
                 <PrivateRoute path="" component={Viewport} />
             </Switch>

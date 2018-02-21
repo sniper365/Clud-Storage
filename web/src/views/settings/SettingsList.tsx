@@ -22,9 +22,9 @@ class SettingsList extends React.Component<{}, { user: User }> {
 
     public load() {
         AuthService.user()
-            .then((user) => {
+            .then((auth_user) => {
                 this.setState({
-                    user: user
+                    user: auth_user
                 });
             });
     }
