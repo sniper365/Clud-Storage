@@ -13,7 +13,7 @@ import NewFileButton from "./NewFileButton";
 interface Props {
     root: number;
     on_error?: (error: ErrorModel) => void;
-    on_success?: (file: FileModel) => void;
+    on_load?: (file: FileModel[]) => void;
 }
 
 interface State {
@@ -44,10 +44,22 @@ class FileSet extends React.Component<Props, State> {
                 }
             }).then((response) => {
                 return response.json();
-            }).then((response: FileModel[]) => {
-                this.setState({
-                    files: response
-                });
+            }).then((response) => {
+                if (response.status_code >= 400) {
+                    if (this.props.on_error) {
+                        this.props.on_error(response);
+                    }
+                } else {
+                    const data: FileModel[] = response;
+
+                    this.setState({
+                        files: data
+                    });
+
+                    if (this.props.on_load) {
+                        this.props.on_load(data);
+                    }
+                }
             });
         });
     }
