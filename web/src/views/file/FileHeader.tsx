@@ -5,7 +5,15 @@ import TokenService from "../../services/Token";
 
 import { File as FileModel } from "../../models/File";
 
-class File extends React.Component<{ file: FileModel }, { background: string }> {
+interface Props {
+    file: FileModel;
+}
+
+interface State {
+    background: string;
+}
+
+class File extends React.Component<Props, State> {
     constructor() {
         super();
 
@@ -30,14 +38,17 @@ class File extends React.Component<{ file: FileModel }, { background: string }> 
             .then((user) => {
                 const file = this.props.file;
 
-                const path = '/api/users/' + user.user_id + '/folders/' + file.folder_id + '/files/' + file.file_id + '/download';
+                const path = '/api/users/' + user.user_id +
+                    '/folders/' + file.folder_id +
+                    '/files/' + file.file_id +
+                    '/download';
 
                 fetch(path, {
-                    method: 'GET',
                     headers: {
                         'Authorization': 'Bearer ' + TokenService.getToken(),
                         'Content-Type': 'application/json'
                     },
+                    method: 'GET',
                 }).then((response) => {
                     return response.blob();
                 }).then((image) => {
@@ -51,13 +62,12 @@ class File extends React.Component<{ file: FileModel }, { background: string }> 
     }
 
     public isImage() {
-        return ['jpg', 'jpeg', 'png', 'svg', 'png'].indexOf(this.props.file.extension) != -1;
+        return ['jpg', 'jpeg', 'png', 'svg', 'png'].indexOf(this.props.file.extension) !== -1;
     }
 
     public render() {
         return (
-            <div className="file-header" style={{ backgroundImage: this.state.background }}>
-            </div>
+            <div className="file-header" style={{ backgroundImage: this.state.background }} />
         );
     }
 }

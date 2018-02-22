@@ -3,15 +3,24 @@ import * as React from "react";
 import AuthService from "../../services/Auth";
 import TokenService from "../../services/Token";
 
+import ErrorModel from "../../models/Error";
 import { File as FileModel } from "../../models/File";
 
 import FileSetItem from "./FileSetItem";
 
 import NewFileButton from "./NewFileButton";
 
-class FileSet extends React.Component<{ root: number }, { files: FileModel[] }> {
-    private uploading;
+interface Props {
+    root: number;
+    on_error?: (error: ErrorModel) => void;
+    on_success?: (file: FileModel) => void;
+}
 
+interface State {
+    files: FileModel[];
+}
+
+class FileSet extends React.Component<Props, State> {
     constructor() {
         super();
 
@@ -20,58 +29,8 @@ class FileSet extends React.Component<{ root: number }, { files: FileModel[] }> 
         };
 
         this.load = this.load.bind(this);
-        this.upload = this.upload.bind(this);
 
         this.load();
-    }
-
-    public upload(files) {
-        if(this.uploading) {
-            return;
-        }
-
-        this.uploading = true;
-
-        AuthService.user().then((user) => {
-            const path = "/api/users/" + user.user_id + "/folders/" + this.props.root + '/files';
-
-            for(let i = 0; i < files.length; i++) {
-                fetch(path, {
-                    method: 'post',
-                    headers: {
-                        'Authorization': 'Bearer ' + TokenService.getToken(),
-                        'Content-Type': 'text/plain'
-                    },
-                    body: files[i],
-                }).then((response) => {
-                    return response.text();
-                }).then((response) => {
-                    console.log(files[i]);
-                    console.log(response);
-
-                    let file_name = files[i].name.split('.');
-
-                    fetch(path, {
-                        method: 'post',
-                        headers: {
-                            'Authorization': 'Bearer ' + TokenService.getToken(),
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            extension: file_name.pop() || "text",
-                            name: file_name.join(''),
-                            file_name: response,
-                        }),
-                    }).then((response) => {
-                        return response.json();
-                    }).then((response) => {
-                        this.load();
-                    });
-                });
-            }
-        });
-
-        this.uploading = false;
     }
 
     public load() {
@@ -98,7 +57,7 @@ class FileSet extends React.Component<{ root: number }, { files: FileModel[] }> 
             <div className="file-set">
                 {this.state.files.map( file => <FileSetItem file={file} key={file.file_id}/> )}
 
-                <NewFileButton root={this.props.root} onUpload={this.load}/>
+                <NewFileButton root={this.props.root} on_upload={this.load}/>
             </div>
         );
     }

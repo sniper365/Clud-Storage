@@ -2,8 +2,8 @@ import * as React from "react";
 
 import { File as FileModel } from "../../models/File";
 
-import FileHeader from "./FileHeader";
 import FileBody from "./FileBody";
+import FileHeader from "./FileHeader";
 
 class File extends React.Component<{ file: FileModel }, { background: string }> {
     constructor() {
