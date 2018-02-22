@@ -11,15 +11,26 @@ import {
 import AuthService from "../../services/Auth";
 import TokenService from "../../services/Token";
 
-import User from "../../models/User";
+import ErrorModel from "../../models/Error";
+import { User as UserModel } from "../../models/User";
 
-class UserForm extends React.Component<{}, { user: User, pending: boolean }> {
+interface Props {
+    on_error?: (error: ErrorModel) => void;
+    on_success?: () => void;
+}
+
+interface State {
+    user: UserModel;
+    pending: boolean;
+}
+
+class UserForm extends React.Component<Props, State> {
     constructor() {
         super();
 
         this.state = {
-            user: new User(),
-            pending: false
+            pending: false,
+            user: new UserModel(),
         };
 
         this.load = this.load.bind(this);
@@ -34,30 +45,30 @@ class UserForm extends React.Component<{}, { user: User, pending: boolean }> {
         AuthService.user()
             .then((user) => {
                 this.setState({
-                    user: user
+                    'user': user
                 });
             });
     }
 
     public set_name( e: React.ChangeEvent<HTMLInputElement> ) {
-        let user = this.state.user;
+        const user = this.state.user;
         user.name = e.target.value;
 
         this.setState({
-            user: user,
+            'user': user,
         });
     }
 
     public set_email( e: React.ChangeEvent<HTMLInputElement> ) {
-        let user = this.state.user;
+        const user = this.state.user;
         user.email = e.target.value;
 
         this.setState({
-            user: user,
+            'user': user,
         });
     }
 
-    public save(e) {
+    public save(e: React.MouseEvent<HTMLInputElement>) {
         e.preventDefault();
 
         this.setState({
@@ -68,20 +79,32 @@ class UserForm extends React.Component<{}, { user: User, pending: boolean }> {
             const path = "/api/users/" + user.user_id;
 
             fetch(path, {
-                method: 'put',
+                body: JSON.stringify({
+                    email: this.state.user.email,
+                    name: this.state.user.name,
+                    user_id: user.user_id,
+                }),
                 headers: {
                     'Authorization': 'Bearer ' + TokenService.getToken(),
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    user_id: user.user_id,
-                    name: this.state.user.name,
-                    email: this.state.user.email,
-                }),
+                method: 'put',
+            }).then((response) => {
+                if (response.ok) {
+                    return response;
+                }
+
+                return response.json();
             }).then((response) => {
                 this.setState({
                     pending: false
                 });
+
+                if (response.status_code >= 400) {
+                    if (this.props.on_error) { this.props.on_error(response); }
+                } else {
+                    if (this.props.on_success) { this.props.on_success(); }
+                }
             });
         });
     }
@@ -91,15 +114,26 @@ class UserForm extends React.Component<{}, { user: User, pending: boolean }> {
             <Form>
                 <FormGroup>
                     <Label htmlFor="name">Name</Label>
-                    <Input id="name" type="text" className="input" value={this.state.user && this.state.user.name} onChange={this.set_name}/>
+                    <Input id="name"
+                        type="text"
+                        className="input"
+                        value={this.state.user && this.state.user.name}
+                        onChange={this.set_name}
+                    />
                 </FormGroup>
 
                 <FormGroup>
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="text" className="input" value={this.state.user && this.state.user.email} onChange={this.set_email}/>
+                    <Input
+                        id="email"
+                        type="text"
+                        className="input"
+                        value={this.state.user && this.state.user.email}
+                        onChange={this.set_email}
+                    />
                 </FormGroup>
 
-                <Button className="button button-primary float-right" onClick={this.save}>
+                <Button className="button button-primary float-right" type="submit" onClick={this.save}>
                     {this.state.pending ? "Saving..." : "Save"}
                 </Button>
 

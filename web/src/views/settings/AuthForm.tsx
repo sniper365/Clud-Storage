@@ -11,15 +11,29 @@ import {
 import AuthService from "../../services/Auth";
 import TokenService from "../../services/Token";
 
-class AuthForm extends React.Component<{}, {pending: boolean, curr_password: string, new_password: string, conf_password: string}> {
+import ErrorModel from "../../models/Error";
+
+interface Props {
+    on_error?: (error: ErrorModel) => void;
+    on_success?: () => void;
+}
+
+interface State {
+    pending: boolean;
+    curr_password: string;
+    new_password: string;
+    conf_password: string;
+}
+
+class AuthForm extends React.Component<Props, State> {
     constructor() {
         super();
 
         this.state = {
-            pending: false,
+            conf_password: "",
             curr_password: "",
             new_password: "",
-            conf_password: ""
+            pending: false,
         };
 
         this.set_curr_password = this.set_curr_password.bind(this);
@@ -46,7 +60,7 @@ class AuthForm extends React.Component<{}, {pending: boolean, curr_password: str
         });
     }
 
-    public save(e) {
+    public save(e: React.MouseEvent<HTMLInputElement>) {
         e.preventDefault();
 
         this.setState({
@@ -57,21 +71,33 @@ class AuthForm extends React.Component<{}, {pending: boolean, curr_password: str
             const path = "/api/users/" + user.user_id + "/password";
 
             fetch(path, {
-                method: 'put',
+                body: JSON.stringify({
+                    current_password: this.state.curr_password,
+                    password: this.state.new_password,
+                    password_confirmation: this.state.conf_password,
+                    user_id: user.user_id,
+                }),
                 headers: {
                     'Authorization': 'Bearer ' + TokenService.getToken(),
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    user_id: user.user_id,
-                    current_password: this.state.curr_password,
-                    password: this.state.new_password,
-                    password_confirmation: this.state.conf_password
-                }),
+                method: 'put',
+            }).then((response) => {
+                if (response.ok) {
+                    return response;
+                }
+
+                return response.json();
             }).then((response) => {
                 this.setState({
                     pending: false
                 });
+
+                if (response.status_code >= 400) {
+                    if (this.props.on_error) { this.props.on_error(response); }
+                } else {
+                    if (this.props.on_success) { this.props.on_success(); }
+                }
             });
         });
     }
@@ -114,7 +140,7 @@ class AuthForm extends React.Component<{}, {pending: boolean, curr_password: str
                     />
                 </FormGroup>
 
-                <Button className="button button-primary float-right" onClick={this.save}>
+                <Button className="button button-primary float-right" type="submit" onClick={this.save}>
                     {this.state.pending ? "Saving..." : "Save"}
                 </Button>
 
