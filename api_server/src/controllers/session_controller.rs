@@ -27,7 +27,7 @@ fn login(conn: DbConn, request: Json<session_request::Login>) -> Result<Response
     use schema::users::dsl::{users, email as user_email };
 
     // Find the user in the database that they claim to be
-    let user = match users.filter(user_email.eq(request.0.email))
+    let user = match users.filter(user_email.eq(request.0.email.to_lowercase()))
         .first::<User>(&*conn) {
         Ok(user) => user,
         Err(_) => return Err(Failure(Status::Unauthorized)),

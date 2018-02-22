@@ -62,7 +62,7 @@ fn show(conn: DbConn, auth: Auth, id: i32) -> Result<Response<'static>, Failure>
 
 #[post("/users", data="<request>")]
 fn store(conn: DbConn, _admin: Admin, request: Json<user_request::Store>) -> Result<Response<'static>, Failure> {
-    let new_user = User::new(request.0.name, request.0.email, request.0.password, None);
+    let new_user = User::new(request.0.name, request.0.email.to_lowercase(), request.0.password, None);
 
     let mut user = match new_user.save(&conn) {
         Ok(user) => user,
@@ -105,7 +105,7 @@ fn update(conn: DbConn, auth: Auth, id: i32, request: Json<user_request::Update>
     };
 
     user.name = request.0.name;
-    user.email = request.0.email;
+    user.email = request.0.email.to_lowercase();
 
     match user.save(&conn) {
         Ok(_) => Ok(Response::build().status(Status::NoContent).finalize()),
