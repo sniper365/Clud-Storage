@@ -7,7 +7,7 @@ use std::io::Cursor;
 
 #[derive(Serialize)]
 struct ErrorResponse {
-    pub status_code: i32,
+    pub status_code: u16,
     pub message: String
 }
 
