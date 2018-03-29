@@ -1,3 +1,6 @@
-docker-compose.yml
-/api_server/.env
-/api_server/storage/*
+/.env
+/storage/*
+frontend/node_modules/*
+target/*
+
+Cargo.lock
