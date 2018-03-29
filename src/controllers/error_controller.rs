@@ -21,7 +21,7 @@ fn bad_request(_req: &Request) -> Response<'static> {
     let response = serde_json::to_string(&error).unwrap();
 
     Response::build()
-        .status(Status::NotFound)
+        .status(Status::BadRequest)
         .header(ContentType::JSON)
         .sized_body(Cursor::new(response))
         .finalize()
@@ -37,7 +37,7 @@ fn unauthorized(_req: &Request) -> Response<'static> {
     let response = serde_json::to_string(&error).unwrap();
 
     Response::build()
-        .status(Status::NotFound)
+        .status(Status::Unauthorized)
         .header(ContentType::JSON)
         .sized_body(Cursor::new(response))
         .finalize()
@@ -53,7 +53,7 @@ fn forbidden(_req: &Request) -> Response<'static> {
     let response = serde_json::to_string(&error).unwrap();
 
     Response::build()
-        .status(Status::NotFound)
+        .status(Status::Forbidden)
         .header(ContentType::JSON)
         .sized_body(Cursor::new(response))
         .finalize()
@@ -85,7 +85,7 @@ fn internal_server_error(_req: &Request) -> Response<'static> {
     let response = serde_json::to_string(&error).unwrap();
 
     Response::build()
-        .status(Status::NotFound)
+        .status(Status::InternalServerError)
         .header(ContentType::JSON)
         .sized_body(Cursor::new(response))
         .finalize()

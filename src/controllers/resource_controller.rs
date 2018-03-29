@@ -26,10 +26,7 @@ pub fn resource(path: PathBuf) -> Result<Response<'static>, Failure> {
 
     let file = match File::open(format!("frontend/build/{path}", path = path)) {
         Ok(file) => file,
-        Err(_) => match File::open(format!("frontend/build/index.html")) {
-            Ok(file) => file,
-            Err(_) => return Err(Failure(Status::NotFound)),
-        },
+        Err(_) => return Err(Failure(Status::NotFound)),
     };
 
     Ok(Response::build()
