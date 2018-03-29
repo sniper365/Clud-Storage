@@ -11,3 +11,4 @@ Cargo.lock
 
 .env
 storage/*
+node_modules/*

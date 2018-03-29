@@ -48,6 +48,10 @@ fn main() {
 
     rocket::ignite()
         .manage(pg_pool::init(&database_url))
+        .mount("/", routes![
+            resource_controller::index,
+            resource_controller::resource,
+        ])
         .mount("/api", routes![
             session_controller::login,
             user_controller::index,

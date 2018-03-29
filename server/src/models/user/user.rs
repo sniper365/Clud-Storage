@@ -62,7 +62,8 @@ impl User {
             .set((
                 name.eq(&self.name),
                 email.eq(&self.email),
-                password.eq(&self.password)
+                password.eq(&self.password),
+                root.eq(&self.root)
             ))
             .get_result(conn.deref())
     }
