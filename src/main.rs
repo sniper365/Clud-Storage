@@ -51,6 +51,7 @@ fn main() {
         .mount("/", routes![
             resource_controller::index,
             resource_controller::resource,
+            resource_controller::api_resource,
         ])
         .mount("/api", routes![
             session_controller::login,
