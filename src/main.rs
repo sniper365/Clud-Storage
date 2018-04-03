@@ -35,6 +35,7 @@ mod guards;
 mod requests;
 mod libraries;
 mod resources;
+mod config;
 
 use dotenv::dotenv;
 use std::env;

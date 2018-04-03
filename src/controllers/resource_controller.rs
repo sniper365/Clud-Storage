@@ -3,16 +3,12 @@ use rocket::response::Failure;
 use rocket::http::Status;
 use std::fs::File;
 use std::path::PathBuf;
-use std::env;
+
+use config;
 
 #[get("/", rank = 4)]
 pub fn index() -> Result<Response<'static>, Failure> {
-    let index = match env::var("APP_INDEX") {
-        Ok(var) => var,
-        Err(_) => String::from("index.html"),
-    };
-
-    let file = match File::open(format!("frontend/build/{index}", index = index)) {
+    let file = match File::open(format!("{}/{}", config::build_dir(), config::app_index())) {
         Ok(file) => file,
         Err(_) => return Err(Failure(Status::NotFound)),
     };
@@ -35,15 +31,10 @@ pub fn resource(path: PathBuf) -> Result<Response<'static>, Failure> {
         None => return Err(Failure(Status::NotFound)),
     };
 
-    let file = match File::open(format!("frontend/build/{path}", path = path)) {
+    let file = match File::open(format!("{}/{path}", config::build_dir(), path = path)) {
         Ok(file) => file,
         Err(_) => {
-            let index = match env::var("APP_INDEX") {
-                Ok(var) => var,
-                Err(_) => String::from("index.html"),
-            };
-
-            match File::open(format!("frontend/build/{index}", index = index)) {
+            match File::open(format!("{}/{}", config::build_dir(), config::app_index())) {
                 Ok(file) => file,
                 Err(_) => return Err(Failure(Status::NotFound)),
             }

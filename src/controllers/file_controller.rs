@@ -26,6 +26,8 @@ use rand;
 use rand::Rng;
 use std::fs;
 
+use config;
+
 #[get("/users/<user_id>/folders/<folder_id>/files")]
 fn index(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32) -> Result<Response<'static>, Failure> {
     if auth.user.id != user_id {
@@ -126,7 +128,7 @@ fn download(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, file_id: i32
         None => return Err(Failure(Status::NotFound)),
     };
 
-    let path = format!("storage/{user_id}/{file_name}", user_id = user_id, file_name = &found.file_name);
+    let path = format!("{}/{user_id}/{file_name}", config::storage_dir(), user_id = user_id, file_name = &found.file_name);
 
     Ok(Response::build()
         .status(Status::Ok)
@@ -150,7 +152,7 @@ fn store_file(auth: Auth, user_id: i32, _folder_id: i32, file: Data) -> Result<R
 
     let file_name = format!("{timestamp}{random_bytes}", timestamp = timestamp.rfc3339(), random_bytes = random_bytes);
 
-    let path = format!("storage/{user_id}/{file_name}", user_id = user_id, file_name = &file_name);
+    let path = format!("{}/{user_id}/{file_name}", config::storage_dir(), user_id = user_id, file_name = &file_name);
 
     match file.stream_to_file(Path::new(&path)) {
         Ok(_) => Ok(Response::build()
@@ -167,7 +169,7 @@ fn store(conn: DbConn, auth: Auth, user_id: i32, folder_id: i32, request: Json<f
         return Err(Failure(Status::Unauthorized));
     }
 
-    let path = format!("storage/{user_id}/{file_name}", user_id = user_id, file_name = request.0.file_name);
+    let path = format!("{}/{user_id}/{file_name}", config::storage_dir(), user_id = user_id, file_name = request.0.file_name);
 
     if !Path::new(&path).exists() {
         return Err(Failure(Status::NotFound));
