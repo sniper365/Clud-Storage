@@ -36,8 +36,8 @@ This is important because if it cannot connect to the database, or it mismatches
 
 - APP_INDEX (Optional): If you don't want to serve up `index.html` or your file is named something else.
 
-### TODO List:
-- Prettier pre-installed frontend; I went with an idea that worked, doesn't mean I like it. Also doesn't mean I didn't make obvious design flaws. 
+## TODO List:
+- Prettier pre-installed frontend; I went with an idea that worked, doesn't mean I like it. Also doesn't mean I didn't make obvious design flaws.
 
 - Configurable and multiple storage locations. All of the contents of the application should not need to be in one folder. This is a blatant violation of the DIP.
 
