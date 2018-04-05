@@ -41,7 +41,7 @@ This is important because if it cannot connect to the database, or it mismatches
 ## TODO List:
 - Prettier pre-installed frontend; I went with an idea that worked, doesn't mean I like it. Also doesn't mean I didn't make obvious design flaws.
 
-- Configurable and multiple storage locations. All of the contents of the application should not need to be in one folder. This is a blatant violation of the DIP.
+- Configurable✔ and multiple storage locations. All of the contents of the application should not need to be in one folder.
 
 - MySQL. Most people use MySQL, Postgres is just my personal favorite. Should be able to connect to MySQL database.
 
