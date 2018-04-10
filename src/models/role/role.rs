@@ -12,18 +12,14 @@ use diesel::LoadDsl;
 use diesel::result::Error;
 
 use models::role_user::RoleUser;
+use models::role::new_role::NewRole;
 
-#[derive(Queryable, Associations, Identifiable, Serialize)]
+#[derive(Queryable, Associations, Identifiable, Serialize, Clone)]
 #[table_name = "roles"]
+#[belongs_to(RoleUser)]
 pub struct Role {
     pub id: i32,
     pub name: Option<String>,
-}
-
-#[derive(Insertable)]
-#[table_name = "roles"]
-pub struct NewRole {
-    pub name: String,
 }
 
 impl Role {
@@ -52,18 +48,5 @@ impl Role {
         diesel::update(roles.find(&self.id))
             .set(name.eq(&self.name))
             .get_result(conn.deref())
-    }
-}
-
-impl NewRole {
-    pub fn save(&self, conn: &DbConn) -> Result<Role, Error> {
-        use std::str::FromStr;
-        use schema::roles;
-
-        let new_role = NewRole {
-            name: String::from_str(&self.name).unwrap(),
-        };
-
-        diesel::insert(&new_role).into(roles::table).get_result(conn.deref())
     }
 }

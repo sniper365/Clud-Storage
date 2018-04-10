@@ -43,7 +43,12 @@ fn login(conn: DbConn, request: Json<session_request::Login>) -> Result<Response
     if matched {
         let token = Token::new(user.id, user.name.clone());
 
-        let response = Session::new(token, user);
+        let roles = match user.roles(&conn) {
+            Ok(roles) => roles,
+            Err(_) => return Err(Failure(Status::ServiceUnavailable))
+        };
+
+        let response = Session::new(token, user, roles);
 
         return Ok(Response::build()
             .status(Status::Ok)

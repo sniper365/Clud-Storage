@@ -13,6 +13,7 @@ impl AsResource for Session {
             user_id: self.user_id,
             token: self.token.clone(),
             user: self.user.as_resource(),
+            roles: self.roles.clone().into_iter().map(| role | role.as_resource()).collect()
         }
     }
 }

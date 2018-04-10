@@ -107,6 +107,16 @@ impl User {
         role_user.filter(user_id.eq(&self.id)).load::<RoleUser>(conn.deref())
     }
 
+    pub fn roles(&self, conn: &DbConn) -> Result<Vec<Role>, Error> {
+        let user_roles = self.role_users(conn)?;
+
+        let result: Result<Vec<_>, _> = user_roles.into_iter().map(| user_role | {
+            user_role.role(conn)
+        }).collect();
+
+        result
+    }
+
     pub fn is_admin(&self, conn: &DbConn) -> bool {
         use schema::role_user::dsl::*;
         use schema::roles::dsl::*;

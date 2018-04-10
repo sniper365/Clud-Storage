@@ -2,6 +2,7 @@ pub mod user;
 pub mod folder;
 pub mod session;
 pub mod file;
+pub mod role;
 
 use serde_json;
 use serde::Serialize;
