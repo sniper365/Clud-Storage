@@ -1,5 +1,5 @@
 [package]
-name = "api_server"
+name = "storage_server"
 version = "0.1.0"
 authors = ["Charles Bassett <chasb96@gmail.com>"]
 
