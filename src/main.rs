@@ -4,6 +4,9 @@ extern crate rocket;
 extern crate rocket_contrib;
 
 #[macro_use]
+extern crate human_panic;
+
+#[macro_use]
 extern crate serde_derive;
 
 extern crate serde_json;
@@ -43,6 +46,8 @@ use std::env;
 use controllers::*;
 
 fn main() {
+    setup_panic!();
+    
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
