@@ -11,9 +11,7 @@
 
                     <div class="flex-grow-1"></div>
 
-                    <a href="/users/create">
-                        <button class="btn btn-primary">Create</button>
-                    </a>
+                    <a href="/admin/users/create"><button class="btn btn-primary">Create</button></a>
                 </div>
 
                 <table class="table table-bordered table-hover">
@@ -27,22 +25,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for user in users %}
+                        {% for u in users %}
                             <tr class="border-top">
-                                <td scope="row">{{ user.user_id }}</td>
-                                <td>{{ user.name }}</td>
-                                <td>{{ user.email }}</td>
-                                <td>{{ user.role }}</td>
+                                <td scope="row">{{ u.user_id }}</td>
+                                <td>{{ u.name }}</td>
+                                <td>{{ u.email }}</td>
+                                <td>{{ u.role }}</td>
                                 <td class="p-2 d-flex border-0">
-                                    <a class="mr-1" href="/users/{{ user.user_id }}">
+                                    <a class="mr-1" href="/admin/users/{{ u.user_id }}">
                                         <button class="btn btn-primary btn-sm">View</button>
                                     </a>
-                                    <a class="mr-1" href="/users/{{ user.user_id }}/edit">
+                                    <a class="mr-1" href="/admin/users/{{ u.user_id }}/edit">
                                         <button class="btn btn-warning btn-sm">Modify</button>
                                     </a>
-                                    <form class="mr-1" action="/users/{{ user.user_id }}/delete" method="POST">
-                                        <button class="btn btn-danger btn-sm" type="submit">Delete</button>
-                                    </form>
+                                    {% if user.user_id != u.user_id %}
+                                        <form class="mr-1" action="/admin/users/{{ u.user_id }}/delete" method="POST">
+                                            <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                                        </form>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}

@@ -45,12 +45,18 @@ impl UserController {
         }
     }
 
-    pub fn store(user: User, name: String, email: String, password: String) -> Result<User, Error> {
+    pub fn store(
+        user: User,
+        name: String,
+        email: String,
+        role: String,
+        password: String,
+    ) -> Result<User, Error> {
         if !user.can_create::<User>() {
             return Err(Error::Forbidden);
         }
 
-        match UserService::create(name, email, password) {
+        match UserService::create(name, email, role, password) {
             Ok(user) => Ok(user),
             Err(_) => Err(Error::InternalServerError),
         }
@@ -75,6 +81,7 @@ impl UserController {
         user_id: i32,
         name: String,
         email: String,
+        role: String,
         password: String,
     ) -> Result<User, Error> {
         let conn = &DbPool::connection();
@@ -88,7 +95,7 @@ impl UserController {
             return Err(Error::Forbidden);
         }
 
-        match UserService::update(user_id, name, email, password) {
+        match UserService::update(user_id, name, email, role, password) {
             Ok(user) => Ok(user),
             Err(_) => return Err(Error::InternalServerError),
         }

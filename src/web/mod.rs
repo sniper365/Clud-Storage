@@ -39,7 +39,14 @@ pub fn boot() {
                 user::edit,
                 user::update,
                 user::delete,
-                admin::index
+                admin::home,
+                admin::user::index,
+                admin::user::show,
+                admin::user::create,
+                admin::user::store,
+                admin::user::edit,
+                admin::user::update,
+                admin::user::delete,
             ],
         )
         .register(catchers![error::unauthorized])

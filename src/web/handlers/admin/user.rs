@@ -7,7 +7,7 @@ use rocket::FromForm;
 use rocket::{get, post};
 use rocket_contrib::templates::Template;
 use serde_derive::Serialize;
-use web::guards::auth::Auth;
+use web::guards::admin::Admin;
 
 #[derive(Serialize)]
 pub struct IndexContext {
@@ -15,9 +15,9 @@ pub struct IndexContext {
     users: Vec<User>,
 }
 
-#[get("/users")]
-pub fn index(auth: Auth) -> impl Responder<'static> {
-    let user = auth.clone().user();
+#[get("/admin/users")]
+pub fn index(admin: Admin) -> impl Responder<'static> {
+    let user = admin.clone().user();
 
     let users = match UserController::index(user.clone()) {
         Ok(users) => users,
@@ -26,7 +26,7 @@ pub fn index(auth: Auth) -> impl Responder<'static> {
 
     let context = IndexContext { user, users };
 
-    Ok(Template::render("user/index", &context))
+    Ok(Template::render("admin/user/index", &context))
 }
 
 #[derive(Serialize)]
@@ -35,9 +35,9 @@ pub struct ShowContext {
     show: User,
 }
 
-#[get("/users/<user_id>")]
-pub fn show(auth: Auth, user_id: i32) -> impl Responder<'static> {
-    let user = auth.clone().user();
+#[get("/admin/users/<user_id>")]
+pub fn show(admin: Admin, user_id: i32) -> impl Responder<'static> {
+    let user = admin.clone().user();
 
     let show = match UserController::show(user.clone(), user_id) {
         Ok(user) => user,
@@ -46,7 +46,7 @@ pub fn show(auth: Auth, user_id: i32) -> impl Responder<'static> {
 
     let context = ShowContext { user, show };
 
-    Ok(Template::render("user/show", &context))
+    Ok(Template::render("admin/user/show", &context))
 }
 
 #[derive(Serialize)]
@@ -54,9 +54,9 @@ pub struct CreateContext {
     user: User,
 }
 
-#[get("/users/create")]
-pub fn create(auth: Auth) -> impl Responder<'static> {
-    let user = auth.clone().user();
+#[get("/admin/users/create")]
+pub fn create(admin: Admin) -> impl Responder<'static> {
+    let user = admin.clone().user();
 
     if let Err(e) = UserController::create(user.clone()) {
         return Err(Status::from(e));
@@ -64,32 +64,33 @@ pub fn create(auth: Auth) -> impl Responder<'static> {
 
     let context = CreateContext { user };
 
-    Ok(Template::render("user/create", &context))
+    Ok(Template::render("admin/user/create", &context))
 }
 
 #[derive(FromForm)]
 pub struct StorePayload {
     name: String,
     email: String,
+    role: String,
     password: String,
 }
 
-#[post("/users", data = "<payload>")]
-pub fn store(auth: Auth, payload: Form<StorePayload>) -> impl Responder<'static> {
-    let user = auth.clone().user();
+#[post("/admin/users", data = "<payload>")]
+pub fn store(admin: Admin, payload: Form<StorePayload>) -> impl Responder<'static> {
+    let user = admin.clone().user();
 
     let user = match UserController::store(
         user.clone(),
         payload.name.clone(),
         payload.email.clone(),
-        "guest".to_string(),
+        payload.role.clone(),
         payload.password.clone(),
     ) {
         Ok(user) => user,
         Err(e) => return Err(Status::from(e)),
     };
 
-    Ok(Redirect::to(format!("/users/{}", user.id())))
+    Ok(Redirect::to(format!("/admin/users/{}", user.id())))
 }
 
 #[derive(Serialize)]
@@ -98,9 +99,9 @@ pub struct EditContext {
     edit: User,
 }
 
-#[get("/users/<user_id>/edit")]
-pub fn edit(auth: Auth, user_id: i32) -> impl Responder<'static> {
-    let user = auth.clone().user();
+#[get("/admin/users/<user_id>/edit")]
+pub fn edit(admin: Admin, user_id: i32) -> impl Responder<'static> {
+    let user = admin.clone().user();
 
     let edit = match UserController::edit(user.clone(), user_id) {
         Ok(edit) => edit,
@@ -109,19 +110,20 @@ pub fn edit(auth: Auth, user_id: i32) -> impl Responder<'static> {
 
     let context = EditContext { user, edit };
 
-    Ok(Template::render("user/edit", &context))
+    Ok(Template::render("admin/user/edit", &context))
 }
 
 #[derive(FromForm)]
 pub struct UpdatePayload {
     name: String,
     email: String,
+    role: String,
     password: String,
 }
 
-#[post("/users/<user_id>", data = "<payload>")]
-pub fn update(auth: Auth, user_id: i32, payload: Form<UpdatePayload>) -> impl Responder<'static> {
-    let user = auth.clone().user();
+#[post("/admin/users/<user_id>", data = "<payload>")]
+pub fn update(admin: Admin, user_id: i32, payload: Form<UpdatePayload>) -> impl Responder<'static> {
+    let user = admin.clone().user();
 
     if !user.password_check(&payload.password) {
         return Err(Status::Forbidden);
@@ -132,20 +134,24 @@ pub fn update(auth: Auth, user_id: i32, payload: Form<UpdatePayload>) -> impl Re
         user_id,
         payload.name.clone(),
         payload.email.clone(),
-        "guest".to_string(),
+        payload.role.clone(),
         payload.password.clone(),
     ) {
-        Ok(user) => Ok(Redirect::to(format!("/users/{}", user.id()))),
+        Ok(user) => Ok(Redirect::to(format!("/admin/users/{}", user.id()))),
         Err(e) => Err(Status::from(e)),
     }
 }
 
-#[post("/users/<user_id>/delete")]
-pub fn delete(auth: Auth, user_id: i32) -> impl Responder<'static> {
-    let user = auth.clone().user();
+#[post("/admin/users/<user_id>/delete")]
+pub fn delete(admin: Admin, user_id: i32) -> impl Responder<'static> {
+    let user = admin.clone().user();
+
+    if user.id() == user_id {
+        return Err(Status::Forbidden);
+    }
 
     match UserController::delete(user, user_id) {
-        Ok(_) => Ok(Redirect::to("/users")),
+        Ok(_) => Ok(Redirect::to("/admin/users")),
         Err(e) => Err(Status::from(e)),
     }
 }

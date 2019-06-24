@@ -13,12 +13,18 @@ use schema::*;
 pub struct UserService;
 
 impl UserService {
-    pub fn create(name: String, email: String, password: String) -> Result<User, Error> {
+    pub fn create(
+        name: String,
+        email: String,
+        role: String,
+        password: String,
+    ) -> Result<User, Error> {
         let password_hash = hash(&password, DEFAULT_COST).unwrap();
 
         let user = UserBuilder::new()
             .with_name(name)
             .with_email(email)
+            .with_role(role)
             .with_password(password_hash)
             .build()
             .save()?;
@@ -28,7 +34,13 @@ impl UserService {
         Ok(user)
     }
 
-    pub fn update(id: i32, name: String, email: String, password: String) -> Result<User, Error> {
+    pub fn update(
+        id: i32,
+        name: String,
+        email: String,
+        role: String,
+        password: String,
+    ) -> Result<User, Error> {
         let password_hash = hash(&password, DEFAULT_COST).unwrap();
 
         let mut user = User::all()
@@ -37,6 +49,7 @@ impl UserService {
 
         user.set_name(name);
         user.set_email(email);
+        user.set_role(role);
         user.set_password(password_hash);
 
         user.update()
@@ -46,6 +59,14 @@ impl UserService {
         let user = User::all()
             .filter(users::id.eq(id))
             .first::<User>(&DbFacade::connection())?;
+
+        for folder in user.folders()? {
+            for file in folder.files()? {
+                file.delete()?;
+            }
+
+            folder.delete()?;
+        }
 
         user.delete()
     }
