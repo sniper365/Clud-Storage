@@ -81,7 +81,7 @@ pub fn store(
     let mut options = MultipartFormDataOptions::new();
     options
         .allowed_fields
-        .push(MultipartFormDataField::file("file"));
+        .push(MultipartFormDataField::file("file").size_limit(10000000000));
 
     let multipart_form_data = MultipartFormData::parse(content_type, payload, options).unwrap();
 

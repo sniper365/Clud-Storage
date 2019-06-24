@@ -16,7 +16,10 @@ pub struct FileContext {
 
 #[get("/public/<file_id>")]
 pub fn file(file_id: i32) -> impl Responder<'static> {
-    let user = UserBuilder::new().with_name("Guest".to_string()).build();
+    let user = UserBuilder::new()
+        .with_name("Guest".to_string())
+        .with_role("guest".to_string())
+        .build();
 
     let file = match FileController::show(user.clone(), file_id) {
         Ok(file) => file,
@@ -30,7 +33,10 @@ pub fn file(file_id: i32) -> impl Responder<'static> {
 
 #[get("/public/<file_id>/download")]
 pub fn download(file_id: i32) -> impl Responder<'static> {
-    let user = UserBuilder::new().with_name("Guest".to_string()).build();
+    let user = UserBuilder::new()
+        .with_name("Guest".to_string())
+        .with_role("guest".to_string())
+        .build();
 
     let contents = match FileController::contents(user, file_id) {
         Ok(contents) => contents,

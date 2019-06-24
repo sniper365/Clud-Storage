@@ -17,6 +17,11 @@
                 {% if file.extension == "jpg" or file.extension == "png" %}
                     <img src="/public/{{ file.file_id }}/download" class="img-fluid">
                 {% endif %}
+                {% if file.extension == "mp4" %}
+                      <div class="embed-responsive embed-responsive-16by9">
+                          <iframe class="embed-responsive-item" src="/public/{{ file.file_id }}/download" allowfullscreen></iframe>
+                      </div>
+                {% endif %}
             </div>
         </div>
     </div>

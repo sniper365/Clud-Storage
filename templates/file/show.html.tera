@@ -26,7 +26,22 @@
                 {% if file.extension == "jpg" or file.extension == "png" %}
                     <img src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download" class="img-fluid">
                 {% endif %}
+                {% if file.extension == "mp4" %}
+                      <div class="embed-responsive embed-responsive-16by9">
+                          <iframe class="embed-responsive-item" src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download" allowfullscreen></iframe>
+                      </div>
+                {% endif %}
+
+                <hr/>
+
+                {% if file.public %}
+                    Public Link: <a href="/public/{{ file.file_id }}" id="link"></a>
+                {% endif %}
             </div>
         </div>
     </div>
+
+    <script>
+        $("#link").text(window.location.hostname + "/public/{{ file.file_id }}");
+    </script>
 {% endblock content %}
