@@ -1,0 +1,24 @@
+<div class="modal" role="dialog" id="upload-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                Upload File
+            </div>
+
+            <form class="" id="upload" action="/folders/{{ folder.folder_id }}/files" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="m-3">
+                        <div class="custom-file">
+                            <input type="file" id="file" class="custom-file-input"/>
+                            <label class="custom-file-label" for="file">Choose a file</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit" onclick="upload()">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

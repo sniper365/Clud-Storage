@@ -1,0 +1,41 @@
+{% extends "layout" %}
+
+{% block content %}
+    {{ super() }}
+
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title">
+                    <h2>Settings</h2>
+                </div>
+
+                <hr/>
+
+                <form action="/users/{{ user.user_id }}" method="POST">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" value="{{ user.name }}" name="name" class="form-control" required/>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" value="{{ user.email }}" name="email" class="form-control" required/>
+                    </div>
+
+                    <hr/>
+
+                    <div class="form-group mb-5">
+                        <label for="password">Verify Password</label>
+                        <input type="password" id="password" placeholder="password" name="password" class="form-control" required/>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" value="Submit" class="btn btn-lg btn-primary float-right">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

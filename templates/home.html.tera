@@ -1,0 +1,13 @@
+{% extends "layout" %}
+
+{% block content %}
+    {{ super() }}
+
+    {% include "layouts/folder/header" %}
+
+    <div class="d-flex">
+        {% include "layouts/folder/list" %}
+
+        {% include "layouts/file/list" %}
+    </div>
+{% endblock content %}

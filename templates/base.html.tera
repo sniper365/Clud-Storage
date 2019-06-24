@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+
+<html>
+    {% include "head" %}
+
+    {% block content %}
+    {% endblock content %}
+</html>

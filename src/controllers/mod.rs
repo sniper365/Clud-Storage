@@ -1,6 +1,33 @@
-pub mod session_controller;
-pub mod user_controller;
-pub mod folder_controller;
-pub mod file_controller;
-pub mod error_controller;
-pub mod resource_controller;
+mod file;
+mod folder;
+mod user;
+
+pub use self::file::FileController;
+pub use self::folder::FolderController;
+pub use self::user::UserController;
+
+use std::error::Error;
+use std::fmt::Display;
+
+#[derive(Debug)]
+pub enum ControllerError {
+    Unauthorized,
+    Forbidden,
+    NotFound,
+    InternalServerError,
+}
+
+impl Display for ControllerError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        let response = match self {
+            ControllerError::Unauthorized => "Unauthorized",
+            ControllerError::Forbidden => "Forbidden",
+            ControllerError::NotFound => "Not Found",
+            ControllerError::InternalServerError => "Internal Server Error",
+        };
+
+        write!(f, "{}", response)
+    }
+}
+
+impl Error for ControllerError {}

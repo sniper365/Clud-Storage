@@ -1,0 +1,22 @@
+<div class="d-flex m-0 mx-3">
+    <h2 class="h2 mb-0">{{ folder.name }}</h2>
+
+    <div class="flex-grow-1"></div>
+
+    <form class="d-none" id="upload" action="/folders/{{ folder.folder_id }}/files" method="POST" enctype="multipart/form-data">
+        <input type="file" id="file" name="file"/>
+    </form>
+
+    <button class="btn btn-sm btn-primary" type="button" onclick="upload()">Upload</button>
+
+    <script>
+        $("#file").on("change", function() {
+            console.log("hit");
+            $("#upload").submit();
+        });
+
+        function upload() {
+            $("#file").click();
+        }
+    </script>
+</div>
