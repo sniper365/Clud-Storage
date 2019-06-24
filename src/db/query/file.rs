@@ -18,6 +18,7 @@ type AllColumns = (
     files::created_at,
     files::updated_at,
     files::extension,
+    files::public,
 );
 
 const ALL_COLUMNS: AllColumns = (
@@ -28,6 +29,7 @@ const ALL_COLUMNS: AllColumns = (
     files::created_at,
     files::updated_at,
     files::extension,
+    files::public,
 );
 
 type SqlType = <AllColumns as Expression>::SqlType;
@@ -53,6 +55,7 @@ impl Query for File {
                 files::file_name.eq(self.file_name()),
                 files::folder_id.eq(self.folder_id()),
                 files::extension.eq(self.extension()),
+                files::public.eq(self.public()),
             ))
             .get_result(&DbPool::connection())
     }
@@ -68,6 +71,7 @@ impl<'insert> Insertable<files::table> for &'insert File {
         Eq<files::file_name, &'insert String>,
         Eq<files::folder_id, i32>,
         Eq<files::extension, &'insert String>,
+        Eq<files::public, bool>,
     ) as Insertable<files::table>>::Values;
 
     fn values(self) -> Self::Values {
@@ -75,12 +79,14 @@ impl<'insert> Insertable<files::table> for &'insert File {
         let file_name = self.file_name();
         let folder_id = self.folder_id();
         let extension = self.extension();
+        let public = self.public();
 
         Insertable::values((
             files::name.eq(name),
             files::file_name.eq(file_name),
             files::folder_id.eq(folder_id),
             files::extension.eq(extension),
+            files::public.eq(public),
         ))
     }
 }

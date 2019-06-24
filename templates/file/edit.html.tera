@@ -1,0 +1,43 @@
+{% extends "layout" %}
+
+{% block content %}
+    {{ super() }}
+
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title d-flex">
+                    <h2>{{ file.name }}.{{ file.extension }}</h2>
+
+                </div>
+
+                <hr/>
+
+                <form action="/folders/{{ file.folder_id }}/files/{{ file.file_id }}" method="POST">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" value="{{ file.name }}" name="name" class="form-control" required/>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="public">Visibility</label>
+                        <select name="public" id="public" class="form-control">
+                            <option value="true" {% if file.public %} selected {% endif %}>Public</option>
+                            <option value="false" {% if not file.public %} selected {% endif %}>Private</option>
+                        </select>
+                    </div>
+
+                    <input type="text" class="hidden" name="extension" value="{{ file.extension }}" hidden/>
+                    <input type="text" class="hidden" name="folder_id" value="{{ file.folder_id }}" hidden/>
+
+                    <hr/>
+
+                    <div class="d-flex">
+                        <div class="flex-grow-1"></div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

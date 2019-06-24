@@ -47,6 +47,8 @@ pub fn boot() {
                 admin::user::edit,
                 admin::user::update,
                 admin::user::delete,
+                public::file,
+                public::download
             ],
         )
         .register(catchers![error::unauthorized])

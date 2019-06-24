@@ -1,7 +1,7 @@
 <div class="card m-3 flex-grow-1 border-0">
     <ul class="list-group">
         {% for file in files %}
-            <a class="list-group-item text-body" href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download">
+            <a class="list-group-item text-body" href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}">
                 {{ file.name }}
             </a>
         {% endfor %}

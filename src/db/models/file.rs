@@ -11,6 +11,7 @@ pub struct File {
     created_at: NaiveDateTime,
     updated_at: NaiveDateTime,
     extension: String,
+    public: bool,
 }
 
 impl Default for File {
@@ -23,6 +24,7 @@ impl Default for File {
             created_at: NaiveDateTime::from_timestamp(0, 0),
             updated_at: NaiveDateTime::from_timestamp(0, 0),
             extension: String::default(),
+            public: false,
         }
     }
 }
@@ -75,6 +77,14 @@ impl File {
 
     pub fn set_extension(&mut self, extension: String) {
         self.extension = extension
+    }
+
+    pub fn public(&self) -> bool {
+        self.public
+    }
+
+    pub fn set_public(&mut self, public: bool) {
+        self.public = public
     }
 }
 

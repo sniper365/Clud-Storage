@@ -54,13 +54,14 @@ impl FileController {
         extension: String,
         user_id: i32,
         folder_id: i32,
+        public: bool,
         bytes: &[u8],
     ) -> Result<File, Error> {
         if !user.can_create::<File>() {
             return Err(Error::Forbidden);
         }
 
-        match FileService::create(name, extension, user_id, folder_id, bytes) {
+        match FileService::create(name, extension, user_id, folder_id, public, bytes) {
             Ok(file) => Ok(file),
             Err(_) => Err(Error::InternalServerError),
         }
@@ -85,6 +86,7 @@ impl FileController {
         file_id: i32,
         name: String,
         extension: String,
+        public: bool,
         folder_id: i32,
     ) -> Result<File, Error> {
         let conn = &DbPool::connection();
@@ -98,7 +100,7 @@ impl FileController {
             return Err(Error::Forbidden);
         }
 
-        match FileService::update(file_id, name, extension, folder_id) {
+        match FileService::update(file_id, name, extension, folder_id, public) {
             Ok(file) => Ok(file),
             Err(_) => return Err(Error::InternalServerError),
         }

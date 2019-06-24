@@ -118,6 +118,7 @@ pub fn store(
         parts.nth(0).unwrap_or("").to_string(),
         user.id(),
         folder_id,
+        false,
         &buffer,
     ) {
         Ok(file) => file,
@@ -157,6 +158,7 @@ pub fn edit(auth: Auth, _folder_id: i32, file_id: i32) -> impl Responder<'static
 pub struct UpdatePayload {
     name: String,
     extension: String,
+    public: bool,
     folder_id: i32,
 }
 
@@ -174,6 +176,7 @@ pub fn update(
         file_id,
         payload.name.to_owned(),
         payload.extension.to_owned(),
+        payload.public,
         payload.folder_id,
     ) {
         Ok(file) => Ok(Redirect::to(format!("/folders/{}", file.folder_id()))),

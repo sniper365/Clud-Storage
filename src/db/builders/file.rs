@@ -6,6 +6,7 @@ pub struct FileBuilder {
     file_name: String,
     folder_id: i32,
     extension: String,
+    public: bool,
 }
 
 impl Default for FileBuilder {
@@ -15,6 +16,7 @@ impl Default for FileBuilder {
             file_name: String::default(),
             folder_id: 0,
             extension: String::default(),
+            public: false,
         }
     }
 }
@@ -48,6 +50,12 @@ impl FileBuilder {
 
         self
     }
+
+    pub fn with_public(mut self, public: bool) -> Self {
+        self.public = public;
+
+        self
+    }
 }
 
 impl Builder for FileBuilder {
@@ -59,6 +67,7 @@ impl Builder for FileBuilder {
         file.set_name(self.name);
         file.set_folder_id(self.folder_id);
         file.set_extension(self.extension);
+        file.set_public(self.public);
         file.set_file_name(self.file_name);
 
         file

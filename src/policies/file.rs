@@ -8,7 +8,7 @@ impl Restrict<User> for File {
             Err(_) => return false,
         };
 
-        folder.user_id() == user.id()
+        self.public() || folder.user_id() == user.id()
     }
 
     fn modifiable_by(&self, user: &User) -> bool {

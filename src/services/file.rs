@@ -17,6 +17,7 @@ impl FileService {
         extension: String,
         user_id: i32,
         folder_id: i32,
+        public: bool,
         bytes: &[u8],
     ) -> Result<File, Error> {
         let file_name = StorageService::store(user_id.to_string(), bytes).unwrap();
@@ -25,12 +26,19 @@ impl FileService {
             .with_name(name)
             .with_extension(extension)
             .with_file_name(file_name)
+            .with_public(public)
             .with_folder_id(folder_id)
             .build()
             .save()
     }
 
-    pub fn update(id: i32, name: String, extension: String, folder_id: i32) -> Result<File, Error> {
+    pub fn update(
+        id: i32,
+        name: String,
+        extension: String,
+        folder_id: i32,
+        public: bool,
+    ) -> Result<File, Error> {
         let mut file = File::all()
             .filter(files::id.eq(id))
             .first::<File>(&DbFacade::connection())?;
@@ -38,6 +46,7 @@ impl FileService {
         file.set_name(name);
         file.set_extension(extension);
         file.set_folder_id(folder_id);
+        file.set_public(public);
 
         file.update()
     }

@@ -6,12 +6,13 @@ impl Serialize for File {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("File", 5)?;
+        let mut state = serializer.serialize_struct("File", 6)?;
 
         state.serialize_field("file_id", &self.id())?;
         state.serialize_field("name", &self.name())?;
-        state.serialize_field("file_name", &self.file_name())?;
         state.serialize_field("folder_id", &self.folder_id())?;
+        state.serialize_field("public", &self.public())?;
+        state.serialize_field("extension", &self.extension())?;
         state.serialize_field("created_at", &self.created_at())?;
         state.serialize_field("updated_at", &self.updated_at())?;
 

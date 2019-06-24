@@ -7,6 +7,7 @@ table! {
         created_at -> Timestamp,
         updated_at -> Timestamp,
         extension -> Varchar,
+        public -> Bool,
     }
 }
 
@@ -36,4 +37,8 @@ table! {
 
 joinable!(files -> folders (folder_id));
 
-allow_tables_to_appear_in_same_query!(files, folders, users,);
+allow_tables_to_appear_in_same_query!(
+    files,
+    folders,
+    users,
+);

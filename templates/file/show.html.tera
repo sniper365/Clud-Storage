@@ -1,0 +1,32 @@
+{% extends "layout" %}
+
+{% block content %}
+    {{ super() }}
+
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title d-flex">
+                    <h2 class="mb-0">{{ file.name }}.{{ file.extension }}</h2>
+
+                    <div class="flex-grow-1"></div>
+
+                    <div>
+                        <a href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/edit">
+                            <button class="btn btn-warning">Modify</button>
+                        </a>
+                        <a href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download">
+                            <button class="btn btn-primary">Download</button>
+                        </a>
+                    </div>
+                </div>
+
+                <hr/>
+
+                {% if file.extension == "jpg" or file.extension == "png" %}
+                    <img src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download" class="img-fluid">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}
