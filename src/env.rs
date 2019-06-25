@@ -12,6 +12,9 @@ const APP_KEY: &str = "APP_KEY";
 #[allow(dead_code)]
 const STORAGE_DIR: &str = "STORAGE_DIR";
 
+#[allow(dead_code)]
+const BCRYPT_COST: &str = "BCRYPT_COST";
+
 pub struct Env;
 
 #[allow(dead_code)]
@@ -43,6 +46,13 @@ impl Env {
         match env::var(STORAGE_DIR) {
             Ok(storage_dir) => storage_dir,
             Err(_) => String::from("storage"),
+        }
+    }
+
+    pub fn bcrypt_cost() -> u32 {
+        match env::var(BCRYPT_COST) {
+            Ok(bcrypt_cost) => bcrypt_cost.parse::<u32>().unwrap(),
+            Err(e) => panic!(e),
         }
     }
 }

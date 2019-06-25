@@ -1,5 +1,5 @@
 use super::FolderService;
-use bcrypt::{hash, DEFAULT_COST};
+use bcrypt::hash;
 use db::builders::{Builder, UserBuilder};
 use db::models::User;
 use db::query::Query;
@@ -8,6 +8,7 @@ use diesel::result::Error;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
+use env::Env;
 use schema::*;
 
 pub struct UserService;
@@ -19,7 +20,7 @@ impl UserService {
         role: String,
         password: String,
     ) -> Result<User, Error> {
-        let password_hash = hash(&password, DEFAULT_COST).unwrap();
+        let password_hash = hash(&password, Env::bcrypt_cost()).unwrap();
 
         let user = UserBuilder::new()
             .with_name(name)
@@ -41,7 +42,7 @@ impl UserService {
         role: String,
         password: String,
     ) -> Result<User, Error> {
-        let password_hash = hash(&password, DEFAULT_COST).unwrap();
+        let password_hash = hash(&password, Env::bcrypt_cost()).unwrap();
 
         let mut user = User::all()
             .filter(users::id.eq(id))
