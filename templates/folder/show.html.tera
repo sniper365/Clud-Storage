@@ -5,7 +5,7 @@
 
     {% include "layouts/folder/header" %}
 
-    <div class="d-flex">
+    <div class="row mx-0">
         {% include "layouts/folder/list" %}
 
         {% include "layouts/file/list" %}

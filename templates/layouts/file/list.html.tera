@@ -1,9 +1,15 @@
-<div class="card m-3 flex-grow-1 border-0">
+<div class="card mt-3 border-0 col-md-12 col-lg-10">
     <ul class="list-group">
-        {% for file in files %}
-            <a class="list-group-item text-body" href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}">
-                {{ file.name }}
-            </a>
-        {% endfor %}
+        {% if files | length %}
+            {% for file in files %}
+                <a class="list-group-item text-body" href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}">
+                    {{ file.name }}
+                </a>
+            {% endfor %}
+        {% else %}
+            <li class="list-group-item mx-auto">No Files</li>
+        {% endif %}
     </ul>
+
+    <hr/>
 </div>

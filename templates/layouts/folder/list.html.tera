@@ -1,4 +1,4 @@
-<div class="card m-3 border-0">
+<div class="card mt-3 border-0 col-md-12 col-lg-2">
     <ul class="list-group">
         {% for folder in folders %}
             <a class="list-group-item text-body" href="/folders/{{ folder.folder_id }}">
@@ -6,4 +6,6 @@
             </a>
         {% endfor %}
     </ul>
+
+    <hr/>
 </div>
