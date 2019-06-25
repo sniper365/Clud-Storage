@@ -41,5 +41,33 @@ fn main() {
     // Load .env file
     dotenv::dotenv().expect("Missing .env file");
 
+    seed();
+
     web::boot()
+}
+
+use db::models::User;
+use db::DbPool;
+use diesel::ExpressionMethods;
+use diesel::QueryDsl;
+use diesel::RunQueryDsl;
+use schema::*;
+use services::UserService;
+
+fn seed() {
+    match User::all()
+        .filter(users::role.eq("admin"))
+        .first::<User>(&DbPool::connection())
+    {
+        Ok(_) => {}
+        Err(_) => {
+            UserService::create(
+                "Temp Admin".to_string(),
+                "temp@temp.com".to_string(),
+                "admin".to_string(),
+                "password".to_string(),
+            )
+            .unwrap();
+        }
+    };
 }
