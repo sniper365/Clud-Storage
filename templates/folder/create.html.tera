@@ -1,0 +1,36 @@
+{% extends "layout" %}
+
+{% block content %}
+    {{ super() }}
+
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title d-flex">
+                    <h2>Create Folder</h2>
+
+                </div>
+
+                <hr/>
+
+                {% if parent %}
+                    <form action="/folders?folder_id={{ parent.folder_id }}" method="POST">
+                {% else %}
+                    <form action="/folders" method="POST">
+                {% endif %}
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" placeholder="New Folder" name="name" class="form-control" required/>
+                    </div>
+
+                    <hr/>
+
+                    <div class="d-flex">
+                        <div class="flex-grow-1"></div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

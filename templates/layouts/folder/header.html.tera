@@ -7,7 +7,8 @@
         <input type="file" id="file" name="file"/>
     </form>
 
-    <button class="btn btn-sm btn-primary" type="button" onclick="upload()">Upload</button>
+    <button class="btn btn-sm btn-primary" type="button" onclick="create()">Create Folder</button>
+    <button class="btn btn-sm btn-primary ml-1" type="button" onclick="upload()">Upload File</button>
 
     <script>
         $("#file").on("change", function() {
@@ -17,6 +18,10 @@
 
         function upload() {
             $("#file").click();
+        }
+
+        function create() {
+            window.location.href = "/folders/create?folder_id={{ folder.folder_id }}";
         }
     </script>
 </div>
