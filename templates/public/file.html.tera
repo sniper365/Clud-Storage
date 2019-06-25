@@ -18,9 +18,9 @@
                     <img src="/public/{{ file.file_id }}/download" class="img-fluid">
                 {% endif %}
                 {% if file.extension == "mp4" %}
-                      <div class="embed-responsive embed-responsive-16by9">
-                          <iframe class="embed-responsive-item" src="/public/{{ file.file_id }}/download" allowfullscreen></iframe>
-                      </div>
+                      <video class="embed-responsive embed-responsive-16by9" controls>
+                          <source src="/public/{{ file.file_id }}/download"/>
+                      </video>
                 {% endif %}
             </div>
         </div>
