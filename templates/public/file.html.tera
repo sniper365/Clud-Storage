@@ -16,11 +16,12 @@
 
                 {% if file.extension == "jpg" or file.extension == "png" %}
                     <img src="/public/{{ file.file_id }}/download" class="img-fluid">
-                {% endif %}
-                {% if file.extension == "mp4" %}
-                      <video class="embed-responsive embed-responsive-16by9" controls>
-                          <source src="/public/{{ file.file_id }}/download"/>
-                      </video>
+                {% elif file.extension == "mp4" %}
+                    <video class="embed-responsive embed-responsive-16by9" controls>
+                      <source src="/public/{{ file.file_id }}/download"/>
+                    </video>
+                {% elif file.extension == "pdf" %}
+                  <embed src="/public/{{ file.file_id }}/download" class="embed-responsive" height="900" type="application/pdf">
                 {% endif %}
             </div>
         </div>
