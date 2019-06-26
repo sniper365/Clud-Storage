@@ -23,14 +23,18 @@
 
                 <hr/>
 
-                {% if file.extension == "jpg" or file.extension == "png" %}
-                    <img src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download" class="img-fluid">
-                {% endif %}
-                {% if file.extension == "mp4" %}
-                    <video class="embed-responsive embed-responsive-16by9" controls>
-                        <source src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download"/>
-                    </video>
-                {% endif %}
+                <div class="d-flex">
+                    <div class="flex-grow-1"></div>
+                    {% if file.extension == "jpg" or file.extension == "png" or file.extension == "gif" %}
+                        <img src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download" class="img-fluid mx-auto">
+                    {% endif %}
+                    {% if file.extension == "mp4" %}
+                        <video class="embed-responsive embed-responsive-16by9" controls>
+                            <source src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download"/>
+                        </video>
+                    {% endif %}
+                    <div class="flex-grow-1"></div>
+                </div>
 
                 <hr/>
 
