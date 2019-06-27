@@ -56,6 +56,10 @@ impl FileService {
             .filter(files::id.eq(id))
             .first::<File>(&DbFacade::connection())?;
 
+        let folder = file.folder()?;
+
+        StorageService::delete(folder.user_id().to_string(), file.file_name().to_string()).unwrap();
+
         file.delete()
     }
 

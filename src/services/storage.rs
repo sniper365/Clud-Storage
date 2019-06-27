@@ -1,8 +1,8 @@
 use chrono::Utc;
 use env::Env;
 use rand::{self, distributions::Alphanumeric, Rng};
-use std::fs::create_dir_all;
 use std::fs::File;
+use std::fs::{create_dir_all, remove_file};
 use std::io::Read;
 use std::io::Write;
 use std::path::Path;
@@ -70,6 +70,22 @@ impl StorageService {
         file.read_to_end(&mut buffer)?;
 
         Ok(buffer)
+    }
+
+    pub fn delete(directory: String, file_name: String) -> Result<(), std::io::Error> {
+        #[cfg(test)]
+        let directory = String::from("test");
+
+        let path = format!(
+            "{}/{directory}/{file_name}",
+            Env::storage_dir(),
+            directory = directory,
+            file_name = &file_name
+        );
+
+        remove_file(Path::new(&path))?;
+
+        Ok(())
     }
 }
 
