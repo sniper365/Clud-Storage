@@ -6,6 +6,4 @@
             </a>
         {% endfor %}
     </ul>
-
-    <hr/>
 </div>
