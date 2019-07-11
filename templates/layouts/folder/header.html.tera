@@ -4,16 +4,36 @@
     <div class="flex-grow-1"></div>
 
     <form class="d-none" id="upload" action="/folders/{{ folder.folder_id }}/files" method="POST" enctype="multipart/form-data">
-        <input type="file" id="file" name="file"/>
+        <input type="file" id="file" name="file" />
     </form>
 
     <button class="btn btn-sm btn-primary" type="button" onclick="create()">Create Folder</button>
     <button class="btn btn-sm btn-primary ml-1" type="button" onclick="upload()">Upload File</button>
 
+    <div class="modal fade" id="loading" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="mx-auto">
+                    <svg width="250px" height="250px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" class="lds-double-ring" style="background: rgba(0, 0, 0, 0) none repeat scroll 0% 0%;">
+                        <circle cx="50" cy="50" fill="none" stroke-linecap="round" r="40" stroke-width="4" stroke="#343a40" stroke-dasharray="62.83185307179586 62.83185307179586">
+                            <animateTransform attributeName="transform" type="rotate" calcMode="linear" values="0 50 50;360 50 50" keyTimes="0;1" dur="1s" begin="0s" repeatCount="indefinite"></animateTransform>
+                        </circle>
+                        <circle cx="50" cy="50" fill="none" stroke-linecap="round" r="35" stroke-width="4" stroke="#000000" stroke-dasharray="54.97787143782138 54.97787143782138" stroke-dashoffset="54.97787143782138">
+                            <animateTransform attributeName="transform" type="rotate" calcMode="linear" values="0 50 50;-360 50 50" keyTimes="0;1" dur="1s" begin="0s" repeatCount="indefinite"></animateTransform>
+                        </circle>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         $("#file").on("change", function() {
-            console.log("hit");
             $("#upload").submit();
+            
+            $("#loading").modal({
+                show: true
+            });
         });
 
         function upload() {
