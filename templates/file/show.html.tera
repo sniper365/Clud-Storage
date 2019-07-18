@@ -4,10 +4,10 @@
     {{ super() }}
 
     <div class="container">
-        <div class="card">
+        <div class="card mb-5">
             <div class="card-body">
                 <div class="card-title d-flex">
-                    <h2 class="mb-0">{{ file.name }}.{{ file.extension }}</h2>
+                    <h2 class="mb-0">{{ file.name }}.{{ extension }}</h2>
 
                     <div class="flex-grow-1"></div>
 
@@ -23,6 +23,11 @@
 
                 <hr/>
 
+                <div class="form-group">
+                    <label for="name">Format</label>
+                    <input type="text" id="name" value="{{ file.extension }}" name="name" class="form-control" required/>
+                </div>
+
                 <div class="d-flex">
                     <div class="flex-grow-1"></div>
                     {% if file.extension == "jpg" or file.extension == "png" or file.extension == "gif" %}
@@ -33,15 +38,17 @@
                         </video>
                     {% elif file.extension == "pdf" %}
                         <embed src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download" class="embed-responsive" height="900" type="application/pdf">
-                    {% elif file.extension == "docx" %}
-                        <iframe id="docx" src=""></iframe>
+                    {% else %}
+                        <div class="alert alert-info flex-grow-1 mt-3" role="alert">
+                            No preview available for file type "{{ file.extension }}"
+                        </div>
                     {% endif %}
                     <div class="flex-grow-1"></div>
                 </div>
 
-                <hr/>
-
                 {% if file.public %}
+                    <hr/>
+
                     Public Link: <a href="/public/{{ file.file_id }}" id="link"></a>
                 {% endif %}
             </div>
@@ -50,9 +57,5 @@
 
     <script>
         $("#link").text(window.location.hostname + "/public/{{ file.file_id }}");
-
-        {% if file.extension == "docx" %}
-            $("#docx").attr("src", "https://docs.google.com/gview?url=" + location.hostname + "/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download&embedded=true");
-        {% endif %}
     </script>
 {% endblock content %}

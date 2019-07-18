@@ -6,10 +6,10 @@
     </nav>
 
     <div class="container">
-        <div class="card">
+        <div class="card mb-5">
             <div class="card-body">
                 <div class="card-title">
-                    <h2>{{ file.name }}</h2>
+                    <h2>{{ file.name }}.{{ extension }}</h2>
                 </div>
 
                 <hr/>
@@ -22,6 +22,10 @@
                     </video>
                 {% elif file.extension == "pdf" %}
                   <embed src="/public/{{ file.file_id }}/download" class="embed-responsive" height="900" type="application/pdf">
+                {% else %}
+                  <div class="alert alert-info flex-grow-1 mt-3" role="alert">
+                      No preview available for file type "{{ file.extension }}"
+                  </div>
                 {% endif %}
             </div>
         </div>
