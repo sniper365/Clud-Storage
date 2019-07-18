@@ -7,7 +7,7 @@
         <div class="card mb-5">
             <div class="card-body">
                 <div class="card-title d-flex">
-                    <h2 class="mb-0">{{ file.name }}.{{ extension }}</h2>
+                    <h2 class="mb-0">{{ file.name }}.{{ file.extension }}</h2>
 
                     <div class="flex-grow-1"></div>
 

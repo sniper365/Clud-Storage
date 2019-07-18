@@ -9,7 +9,7 @@
         <div class="card mb-5">
             <div class="card-body">
                 <div class="card-title">
-                    <h2>{{ file.name }}.{{ extension }}</h2>
+                    <h2>{{ file.name }}.{{ file.extension }}</h2>
                 </div>
 
                 <hr/>
