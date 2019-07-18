@@ -33,6 +33,8 @@
                         </video>
                     {% elif file.extension == "pdf" %}
                         <embed src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download" class="embed-responsive" height="900" type="application/pdf">
+                    {% elif file.extension == "docx" %}
+                        <iframe id="docx" src=""></iframe>
                     {% endif %}
                     <div class="flex-grow-1"></div>
                 </div>
@@ -48,5 +50,9 @@
 
     <script>
         $("#link").text(window.location.hostname + "/public/{{ file.file_id }}");
+
+        {% if file.extension == "docx" %}
+            $("#docx").attr("src", "https://docs.google.com/gview?url=" + location.hostname + "/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download&embedded=true");
+        {% endif %}
     </script>
 {% endblock content %}
