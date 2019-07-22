@@ -194,8 +194,13 @@ pub fn delete(auth: Auth, _folder_id: i32, file_id: i32) -> impl Responder<'stat
     }
 }
 
-#[get("/folders/<_folder_id>/files/<file_id>/download")]
-pub fn download(auth: Auth, _folder_id: i32, file_id: i32) -> impl Responder<'static> {
+#[get("/folders/<_folder_id>/files/<file_id>/<_name>", rank = 1)]
+pub fn download(
+    auth: Auth,
+    _folder_id: i32,
+    file_id: i32,
+    _name: String,
+) -> impl Responder<'static> {
     let user = auth.clone().user();
 
     let contents = match FileController::contents(user, file_id) {

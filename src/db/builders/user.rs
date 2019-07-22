@@ -2,6 +2,7 @@ use db::builders::Builder;
 use db::models::User;
 
 pub struct UserBuilder {
+    id: i32,
     name: String,
     email: String,
     password: String,
@@ -12,6 +13,7 @@ pub struct UserBuilder {
 impl Default for UserBuilder {
     fn default() -> Self {
         Self {
+            id: i32::default(),
             name: String::default(),
             email: String::default(),
             password: String::default(),
@@ -25,6 +27,12 @@ impl Default for UserBuilder {
 impl UserBuilder {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn with_id(mut self, id: i32) -> Self {
+        self.id = id;
+
+        self
     }
 
     pub fn with_name(mut self, name: String) -> Self {
@@ -64,6 +72,7 @@ impl Builder for UserBuilder {
     fn build(self) -> Self::Out {
         let mut user = User::new();
 
+        user.set_id(self.id);
         user.set_name(self.name);
         user.set_email(self.email);
         user.set_password(self.password);

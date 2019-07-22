@@ -1,4 +1,5 @@
 use db::models::User;
+use db::presentation::ToJson;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 
 impl Serialize for User {
@@ -19,3 +20,5 @@ impl Serialize for User {
         state.end()
     }
 }
+
+impl ToJson for User {}

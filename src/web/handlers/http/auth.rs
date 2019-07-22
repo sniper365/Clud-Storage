@@ -45,3 +45,10 @@ pub fn authenticate(mut cookies: Cookies, payload: Form<LoginForm>) -> impl Resp
 
     Ok(Redirect::to("/"))
 }
+
+#[get("/logout")]
+pub fn logout(mut cookies: Cookies) -> impl Responder<'static> {
+    cookies.remove_private(Cookie::named("token"));
+
+    Redirect::to("/login")
+}

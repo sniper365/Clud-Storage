@@ -2,6 +2,7 @@ use db::builders::Builder;
 use db::models::Folder;
 
 pub struct FolderBuilder {
+    id: i32,
     name: String,
     parent_id: Option<i32>,
     user_id: i32,
@@ -10,6 +11,7 @@ pub struct FolderBuilder {
 impl Default for FolderBuilder {
     fn default() -> Self {
         Self {
+            id: i32::default(),
             name: String::default(),
             parent_id: None,
             user_id: 0,
@@ -21,6 +23,12 @@ impl Default for FolderBuilder {
 impl FolderBuilder {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn with_id(mut self, id: i32) -> Self {
+        self.id = id;
+
+        self
     }
 
     pub fn with_name(mut self, name: String) -> Self {
@@ -48,6 +56,7 @@ impl Builder for FolderBuilder {
     fn build(self) -> Self::Out {
         let mut folder = Folder::new();
 
+        folder.set_id(self.id);
         folder.set_name(self.name);
         folder.set_parent_id(self.parent_id);
         folder.set_user_id(self.user_id);

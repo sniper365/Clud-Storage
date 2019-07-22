@@ -1,4 +1,5 @@
 use db::models::Folder;
+use db::presentation::ToJson;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 
 impl Serialize for Folder {
@@ -18,3 +19,5 @@ impl Serialize for Folder {
         state.end()
     }
 }
+
+impl ToJson for Folder {}

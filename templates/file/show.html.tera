@@ -15,7 +15,7 @@
                         <a href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/edit">
                             <button class="btn btn-warning">Modify</button>
                         </a>
-                        <a href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download">
+                        <a href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/{{ file.name }}.{{ file.extension }}">
                             <button class="btn btn-primary">Download</button>
                         </a>
                     </div>

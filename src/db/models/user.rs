@@ -40,6 +40,10 @@ impl User {
         self.id
     }
 
+    pub fn set_id(&mut self, id: i32) {
+        self.id = id
+    }
+
     pub fn name(&self) -> &String {
         &self.name
     }
