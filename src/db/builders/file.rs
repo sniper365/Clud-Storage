@@ -2,6 +2,7 @@ use db::builders::Builder;
 use db::models::File;
 
 pub struct FileBuilder {
+    id: i32,
     name: String,
     file_name: String,
     folder_id: i32,
@@ -12,6 +13,7 @@ pub struct FileBuilder {
 impl Default for FileBuilder {
     fn default() -> Self {
         Self {
+            id: 0,
             name: String::default(),
             file_name: String::default(),
             folder_id: 0,
@@ -25,6 +27,12 @@ impl Default for FileBuilder {
 impl FileBuilder {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn with_id(mut self, id: i32) -> Self {
+        self.id = id;
+
+        self
     }
 
     pub fn with_name(mut self, name: String) -> Self {
@@ -64,6 +72,7 @@ impl Builder for FileBuilder {
     fn build(self) -> Self::Out {
         let mut file = File::new();
 
+        file.set_id(self.id);
         file.set_name(self.name);
         file.set_folder_id(self.folder_id);
         file.set_extension(self.extension);

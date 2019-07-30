@@ -1,4 +1,5 @@
 use db::models::File;
+use db::presentation::ToJson;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 
 impl Serialize for File {
@@ -19,3 +20,5 @@ impl Serialize for File {
         state.end()
     }
 }
+
+impl ToJson for File {}
