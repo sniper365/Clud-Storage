@@ -56,6 +56,6 @@
     </div>
 
     <script>
-        $("#link").text(window.location.hostname + "/public/{{ file.file_id }}");
+        $("#link").text(window.location.protocol + "//" + window.location.hostname + "/public/{{ file.file_id }}");
     </script>
 {% endblock content %}

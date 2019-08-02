@@ -112,7 +112,7 @@ pub fn store(
 
     let mut parts = name.splitn(2, ".");
 
-    match FileController::store(
+    let stored = match FileController::store(
         user.clone(),
         parts.nth(0).unwrap_or("").to_string(),
         parts.nth(0).unwrap_or("").to_string(),
@@ -125,7 +125,11 @@ pub fn store(
         Err(e) => return Err(Status::from(e)),
     };
 
-    Ok(Redirect::to(format!("/folders/{}", folder_id)))
+    Ok(Redirect::to(format!(
+        "/folders/{}/files/{}",
+        folder_id,
+        stored.id()
+    )))
 }
 
 #[derive(Serialize)]
@@ -179,7 +183,11 @@ pub fn update(
         payload.public,
         payload.folder_id,
     ) {
-        Ok(file) => Ok(Redirect::to(format!("/folders/{}", file.folder_id()))),
+        Ok(file) => Ok(Redirect::to(format!(
+            "/folders/{}/files/{}",
+            file.folder_id(),
+            file.id()
+        ))),
         Err(e) => Err(Status::from(e)),
     }
 }

@@ -16,13 +16,12 @@ impl File {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use db::builders::*;
     use db::query::Query;
     use std::error::Error;
 
     #[test]
-    fn test_folder() -> Result<(), Box<Error>> {
+    fn test_folder() -> Result<(), Box<dyn Error>> {
         dotenv::dotenv().expect("Missing .env file");
 
         let user = factory!(User).save()?;

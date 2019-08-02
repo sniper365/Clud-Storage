@@ -90,6 +90,7 @@ mod tests {
         let actual = UserService::create(
             user.name().to_string(),
             user.email().to_string(),
+            "guest".to_string(),
             user.password().to_string(),
         )
         .unwrap();
@@ -116,6 +117,7 @@ mod tests {
             user.id(),
             expected.name().to_string(),
             expected.email().to_string(),
+            "guest".to_string(),
             expected.password().to_string(),
         )
         .unwrap();

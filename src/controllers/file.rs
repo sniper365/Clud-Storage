@@ -6,7 +6,7 @@ use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use policies::Restricted;
 use schema::*;
-use services::FileService;
+use services::{FileService, StorageService};
 
 pub struct FileController;
 
@@ -61,7 +61,9 @@ impl FileController {
             return Err(Error::Forbidden);
         }
 
-        match FileService::create(name, extension, user_id, folder_id, public, bytes) {
+        let file_name = StorageService::store(user_id.to_string(), bytes).unwrap();
+
+        match FileService::create(name, file_name, extension, folder_id, public) {
             Ok(file) => Ok(file),
             Err(_) => Err(Error::InternalServerError),
         }
@@ -100,7 +102,14 @@ impl FileController {
             return Err(Error::Forbidden);
         }
 
-        match FileService::update(file_id, name, extension, folder_id, public) {
+        match FileService::update(
+            file_id,
+            found.file_name().to_string(),
+            name,
+            extension,
+            folder_id,
+            public,
+        ) {
             Ok(file) => Ok(file),
             Err(_) => return Err(Error::InternalServerError),
         }
@@ -116,6 +125,11 @@ impl FileController {
 
         if !user.can_delete(found.clone()) {
             return Err(Error::Forbidden);
+        }
+
+        if let Err(_) = StorageService::delete(user.id().to_string(), found.file_name().to_string())
+        {
+            return Err(Error::InternalServerError);
         }
 
         match FileService::delete(file_id) {
@@ -136,7 +150,7 @@ impl FileController {
             return Err(Error::Forbidden);
         }
 
-        match FileService::contents(file_id) {
+        match StorageService::read(user.id().to_string(), file_id.to_string()) {
             Ok(contents) => Ok(contents),
             Err(_) => return Err(Error::InternalServerError),
         }
