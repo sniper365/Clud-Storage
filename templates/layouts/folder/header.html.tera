@@ -11,8 +11,13 @@
     <button class="btn btn-sm btn-primary ml-1" type="button" onclick="upload()">Upload File</button>
 
     <div class="modal fade" id="loading" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content p-3">
+                <div class="alert alert-warning">
+                    <h4 class="alert-heading">Upload In Progress</h4>
+                    Do not close or navigate away from this page. This may take a while.
+                </div>
+
                 <div class="mx-auto">
                     <svg width="250px" height="250px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" class="lds-double-ring" style="background: rgba(0, 0, 0, 0) none repeat scroll 0% 0%;">
                         <circle cx="50" cy="50" fill="none" stroke-linecap="round" r="40" stroke-width="4" stroke="#343a40" stroke-dasharray="62.83185307179586 62.83185307179586">
@@ -30,7 +35,7 @@
     <script>
         $("#file").on("change", function() {
             $("#upload").submit();
-            
+
             $("#loading").modal({
                 show: true
             });
@@ -43,5 +48,8 @@
         function create() {
             window.location.href = "/folders/create?folder_id={{ folder.folder_id }}";
         }
+        $("#loading").modal({
+            show: true
+        });
     </script>
 </div>
