@@ -109,8 +109,8 @@ impl FileController {
 
         match FileService::update(
             file_id,
-            found.file_name().to_string(),
             name,
+            found.file_name().to_string(),
             extension,
             folder_id,
             public,

@@ -120,6 +120,7 @@ pub fn store(
         Ok(file) => file,
         Err(e) => return Err(Status::from(e)),
     };
+
     Ok(Redirect::to(format!(
         "/folders/{}/files/{}",
         folder_id,
