@@ -101,10 +101,10 @@ mod tests {
     fn test_store() {
         dotenv::dotenv().expect("Missing .env file");
 
-        let bytes: &[u8] = &[];
+        let mut bytes: &[u8] = &[];
         let directory = String::from("test");
 
-        let result = StorageService::store(directory.clone(), bytes).unwrap();
+        let result = StorageService::store(directory.clone(), &mut bytes).unwrap();
 
         let path = format!("{}/{}/{}", Env::storage_dir(), directory, result);
 
@@ -122,7 +122,7 @@ mod tests {
     fn test_read() {
         dotenv::dotenv().expect("Missing .env file");
 
-        let bytes: &[u8] = &[];
+        let expected: &[u8] = &[];
         let directory = String::from("test");
         let file_name = String::from("read");
 
@@ -134,13 +134,16 @@ mod tests {
         );
 
         let mut file = File::create(Path::new(&path)).unwrap();
-        file.write(bytes).unwrap();
+        file.write(expected).unwrap();
 
         file.flush().unwrap();
 
-        let result = StorageService::read(directory, file_name).unwrap();
+        let mut result = StorageService::read(directory, file_name).unwrap();
 
-        assert_eq!(bytes, result.as_slice());
+        let mut actual = Vec::new();
+        result.read_to_end(&mut actual).unwrap();
+
+        assert_eq!(expected, actual.as_slice());
 
         std::fs::remove_file(path).unwrap();
     }
