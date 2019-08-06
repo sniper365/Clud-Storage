@@ -13,7 +13,10 @@ pub fn index(auth: Auth) -> impl Responder<'static> {
 
     let users = match UserController::index(user.clone()) {
         Ok(users) => users,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     Ok(users.to_json())
@@ -25,7 +28,10 @@ pub fn show(auth: Auth, user_id: i32) -> impl Responder<'static> {
 
     let show = match UserController::show(user.clone(), user_id) {
         Ok(user) => user,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     Ok(show.to_json())
@@ -50,7 +56,10 @@ pub fn store(auth: Auth, payload: Json<StorePayload>) -> impl Responder<'static>
         payload.password.clone(),
     ) {
         Ok(_) => {}
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     Ok(Status::Created)

@@ -23,7 +23,15 @@ pub fn file(file_id: i32) -> impl Responder<'static> {
 
     let file = match FileController::show(user.clone(), file_id) {
         Ok(file) => file,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let context = FileContext { user, file };
@@ -38,9 +46,17 @@ pub fn download(file_id: i32) -> impl Responder<'static> {
         .with_role("guest".to_string())
         .build();
 
-    let stream = match FileController::contents(user, file_id) {
+    let stream = match FileController::contents(user.clone(), file_id) {
         Ok(contents) => contents,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let response = Stream::chunked(stream, Env::chunk_size());

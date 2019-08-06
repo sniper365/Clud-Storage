@@ -24,17 +24,26 @@ pub fn home(auth: Auth) -> impl Responder<'static> {
             Some(root) => root.to_owned(),
             None => return Err(Status::InternalServerError),
         },
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     let folders = match FolderController::index(user.clone(), Some(folder.id())) {
         Ok(folders) => folders,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     let files = match FileController::index(user.clone(), folder.id()) {
         Ok(files) => files,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     let context = HomeContext {

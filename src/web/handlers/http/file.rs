@@ -34,12 +34,28 @@ pub fn show(auth: Auth, _folder_id: i32, file_id: i32) -> impl Responder<'static
 
     let file = match FileController::show(user.clone(), file_id) {
         Ok(file) => file,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let folder = match FolderController::show(user.clone(), file.folder_id()) {
         Ok(folder) => folder,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let context = ShowContext { user, folder, file };
@@ -63,7 +79,15 @@ pub fn create(auth: Auth, folder_id: i32) -> impl Responder<'static> {
 
     let folder = match FolderController::show(user.clone(), folder_id) {
         Ok(folder) => folder,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let context = CreateContext { user, folder };
@@ -118,7 +142,15 @@ pub fn store(
         &mut file,
     ) {
         Ok(file) => file,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     Ok(Redirect::to(format!(
@@ -141,12 +173,28 @@ pub fn edit(auth: Auth, _folder_id: i32, file_id: i32) -> impl Responder<'static
 
     let file = match FileController::edit(user.clone(), file_id) {
         Ok(file) => file,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let folder = match FolderController::edit(user.clone(), file.folder_id()) {
         Ok(folder) => folder,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let context = EditContext { user, folder, file };
@@ -207,9 +255,17 @@ pub fn download(
 ) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    let stream = match FileController::contents(user, file_id) {
+    let stream = match FileController::contents(user.clone(), file_id) {
         Ok(stream) => stream,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let response = Stream::chunked(stream, Env::chunk_size());

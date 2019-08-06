@@ -3,7 +3,6 @@ use auth::basic::Credentials;
 use auth::bearer::Bearer;
 use auth::Auth;
 use db::models::User;
-use logging::log;
 use rocket::http::{Cookie, Cookies, Status};
 use rocket::request::Form;
 use rocket::response::{Redirect, Responder};
@@ -39,15 +38,15 @@ pub fn authenticate(mut cookies: Cookies, payload: Form<LoginForm>) -> impl Resp
 
     let token = match user.encode() {
         Ok(token) => token,
-        Err(_) => return Err(Status::InternalServerError),
+        Err(e) => {
+          log!("error", "500 Internal Server Error: {}", e);
+          return Err(Status::InternalServerError);
+      }
     };
 
     cookies.add_private(Cookie::new("token", token));
 
-    log!(
-        "debug",
-        format!("Got session from user {}", user.id()).as_str()
-    );
+    log!("debug", "Got session from user {}", user.id());
 
     Ok(Redirect::to("/"))
 }

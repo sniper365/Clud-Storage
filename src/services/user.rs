@@ -42,7 +42,18 @@ impl UserService {
         role: String,
         password: String,
     ) -> Result<User, Error> {
-        let password_hash = hash(&password, Env::bcrypt_cost()).unwrap();
+        let password_hash = match hash(&password, Env::bcrypt_cost()) {
+            Ok(hash) => hash,
+            Err(e) => {
+                log!(
+                    "fatal",
+                    "Failed to hash password \"{}\" with cost {}",
+                    password,
+                    Env::bcrypt_cost()
+                );
+                panic!(e)
+            }
+        };
 
         let mut user = User::all()
             .filter(users::id.eq(id))

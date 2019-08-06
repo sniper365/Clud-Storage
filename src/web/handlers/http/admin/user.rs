@@ -21,7 +21,10 @@ pub fn index(admin: Admin) -> impl Responder<'static> {
 
     let users = match UserController::index(user.clone()) {
         Ok(users) => users,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     let context = IndexContext { user, users };
@@ -41,7 +44,10 @@ pub fn show(admin: Admin, user_id: i32) -> impl Responder<'static> {
 
     let show = match UserController::show(user.clone(), user_id) {
         Ok(user) => user,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     let context = ShowContext { user, show };
@@ -87,7 +93,10 @@ pub fn store(admin: Admin, payload: Form<StorePayload>) -> impl Responder<'stati
         payload.password.clone(),
     ) {
         Ok(user) => user,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     Ok(Redirect::to(format!("/admin/users/{}", user.id())))
@@ -105,7 +114,10 @@ pub fn edit(admin: Admin, user_id: i32) -> impl Responder<'static> {
 
     let edit = match UserController::edit(user.clone(), user_id) {
         Ok(edit) => edit,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     let context = EditContext { user, edit };

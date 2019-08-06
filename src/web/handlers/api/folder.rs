@@ -13,7 +13,10 @@ pub fn index(auth: Auth, parent_id: Option<i32>) -> impl Responder<'static> {
 
     let folders = match FolderController::index(user.clone(), parent_id) {
         Ok(folders) => folders,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     Ok(folders.to_json())
@@ -25,7 +28,10 @@ pub fn show(auth: Auth, folder_id: i32) -> impl Responder<'static> {
 
     let folder = match FolderController::show(user.clone(), folder_id) {
         Ok(folder) => folder,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     Ok(folder.to_json())
@@ -48,7 +54,10 @@ pub fn store(auth: Auth, payload: Json<StorePayload>) -> impl Responder<'static>
         payload.parent_id,
     ) {
         Ok(_) => Ok(Status::Created),
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     }
 }
 

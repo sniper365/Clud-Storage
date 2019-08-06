@@ -24,6 +24,9 @@ extern crate serde_json;
 #[macro_use]
 extern crate fake;
 
+#[macro_use]
+mod logging;
+
 #[cfg(test)]
 #[macro_use]
 mod test;
@@ -32,8 +35,6 @@ mod auth;
 mod controllers;
 mod db;
 mod env;
-#[macro_use]
-mod logging;
 mod policies;
 mod schema;
 mod services;

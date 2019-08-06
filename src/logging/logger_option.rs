@@ -1,6 +1,6 @@
 use super::{Log, LogLevel, Logger};
 use std::convert::TryFrom;
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::io::{stdout, Error, Stdout};
 
 pub enum LoggerOption {
@@ -20,7 +20,15 @@ impl TryFrom<String> for LoggerOption {
 
     fn try_from(from: String) -> Result<Self, Self::Error> {
         match from.to_lowercase().as_str() {
-            "file" => Ok(LoggerOption::File(Logger::new(File::open("log.txt")?))),
+            "file" => {
+                let file = OpenOptions::new()
+                    .write(true)
+                    .append(true)
+                    .create(true)
+                    .open("log.txt")?;
+
+                Ok(LoggerOption::File(Logger::new(file)))
+            }
             "stdout" => Ok(LoggerOption::StdOut(Logger::new(stdout()))),
             _ => Ok(LoggerOption::None),
         }

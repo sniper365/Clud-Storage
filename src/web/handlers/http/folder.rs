@@ -28,17 +28,26 @@ pub fn show(auth: Auth, folder_id: i32) -> impl Responder<'static> {
 
     let folder = match FolderController::show(user.clone(), folder_id) {
         Ok(folder) => folder,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     let subfolders = match FolderController::index(user.clone(), Some(folder_id)) {
         Ok(subfolders) => subfolders,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     let files = match FileController::index(user.clone(), folder.id()) {
         Ok(files) => files,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     let context = FolderContext {
@@ -65,7 +74,10 @@ pub fn create(auth: Auth, folder_id: Option<i32>) -> impl Responder<'static> {
     if let Some(folder_id) = folder_id {
         parent = match FolderController::show(user.clone(), folder_id) {
             Ok(parent) => Some(parent),
-            Err(e) => return Err(Status::from(e)),
+            Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
         };
     }
 
@@ -113,13 +125,19 @@ pub fn edit(auth: Auth, folder_id: i32) -> impl Responder<'static> {
     let mut parent = None;
     let folder = match FolderController::edit(user.clone(), folder_id) {
         Ok(folder) => folder,
-        Err(e) => return Err(Status::from(e)),
+        Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
     };
 
     if let Some(parent_id) = folder.parent_id() {
         parent = match FolderController::show(user.clone(), *parent_id) {
             Ok(parent) => Some(parent),
-            Err(e) => return Err(Status::from(e)),
+            Err(e) => {
+        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
+        return Err(Status::from(e));
+    },
         };
     }
 

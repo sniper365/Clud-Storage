@@ -15,7 +15,7 @@ lazy_static! {
     pub static ref LOGGER: Mutex<LoggerOption> = { Mutex::new(Env::logger()) };
 }
 
-pub fn log(level: &str, msg: &str) {
+pub fn log_msg(level: &str, msg: &str) {
     let level = LogLevel::try_from(level.to_string()).unwrap();
 
     let mut logger = LOGGER.lock().unwrap();
@@ -24,8 +24,10 @@ pub fn log(level: &str, msg: &str) {
 }
 
 macro_rules! log {
-    ($level:expr, $msg:expr) => {
-        log($level, $msg)
+    ($level:expr, $fmt:expr, $($x:expr),*) => {
+        use crate::logging::log_msg;
+
+        log_msg($level, format!($fmt $(,$x)*).as_str())
     };
 }
 

@@ -26,7 +26,10 @@ pub fn login(payload: Json<LoginPayload>) -> impl Responder<'static> {
 
     let token = match user.encode() {
         Ok(token) => token,
-        Err(_) => return Err(Status::InternalServerError),
+        Err(e) => {
+          log!("error", "500 Internal Server Error: {}", e);
+          return Err(Status::InternalServerError);
+      }
     };
 
     Ok(token)

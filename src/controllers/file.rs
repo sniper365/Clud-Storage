@@ -25,7 +25,10 @@ impl FileController {
             .load(conn)
         {
             Ok(folders) => Ok(folders),
-            Err(_) => Err(Error::InternalServerError),
+            Err(e) => {
+                log!("error", "500 Internal Server Error: {}", e);
+                Err(Error::InternalServerError)
+            }
         }
     }
 
@@ -34,7 +37,10 @@ impl FileController {
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         };
 
         match user.can_view(found.clone()) {
@@ -70,7 +76,10 @@ impl FileController {
 
         match FileService::create(name, extension, file_name, folder_id, public) {
             Ok(file) => Ok(file),
-            Err(_) => Err(Error::InternalServerError),
+            Err(e) => {
+                log!("error", "500 Internal Server Error: {}", e);
+                Err(Error::InternalServerError)
+            }
         }
     }
 
@@ -79,7 +88,10 @@ impl FileController {
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         };
 
         match user.can_modify(found.clone()) {
@@ -100,7 +112,10 @@ impl FileController {
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         };
 
         if !user.can_modify(found.clone()) {
@@ -116,7 +131,10 @@ impl FileController {
             public,
         ) {
             Ok(file) => Ok(file),
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         }
     }
 
@@ -125,7 +143,10 @@ impl FileController {
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         };
 
         if !user.can_delete(found.clone()) {
@@ -139,7 +160,10 @@ impl FileController {
 
         match FileService::delete(file_id) {
             Ok(file) => Ok(file),
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         }
     }
 
@@ -148,7 +172,10 @@ impl FileController {
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         };
 
         if !user.can_view(found.clone()) {
@@ -157,7 +184,10 @@ impl FileController {
 
         match StorageService::read(user.id().to_string(), found.file_name().to_string()) {
             Ok(contents) => Ok(contents),
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         }
     }
 }

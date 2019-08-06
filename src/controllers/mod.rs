@@ -17,6 +17,17 @@ pub enum ControllerError {
     InternalServerError,
 }
 
+impl ControllerError {
+    pub fn level(&self) -> &str {
+        match self {
+            ControllerError::Unauthorized => "warn",
+            ControllerError::Forbidden => "warn",
+            ControllerError::NotFound => "debug",
+            ControllerError::InternalServerError => "error",
+        }
+    }
+}
+
 impl Display for ControllerError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         let response = match self {

@@ -29,7 +29,10 @@ impl UserController {
 
         let found: User = match User::all().filter(users::id.eq(&user_id)).first(conn) {
             Ok(user) => user,
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+          log!("error", "500 Internal Server Error: {}", e);
+          return Err(Error::InternalServerError);
+      }
         };
 
         match user.can_view(found.clone()) {
@@ -67,7 +70,10 @@ impl UserController {
 
         let found: User = match User::all().filter(users::id.eq(&user_id)).first(conn) {
             Ok(user) => user,
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+          log!("error", "500 Internal Server Error: {}", e);
+          return Err(Error::InternalServerError);
+      }
         };
 
         match user.can_modify(found.clone()) {
@@ -88,7 +94,10 @@ impl UserController {
 
         let found: User = match User::all().filter(users::id.eq(&user_id)).first(conn) {
             Ok(user) => user,
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+          log!("error", "500 Internal Server Error: {}", e);
+          return Err(Error::InternalServerError);
+      }
         };
 
         if !user.can_modify(found.clone()) {
@@ -97,7 +106,10 @@ impl UserController {
 
         match UserService::update(user_id, name, email, role, password) {
             Ok(user) => Ok(user),
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+          log!("error", "500 Internal Server Error: {}", e);
+          return Err(Error::InternalServerError);
+      }
         }
     }
 
@@ -106,7 +118,10 @@ impl UserController {
 
         let found: User = match User::all().filter(users::id.eq(&user_id)).first(conn) {
             Ok(user) => user,
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+          log!("error", "500 Internal Server Error: {}", e);
+          return Err(Error::InternalServerError);
+      }
         };
 
         if !user.can_delete(found.clone()) {
@@ -115,7 +130,10 @@ impl UserController {
 
         match UserService::delete(user_id) {
             Ok(user) => Ok(user),
-            Err(_) => return Err(Error::InternalServerError),
+            Err(e) => {
+          log!("error", "500 Internal Server Error: {}", e);
+          return Err(Error::InternalServerError);
+      }
         }
     }
 }
