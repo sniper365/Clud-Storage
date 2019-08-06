@@ -48,8 +48,5 @@
         function create() {
             window.location.href = "/folders/create?folder_id={{ folder.folder_id }}";
         }
-        $("#loading").modal({
-            show: true
-        });
     </script>
 </div>
