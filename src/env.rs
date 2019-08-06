@@ -1,3 +1,5 @@
+use logging::{LogLevel, LoggerOption};
+use std::convert::TryFrom;
 use std::env;
 
 #[allow(dead_code)]
@@ -17,6 +19,12 @@ const BCRYPT_COST: &str = "BCRYPT_COST";
 
 #[allow(dead_code)]
 const STREAM_CHUNK_SIZE: &str = "STREAM_CHUNK_SIZE";
+
+#[allow(dead_code)]
+const LOG_LEVEL: &str = "LOG_LEVEL";
+
+#[allow(dead_code)]
+const LOGGER: &str = "LOGGER";
 
 pub struct Env;
 
@@ -63,6 +71,26 @@ impl Env {
         match env::var(STREAM_CHUNK_SIZE) {
             Ok(bcrypt_cost) => bcrypt_cost.parse::<u64>().unwrap(),
             Err(e) => panic!(e),
+        }
+    }
+
+    pub fn log_level() -> LogLevel {
+        match env::var(LOG_LEVEL) {
+            Ok(result) => match LogLevel::try_from(result) {
+                Ok(log_level) => log_level,
+                Err(e) => panic!(e),
+            },
+            Err(_) => LogLevel::Error,
+        }
+    }
+
+    pub fn logger() -> LoggerOption {
+        match env::var(LOGGER) {
+            Ok(logger) => match LoggerOption::try_from(logger) {
+                Ok(logger) => logger,
+                Err(e) => panic!(e),
+            },
+            Err(_) => LoggerOption::default(),
         }
     }
 }

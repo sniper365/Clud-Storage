@@ -32,6 +32,8 @@ mod auth;
 mod controllers;
 mod db;
 mod env;
+#[macro_use]
+mod logging;
 mod policies;
 mod schema;
 mod services;

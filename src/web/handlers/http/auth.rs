@@ -3,6 +3,7 @@ use auth::basic::Credentials;
 use auth::bearer::Bearer;
 use auth::Auth;
 use db::models::User;
+use logging::log;
 use rocket::http::{Cookie, Cookies, Status};
 use rocket::request::Form;
 use rocket::response::{Redirect, Responder};
@@ -42,6 +43,11 @@ pub fn authenticate(mut cookies: Cookies, payload: Form<LoginForm>) -> impl Resp
     };
 
     cookies.add_private(Cookie::new("token", token));
+
+    log!(
+        "debug",
+        format!("Got session from user {}", user.id()).as_str()
+    );
 
     Ok(Redirect::to("/"))
 }
