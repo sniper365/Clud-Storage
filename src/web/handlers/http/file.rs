@@ -5,7 +5,7 @@ use rocket::data::Data;
 use rocket::http::{ContentType, Status};
 use rocket::request::Form;
 use rocket::response::Stream;
-use rocket::response::{Body, Redirect, Responder, Response};
+use rocket::response::{Redirect, Responder};
 use rocket::FromForm;
 use rocket::{get, post};
 use rocket_contrib::templates::Template;
@@ -14,7 +14,6 @@ use rocket_multipart_form_data::{
 };
 use serde_derive::Serialize;
 use std::fs;
-use std::io::Cursor;
 use web::guards::auth::Auth;
 
 #[get("/folders/<folder_id>/files")]

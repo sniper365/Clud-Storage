@@ -1,12 +1,12 @@
 use controllers::FileController;
 use db::builders::{Builder, UserBuilder};
 use db::models::{File, User};
+use env::Env;
 use rocket::get;
 use rocket::http::Status;
-use rocket::response::{Body, Responder, Response};
+use rocket::response::{Responder, Stream};
 use rocket_contrib::templates::Template;
 use serde_derive::Serialize;
-use std::io::Cursor;
 
 #[derive(Serialize)]
 pub struct FileContext {
@@ -38,17 +38,12 @@ pub fn download(file_id: i32) -> impl Responder<'static> {
         .with_role("guest".to_string())
         .build();
 
-    let contents = match FileController::contents(user, file_id) {
+    let stream = match FileController::contents(user, file_id) {
         Ok(contents) => contents,
         Err(e) => return Err(Status::from(e)),
     };
 
-    Ok("test")
-    // Ok(Response::build()
-    //     .status(Status::Ok)
-    //     .raw_body(Body::Sized(
-    //         Cursor::new(contents.clone()),
-    //         contents.len() as u64,
-    //     ))
-    //     .finalize())
+    let response = Stream::chunked(stream, Env::chunk_size());
+
+    Ok(response)
 }
