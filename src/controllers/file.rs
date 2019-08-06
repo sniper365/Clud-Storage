@@ -7,6 +7,8 @@ use diesel::RunQueryDsl;
 use policies::Restricted;
 use schema::*;
 use services::{FileService, StorageService};
+use std::fs;
+use std::io::Read;
 
 pub struct FileController;
 
@@ -48,22 +50,25 @@ impl FileController {
         }
     }
 
-    pub fn store(
+    pub fn store<R>(
         user: User,
         name: String,
         extension: String,
         user_id: i32,
         folder_id: i32,
         public: bool,
-        bytes: &[u8],
-    ) -> Result<File, Error> {
+        input: &mut R,
+    ) -> Result<File, Error>
+    where
+        R: Read,
+    {
         if !user.can_create::<File>() {
             return Err(Error::Forbidden);
         }
 
-        let file_name = StorageService::store(user_id.to_string(), bytes).unwrap();
+        let file_name = StorageService::store(user_id.to_string(), input).unwrap();
 
-        match FileService::create(name, file_name, extension, folder_id, public) {
+        match FileService::create(name, extension, file_name, folder_id, public) {
             Ok(file) => Ok(file),
             Err(_) => Err(Error::InternalServerError),
         }
@@ -138,7 +143,7 @@ impl FileController {
         }
     }
 
-    pub fn contents(user: User, file_id: i32) -> Result<Vec<u8>, Error> {
+    pub fn contents(user: User, file_id: i32) -> Result<fs::File, Error> {
         let conn = &DbPool::connection();
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
@@ -150,7 +155,7 @@ impl FileController {
             return Err(Error::Forbidden);
         }
 
-        match StorageService::read(user.id().to_string(), file_id.to_string()) {
+        match StorageService::read(user.id().to_string(), found.file_name().to_string()) {
             Ok(contents) => Ok(contents),
             Err(_) => return Err(Error::InternalServerError),
         }

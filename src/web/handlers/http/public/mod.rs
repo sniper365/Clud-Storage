@@ -43,11 +43,12 @@ pub fn download(file_id: i32) -> impl Responder<'static> {
         Err(e) => return Err(Status::from(e)),
     };
 
-    Ok(Response::build()
-        .status(Status::Ok)
-        .raw_body(Body::Sized(
-            Cursor::new(contents.clone()),
-            contents.len() as u64,
-        ))
-        .finalize())
+    Ok("test")
+    // Ok(Response::build()
+    //     .status(Status::Ok)
+    //     .raw_body(Body::Sized(
+    //         Cursor::new(contents.clone()),
+    //         contents.len() as u64,
+    //     ))
+    //     .finalize())
 }

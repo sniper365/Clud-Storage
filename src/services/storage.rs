@@ -10,7 +10,10 @@ use std::path::Path;
 pub struct StorageService;
 
 impl StorageService {
-    pub fn store(directory: String, bytes: &[u8]) -> Result<String, std::io::Error> {
+    pub fn store<R>(directory: String, input: &mut R) -> Result<String, std::io::Error>
+    where
+        R: Read,
+    {
         #[cfg(test)]
         let directory = String::from("test");
 
@@ -46,14 +49,18 @@ impl StorageService {
                 File::create(Path::new(&path))
             }
         }?;
-        file.write(bytes)?;
+
+        let mut buffer = [0; 1000000];
+        while input.read(&mut buffer)? > 0 {
+            file.write(&buffer)?;
+        }
 
         file.flush()?;
 
         Ok(file_name)
     }
 
-    pub fn read(directory: String, file_name: String) -> Result<Vec<u8>, std::io::Error> {
+    pub fn read(directory: String, file_name: String) -> Result<File, std::io::Error> {
         #[cfg(test)]
         let directory = String::from("test");
 
@@ -64,12 +71,9 @@ impl StorageService {
             file_name = &file_name
         );
 
-        let mut file = File::open(Path::new(&path))?;
-        let mut buffer = Vec::new();
+        let file = File::open(Path::new(&path))?;
 
-        file.read_to_end(&mut buffer)?;
-
-        Ok(buffer)
+        Ok(file)
     }
 
     pub fn delete(directory: String, file_name: String) -> Result<(), std::io::Error> {

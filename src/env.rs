@@ -15,6 +15,9 @@ const STORAGE_DIR: &str = "STORAGE_DIR";
 #[allow(dead_code)]
 const BCRYPT_COST: &str = "BCRYPT_COST";
 
+#[allow(dead_code)]
+const STREAM_CHUNK_SIZE: &str = "STREAM_CHUNK_SIZE";
+
 pub struct Env;
 
 #[allow(dead_code)]
@@ -52,6 +55,13 @@ impl Env {
     pub fn bcrypt_cost() -> u32 {
         match env::var(BCRYPT_COST) {
             Ok(bcrypt_cost) => bcrypt_cost.parse::<u32>().unwrap(),
+            Err(e) => panic!(e),
+        }
+    }
+
+    pub fn chunk_size() -> u64 {
+        match env::var(STREAM_CHUNK_SIZE) {
+            Ok(bcrypt_cost) => bcrypt_cost.parse::<u64>().unwrap(),
             Err(e) => panic!(e),
         }
     }

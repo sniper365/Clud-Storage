@@ -1,8 +1,10 @@
 use controllers::{FileController, FolderController};
 use db::models::{File, Folder, User};
+use env::Env;
 use rocket::data::Data;
 use rocket::http::{ContentType, Status};
 use rocket::request::Form;
+use rocket::response::Stream;
 use rocket::response::{Body, Redirect, Responder, Response};
 use rocket::FromForm;
 use rocket::{get, post};
@@ -13,7 +15,6 @@ use rocket_multipart_form_data::{
 use serde_derive::Serialize;
 use std::fs;
 use std::io::Cursor;
-use std::io::Read;
 use web::guards::auth::Auth;
 
 #[get("/folders/<folder_id>/files")]
@@ -86,12 +87,11 @@ pub fn store(
     let multipart_form_data = MultipartFormData::parse(content_type, payload, options).unwrap();
 
     let file = multipart_form_data.files.get("file");
-    let mut buffer: Vec<u8> = Vec::new();
     let mut name = String::new();
 
-    match file {
+    let mut file = match file {
         Some(FileField::Single(file)) => {
-            let mut res = match fs::File::open(file.path.clone()) {
+            let res = match fs::File::open(file.path.clone()) {
                 Ok(res) => res,
                 Err(_) => return Err(Status::BadRequest),
             };
@@ -100,13 +100,10 @@ pub fn store(
                 name = file_name.to_string();
             }
 
-            match res.read_to_end(&mut buffer) {
-                Ok(_) => {}
-                Err(_) => return Err(Status::InternalServerError),
-            }
+            res
         }
         _ => return Err(Status::BadRequest),
-    }
+    };
 
     let user = auth.to_owned().user();
 
@@ -119,12 +116,11 @@ pub fn store(
         user.id(),
         folder_id,
         false,
-        &buffer,
+        &mut file,
     ) {
         Ok(file) => file,
         Err(e) => return Err(Status::from(e)),
     };
-
     Ok(Redirect::to(format!(
         "/folders/{}/files/{}",
         folder_id,
@@ -211,16 +207,12 @@ pub fn download(
 ) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    let contents = match FileController::contents(user, file_id) {
-        Ok(contents) => contents,
+    let stream = match FileController::contents(user, file_id) {
+        Ok(stream) => stream,
         Err(e) => return Err(Status::from(e)),
     };
 
-    Ok(Response::build()
-        .status(Status::Ok)
-        .raw_body(Body::Sized(
-            Cursor::new(contents.clone()),
-            contents.len() as u64,
-        ))
-        .finalize())
+    let response = Stream::chunked(stream, Env::chunk_size());
+
+    Ok(response)
 }
