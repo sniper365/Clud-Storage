@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+
+<html>
+    {% include "error/head" %}
+
+    {% block content %}
+    {% endblock content %}
+</html>

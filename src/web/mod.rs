@@ -68,7 +68,12 @@ pub fn boot() {
                 api::folder::delete,
             ],
         )
-        .register(catchers![error::unauthorized])
+        .register(catchers![
+            error::unauthorized,
+            error::forbidden,
+            error::not_found,
+            error::internal_server_error
+        ])
         .launch();
 }
 

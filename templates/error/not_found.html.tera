@@ -1,0 +1,15 @@
+{% extends "error/layout" %}
+
+{% block content %}
+    {{ super() }}
+
+    <div class="container">
+        <h1 class="h1 text-dark error-header">Are You Lost?</h1>
+
+        <hr/>
+
+        <p class="text-dark error-text">
+            Whatever you were looking for, you might be able to find it <a href="https://www.scientology.org/">here</a>.
+        </p>
+    </div>
+{% endblock content %}

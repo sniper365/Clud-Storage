@@ -1,0 +1,15 @@
+{% extends "error/layout" %}
+
+{% block content %}
+    {{ super() }}
+
+    <div class="container">
+        <h1 class="h1 text-dark error-header">Forbidden!</h1>
+
+        <hr/>
+
+        <div class="iframe-container">
+            <iframe src="https://www.youtube.com/embed/otCpCn0l4Wo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+    </div>
+{% endblock content %}
