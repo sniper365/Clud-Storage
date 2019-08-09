@@ -14,6 +14,7 @@ pub fn boot() {
         .mount(
             "/",
             routes![
+                http::resources,
                 http::auth::login,
                 http::auth::authenticate,
                 http::auth::logout,

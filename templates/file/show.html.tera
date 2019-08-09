@@ -37,7 +37,10 @@
                             <source src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download"/>
                         </video>
                     {% elif file.extension == "pdf" %}
-                        <embed src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download" class="embed-responsive" height="900" type="application/pdf">
+                        <div style="width: 100%;position: relative;">
+                            <img src="/resources/pdf_backdrop.png" style="width: 100%;height: 100%;"/>
+                            <iframe src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;" type="application/pdf">
+                        </div>
                     {% else %}
                         <div class="alert alert-info flex-grow-1 mt-3" role="alert">
                             No preview available for file type "{{ file.extension }}"

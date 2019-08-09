@@ -178,11 +178,19 @@ impl FileController {
             }
         };
 
+        let owner: i32 = match found.folder() {
+            Ok(folder) => folder.user_id(),
+            Err(e) => {
+                log!("error", "500 Internal Server Erro: {}", e);
+                return Err(Error::InternalServerError);
+            }
+        };
+
         if !user.can_view(found.clone()) {
             return Err(Error::Forbidden);
         }
 
-        match StorageService::read(user.id().to_string(), found.file_name().to_string()) {
+        match StorageService::read(owner.to_string(), found.file_name().to_string()) {
             Ok(contents) => Ok(contents),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
