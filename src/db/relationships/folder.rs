@@ -32,7 +32,7 @@ mod tests {
 
         let user = factory!(User).save()?;
         let folder = factory!(Folder, user.id(), None).save()?;
-        let expected = vec![
+        let mut expected = vec![
             factory!(File, folder.id()).save()?,
             factory!(File, folder.id()).save()?,
             factory!(File, folder.id()).save()?,
@@ -40,7 +40,12 @@ mod tests {
             factory!(File, folder.id()).save()?,
         ];
 
-        let actual = folder.files()?;
+        let mut actual = folder.files()?;
+
+        // Sorting the lists, Vec will return != if they are in
+        //  different order, but this shouldn't care
+        expected.sort_by(|l, r| l.id().cmp(&r.id()));
+        actual.sort_by(|l, r| l.id().cmp(&r.id()));
 
         assert_eq!(expected, actual);
 

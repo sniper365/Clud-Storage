@@ -15,6 +15,11 @@ pub struct FileController;
 impl FileController {
     pub fn index(user: User, folder_id: i32) -> Result<Vec<File>, Error> {
         if !user.can_index::<File>() {
+            log!(
+                "info",
+                "403 Forbidden. Indexing Files not allowed for user {}",
+                user.id()
+            );
             return Err(Error::Forbidden);
         }
 
@@ -45,14 +50,28 @@ impl FileController {
 
         match user.can_view(found.clone()) {
             true => Ok(found),
-            false => Err(Error::Forbidden),
+            false => {
+                log!(
+                    "info",
+                    "403 Forbidden. Viewing Files not allowed for user {}",
+                    user.id()
+                );
+                Err(Error::Forbidden)
+            }
         }
     }
 
     pub fn create(user: User) -> Result<(), Error> {
         match user.can_create::<File>() {
             true => Ok(()),
-            false => Err(Error::Forbidden),
+            false => {
+                log!(
+                    "info",
+                    "403 Forbidden. Creating Files not allowed for user {}",
+                    user.id()
+                );
+                Err(Error::Forbidden)
+            }
         }
     }
 
@@ -150,6 +169,11 @@ impl FileController {
         };
 
         if !user.can_delete(found.clone()) {
+            log!(
+                "info",
+                "403 Forbidden. Deletion not allowed for user {}",
+                user.id()
+            );
             return Err(Error::Forbidden);
         }
 
@@ -197,5 +221,40 @@ impl FileController {
                 return Err(Error::InternalServerError);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use db::builders::*;
+    use db::query::Query;
+    use std::error::Error;
+
+    #[test]
+    fn test_index() -> Result<(), Box<dyn Error>> {
+        dotenv::dotenv().expect("Missing .env file");
+
+        let user = factory!(User).save()?;
+        let folder = factory!(Folder, user.id(), None).save()?;
+        let mut expected = vec![
+            factory!(File, folder.id()).save()?,
+            factory!(File, folder.id()).save()?,
+            factory!(File, folder.id()).save()?,
+            factory!(File, folder.id()).save()?,
+            factory!(File, folder.id()).save()?,
+            factory!(File, folder.id()).save()?,
+        ];
+
+        let mut actual = FileController::index(user, folder.id())?;
+
+        // Sorting the lists, Vec will return != if they are in
+        //  different order, but this shouldn't care
+        expected.sort_by(|l, r| l.id().cmp(&r.id()));
+        actual.sort_by(|l, r| l.id().cmp(&r.id()));
+
+        assert_eq!(expected, actual);
+
+        Ok(())
     }
 }
