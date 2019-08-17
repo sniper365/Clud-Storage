@@ -1,3 +1,4 @@
+use super::StorageService;
 use db::builders::{Builder, FileBuilder};
 use db::models::File;
 use db::query::Query;

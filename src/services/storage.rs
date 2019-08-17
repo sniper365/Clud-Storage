@@ -39,9 +39,13 @@ impl StorageService {
             file_name = &file_name
         );
 
-        StorageRouter::store(Path::new(&path), input)?;
-
-        Ok(file_name)
+        match StorageRouter::store(Path::new(&path), input) {
+            Ok(_) => Ok(file_name),
+            Err(e) => {
+                log!("error", "Failed to store file: {}", e);
+                Err(StorageServiceError::from(e))
+            }
+        }
     }
 
     pub fn read(directory: String, file_name: String) -> Result<File, StorageServiceError> {
@@ -55,9 +59,13 @@ impl StorageService {
             file_name = &file_name
         );
 
-        let contents = StorageRouter::read(Path::new(&path))?;
-
-        Ok(contents)
+        match StorageRouter::read(Path::new(&path)) {
+            Ok(contents) => Ok(contents),
+            Err(e) => {
+                log!("error", "Failed to read file: {}", e);
+                Err(StorageServiceError::from(e))
+            }
+        }
     }
 
     pub fn delete(directory: String, file_name: String) -> Result<(), StorageServiceError> {
@@ -71,9 +79,13 @@ impl StorageService {
             file_name = &file_name
         );
 
-        StorageRouter::delete(Path::new(&path))?;
-
-        Ok(())
+        match StorageRouter::delete(Path::new(&path)) {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                log!("error", "Failed to delete file: {}", e);
+                Err(StorageServiceError::from(e))
+            }
+        }
     }
 }
 
