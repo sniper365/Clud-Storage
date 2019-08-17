@@ -1,6 +1,7 @@
 use super::ControllerError as Error;
 use db::models::{Folder, User};
 use db::DbPool;
+use diesel::result;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
@@ -36,10 +37,11 @@ impl FolderController {
 
         let found: Folder = match Folder::all().filter(folders::id.eq(&folder_id)).first(conn) {
             Ok(folder) => folder,
+            Err(result::Error::NotFound) => return Err(Error::NotFound),
             Err(e) => {
-          log!("error", "500 Internal Server Error: {}", e);
-          return Err(Error::InternalServerError);
-      }
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         };
 
         match user.can_view(found.clone()) {
@@ -76,10 +78,11 @@ impl FolderController {
 
         let found: Folder = match Folder::all().filter(folders::id.eq(&folder_id)).first(conn) {
             Ok(folder) => folder,
+            Err(result::Error::NotFound) => return Err(Error::NotFound),
             Err(e) => {
-          log!("error", "500 Internal Server Error: {}", e);
-          return Err(Error::InternalServerError);
-      }
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         };
 
         match user.can_modify(found.clone()) {
@@ -99,10 +102,11 @@ impl FolderController {
 
         let found: Folder = match Folder::all().filter(folders::id.eq(&folder_id)).first(conn) {
             Ok(folder) => folder,
+            Err(result::Error::NotFound) => return Err(Error::NotFound),
             Err(e) => {
-          log!("error", "500 Internal Server Error: {}", e);
-          return Err(Error::InternalServerError);
-      }
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         };
 
         if !user.can_modify(found.clone()) {
@@ -112,9 +116,9 @@ impl FolderController {
         match FolderService::update(folder_id, name, user_id, parent_id) {
             Ok(folder) => Ok(folder),
             Err(e) => {
-          log!("error", "500 Internal Server Error: {}", e);
-          return Err(Error::InternalServerError);
-      }
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         }
     }
 
@@ -123,10 +127,11 @@ impl FolderController {
 
         let found: Folder = match Folder::all().filter(folders::id.eq(&folder_id)).first(conn) {
             Ok(folder) => folder,
+            Err(result::Error::NotFound) => return Err(Error::NotFound),
             Err(e) => {
-          log!("error", "500 Internal Server Error: {}", e);
-          return Err(Error::InternalServerError);
-      }
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         };
 
         if !user.can_delete(found.clone()) {
@@ -136,9 +141,9 @@ impl FolderController {
         match FolderService::delete(folder_id) {
             Ok(folder) => Ok(folder),
             Err(e) => {
-          log!("error", "500 Internal Server Error: {}", e);
-          return Err(Error::InternalServerError);
-      }
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 use super::ControllerError as Error;
 use db::models::User;
 use db::DbPool;
+use diesel::result;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
@@ -29,6 +30,7 @@ impl UserController {
 
         let found: User = match User::all().filter(users::id.eq(&user_id)).first(conn) {
             Ok(user) => user,
+            Err(result::Error::NotFound) => return Err(Error::NotFound),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
                 return Err(Error::InternalServerError);
@@ -70,6 +72,7 @@ impl UserController {
 
         let found: User = match User::all().filter(users::id.eq(&user_id)).first(conn) {
             Ok(user) => user,
+            Err(result::Error::NotFound) => return Err(Error::NotFound),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
                 return Err(Error::InternalServerError);
@@ -94,6 +97,7 @@ impl UserController {
 
         let found: User = match User::all().filter(users::id.eq(&user_id)).first(conn) {
             Ok(user) => user,
+            Err(result::Error::NotFound) => return Err(Error::NotFound),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
                 return Err(Error::InternalServerError);
@@ -118,6 +122,7 @@ impl UserController {
 
         let found: User = match User::all().filter(users::id.eq(&user_id)).first(conn) {
             Ok(user) => user,
+            Err(result::Error::NotFound) => return Err(Error::NotFound),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
                 return Err(Error::InternalServerError);

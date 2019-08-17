@@ -1,6 +1,7 @@
 use super::ControllerError as Error;
 use db::models::{File, User};
 use db::DbPool;
+use diesel::result;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
@@ -42,6 +43,7 @@ impl FileController {
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
+            Err(result::Error::NotFound) => return Err(Error::NotFound),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
                 return Err(Error::InternalServerError);
@@ -107,6 +109,7 @@ impl FileController {
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
+            Err(result::Error::NotFound) => return Err(Error::NotFound),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
                 return Err(Error::InternalServerError);
@@ -131,6 +134,7 @@ impl FileController {
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
+            Err(result::Error::NotFound) => return Err(Error::NotFound),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
                 return Err(Error::InternalServerError);
@@ -162,6 +166,7 @@ impl FileController {
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
+            Err(result::Error::NotFound) => return Err(Error::NotFound),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
                 return Err(Error::InternalServerError);
@@ -196,6 +201,7 @@ impl FileController {
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
+            Err(result::Error::NotFound) => return Err(Error::NotFound),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
                 return Err(Error::InternalServerError);
