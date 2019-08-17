@@ -1,5 +1,4 @@
 use super::StorageDriver;
-use env::Env;
 use std::fs::create_dir_all;
 use std::fs::remove_file;
 use std::fs::File;

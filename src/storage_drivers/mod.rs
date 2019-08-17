@@ -5,13 +5,9 @@ pub mod storage_router;
 
 pub use self::storage_router::StorageRouter;
 
-use self::aws::Aws;
-use self::disk::Disk;
 use std::error::Error;
-use std::fmt;
 use std::fs::File;
 use std::io::Read;
-use std::io::Write;
 use std::path::Path;
 
 pub trait StorageDriver {

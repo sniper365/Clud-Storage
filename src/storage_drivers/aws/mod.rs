@@ -11,7 +11,6 @@ use std::fmt;
 use std::fs::File;
 use std::io::Error;
 use std::io::Read;
-use std::io::Write;
 use std::path::Path;
 
 fn credentials() -> Credentials {
