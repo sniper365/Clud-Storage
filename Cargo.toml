@@ -22,6 +22,7 @@ frank_jwt = "3.1.*"
 rocket-multipart-form-data = "*"
 diesel-derive-enum = { version = "0.4", features = ["postgres"] }
 rand = "0.6.5"
+rust-s3 = "0.15.0"
 
 [dependencies.fake]
 version = "1.3.0"

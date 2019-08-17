@@ -1,6 +1,7 @@
 use logging::{LogLevel, LoggerOption};
 use std::convert::TryFrom;
 use std::env;
+use storage_drivers::storage_driver_option::StorageDriverOption;
 
 #[allow(dead_code)]
 const DATABASE_URL: &str = "DATABASE_URL";
@@ -25,6 +26,24 @@ const LOG_LEVEL: &str = "LOG_LEVEL";
 
 #[allow(dead_code)]
 const LOGGER: &str = "LOGGER";
+
+#[allow(dead_code)]
+const STORAGE_DRIVER: &str = "STORAGE_DRIVER";
+
+#[allow(dead_code)]
+const AWS_ACCESS_KEY_ID: &str = "AWS_ACCESS_KEY_ID";
+
+#[allow(dead_code)]
+const AWS_ACCESS_KEY_SECRET: &str = "AWS_ACCESS_KEY_SECRET";
+
+#[allow(dead_code)]
+const AWS_SESSION_TOKEN: &str = "AWS_SESSION_TOKEN";
+
+#[allow(dead_code)]
+const AWS_BUCKET_NAME: &str = "AWS_BUCKET_NAME";
+
+#[allow(dead_code)]
+const AWS_BUCKET_REGION: &str = "AWS_BUCKET_REGION";
 
 pub struct Env;
 
@@ -91,6 +110,48 @@ impl Env {
                 Err(e) => panic!(e),
             },
             Err(_) => LoggerOption::default(),
+        }
+    }
+
+    pub fn storage_driver() -> StorageDriverOption {
+        match env::var(STORAGE_DRIVER) {
+            Ok(driver) => StorageDriverOption::from(driver),
+            Err(_) => StorageDriverOption::from("disk".to_string()),
+        }
+    }
+
+    pub fn aws_access_key_id() -> String {
+        match env::var(AWS_ACCESS_KEY_ID) {
+            Ok(id) => id,
+            Err(e) => panic!(e),
+        }
+    }
+
+    pub fn aws_access_key_secret() -> String {
+        match env::var(AWS_ACCESS_KEY_SECRET) {
+            Ok(secret) => secret,
+            Err(e) => panic!(e),
+        }
+    }
+
+    pub fn aws_session_token() -> Option<String> {
+        match env::var(AWS_SESSION_TOKEN) {
+            Ok(token) => Some(token),
+            Err(_) => None,
+        }
+    }
+
+    pub fn aws_bucket_name() -> String {
+        match env::var(AWS_BUCKET_NAME) {
+            Ok(bucket) => bucket,
+            Err(e) => panic!(e),
+        }
+    }
+
+    pub fn aws_bucket_region() -> String {
+        match env::var(AWS_BUCKET_REGION) {
+            Ok(region) => region,
+            Err(e) => panic!(e),
         }
     }
 }

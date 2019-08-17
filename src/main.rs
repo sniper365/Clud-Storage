@@ -16,6 +16,7 @@ extern crate r2d2_postgres;
 extern crate rocket;
 extern crate rocket_contrib;
 extern crate rocket_multipart_form_data;
+extern crate s3;
 extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
@@ -38,6 +39,7 @@ mod env;
 mod policies;
 mod schema;
 mod services;
+mod storage_drivers;
 mod web;
 
 fn main() {
