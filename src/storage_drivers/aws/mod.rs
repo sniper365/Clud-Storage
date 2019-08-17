@@ -23,11 +23,23 @@ fn credentials() -> Credentials {
 }
 
 fn region() -> Result<Region, S3Error> {
-    Env::aws_bucket_region().parse()
+    match Env::aws_bucket_region().parse() {
+        Ok(region) => Ok(region),
+        Err(e) => {
+            log!("error", "Invalid AWS Region: {}", e);
+            Err(e)
+        }
+    }
 }
 
 fn bucket() -> Result<Bucket, S3Error> {
-    Bucket::new(&Env::aws_bucket_name(), region()?, credentials())
+    match Bucket::new(&Env::aws_bucket_name(), region()?, credentials()) {
+        Ok(bucket) => Ok(bucket),
+        Err(e) => {
+            log!("error", "Invalid AWS Bucket: {}", e);
+            Err(e)
+        }
+    }
 }
 
 pub struct Aws;
@@ -39,11 +51,26 @@ impl StorageDriver for Aws {
     where
         R: Read,
     {
-        let bucket = bucket()?;
+        let bucket = match bucket() {
+            Ok(bucket) => bucket,
+            Err(e) => {
+                log!("error", "Failed to create bucket: {}", e);
+                return Err(AwsError::from(e));
+            }
+        };
 
         let mut buffer = Vec::new();
-        contents.read_to_end(&mut buffer).unwrap();
-        bucket.put_object(path.to_str().unwrap(), buffer.as_slice(), "text/plain")?;
+
+        log!("warn", "Using non-streamed body");
+        if let Err(e) = contents.read_to_end(&mut buffer) {
+            log!("error", "Failed to read contents: {}", e);
+            return Err(AwsError::from(e));
+        }
+
+        if let Err(e) = bucket.put_object(path.to_str().unwrap(), buffer.as_slice(), "text/plain") {
+            log!("error", "Failed to download object from S3: {}", e);
+            return Err(AwsError::from(e));
+        }
 
         Ok(())
     }
@@ -61,23 +88,58 @@ impl StorageDriver for Aws {
             random_bytes = random_bytes
         );
 
+        // Creating scope block here to force the file to close, and reopen,
+        //  meaning the file cannot be opened while still being owned by the process
         {
-            let mut file = File::create(Path::new(&tmp))?;
+            let mut file = match File::create(Path::new(&tmp)) {
+                Ok(file) => file,
+                Err(e) => {
+                    log!("error", "Failed to create tmp file: {}", e);
+                    return Err(AwsError::from(e));
+                }
+            };
 
-            let bucket = bucket()?;
+            let bucket = match bucket() {
+                Ok(bucket) => bucket,
+                Err(e) => {
+                    log!("error", "Failed to create bucket: {}", e);
+                    return Err(AwsError::from(e));
+                }
+            };
 
-            bucket.get_object_stream(path.to_str().unwrap(), &mut file)?;
+            if let Err(e) = bucket.get_object_stream(path.to_str().unwrap(), &mut file) {
+                log!("error", "Failed to get object from AWS: {}", e);
+                return Err(AwsError::from(e));
+            }
         }
 
-        Ok(File::open(Path::new(&tmp))?)
+        let file = match File::open(Path::new(&tmp)) {
+            Ok(file) => file,
+            Err(e) => {
+                log!("error", "Failed to open tmp file: {}", e);
+                return Err(AwsError::from(e));
+            }
+        };
+
+        Ok(file)
     }
 
     fn delete(path: &Path) -> Result<(), Self::Error> {
-        let bucket = bucket()?;
+        let bucket = match bucket() {
+            Ok(bucket) => bucket,
+            Err(e) => {
+                log!("error", "Failed to create bucket: {}", e);
+                return Err(AwsError::from(e));
+            }
+        };
 
-        bucket.delete_object(path.to_str().unwrap())?;
-
-        Ok(())
+        match bucket.delete_object(path.to_str().unwrap()) {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                log!("error", "Failed to delete object from AWS: {}", e);
+                return Err(AwsError::from(e));
+            }
+        }
     }
 }
 

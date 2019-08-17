@@ -29,6 +29,12 @@ macro_rules! log {
 
         log_msg($level, format!($fmt $(,$x)*).as_str())
     };
+
+    ($level:expr, $msg:expr) => {
+        use crate::logging::log_msg;
+
+        log_msg($level, $msg)
+    };
 }
 
 trait Log {
