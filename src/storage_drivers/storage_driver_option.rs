@@ -12,3 +12,9 @@ impl From<String> for StorageDriverOption {
         }
     }
 }
+
+impl Default for StorageDriverOption {
+    fn default() -> Self {
+        StorageDriverOption::Disk
+    }
+}

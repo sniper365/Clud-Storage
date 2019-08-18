@@ -11,7 +11,7 @@ pub enum LoggerOption {
 
 impl Default for LoggerOption {
     fn default() -> Self {
-        LoggerOption::None
+        LoggerOption::StdOut(Logger::default())
     }
 }
 

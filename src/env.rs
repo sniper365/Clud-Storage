@@ -82,14 +82,14 @@ impl Env {
     pub fn bcrypt_cost() -> u32 {
         match env::var(BCRYPT_COST) {
             Ok(bcrypt_cost) => bcrypt_cost.parse::<u32>().unwrap(),
-            Err(e) => panic!(e),
+            Err(_) => 12,
         }
     }
 
     pub fn chunk_size() -> u64 {
         match env::var(STREAM_CHUNK_SIZE) {
             Ok(bcrypt_cost) => bcrypt_cost.parse::<u64>().unwrap(),
-            Err(e) => panic!(e),
+            Err(_) => 256,
         }
     }
 
@@ -99,7 +99,7 @@ impl Env {
                 Ok(log_level) => log_level,
                 Err(e) => panic!(e),
             },
-            Err(_) => LogLevel::Error,
+            Err(_) => LogLevel::default(),
         }
     }
 
@@ -116,7 +116,7 @@ impl Env {
     pub fn storage_driver() -> StorageDriverOption {
         match env::var(STORAGE_DRIVER) {
             Ok(driver) => StorageDriverOption::from(driver),
-            Err(_) => StorageDriverOption::from("disk".to_string()),
+            Err(_) => StorageDriverOption::default(),
         }
     }
 
