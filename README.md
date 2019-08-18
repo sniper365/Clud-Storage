@@ -17,34 +17,45 @@ A simple storage system plus more for personal use.
 
 3. Setup Rocket.toml (Optional) Setup instructions can be found [here](https://rocket.rs/guide/configuration/#rockettoml)
 
-4. Create the directory `storage`. Configuring where to store is on my to-do list.
-
 5. `Diesel` needs the schema to match the project before it starts. `diesel migration run` is the [easiest](http://diesel.rs/guides/getting-started/) way to do this.
 
 ### Startup:
-Simply run the command `cargo run`
+Simply run the command `cargo run` from your terminal. Any configuration options are specified in the `.env` file.
 
 ### Build Errors:
 This project requires a package `Diesel` and `Rocket`. Before compiling, both `Diesel` and `Rocket` run other code to build dependencies.
 
 This is important because if it cannot connect to the database, or it mismatches the database, it will look like a compiling error: thats because it is. When errors arise; the first place to look is your database.
 
+As well, this project only works on `nightly` builds. If dependencies fail to build, ensure you're using the `nightly` build channel.
+
 ### ENV Options:
-- DATABASE_URL: Connection string to your database. Looks something like `postgres://postgres:secret@db/database`
 
-- APP_KEY: Secret key that authentication will use to verify tokens
+- Security
+    - `APP_KEY`: Required, `string`. Security key used by the application to encrypt tokens
 
-- APP_INDEX (Optional): If you don't want to serve up `index.html` or your file is named something else.
+    - `BCRYPT_COST`: Required, `uint`. Number of hash iterations for passwords. Lower is faster but less secure, higher is slower but more secure.
 
-- BUILD_DIR (Optional): Location of frontend build directory
+- Database
+    - `DATABASE_URL`: Required, `string`. Connection string to your database. Looks something like `postgres://postgres:secret@db/database`
 
-## TODO List:
-- Prettier pre-installed frontend; I went with an idea that worked, doesn't mean I like it. Also doesn't mean I didn't make obvious design flaws.
+    - `TEST_DATABASE_URL`: Optional, `string`. Connection string to your testing database.
 
-- Configurable✔ and multiple storage locations. All of the contents of the application should not need to be in one folder.
+- Logging
+    - `LOG_LEVEL`: Required, `string`. Minimum level at which logging should occur
 
-- MySQL. Most people use MySQL, Postgres is just my personal favorite. Should be able to connect to MySQL database.
+- Storage
+    - `STORAGE_DRIVER`: Optional, `string`. Driver that should be used to store objects, either `disk` or `aws`
 
-- Workers, specifically file compression. If there's a 4K upload, shouldn't give a 4K preview.
+    - AWS
+        - `AWS_ACCESS_KEY_ID`: Required, `string`. Your AWS Access Key ID
 
-- WebSocket. I love automation; there's more to this that I intend to do. My friend's suggestion to build this was just a push to start something bigger.
+        - `AWS_ACCESS_KEY_SECRET`: Required, `string`. Your AWS Access Key Secret
+
+        - `AWS_BUCKET_NAME`: Required, `string`. Bucket to be used to store objects
+
+        - `AWS_BUCKET_REGION`: Required, `string`. Bucket region to be used to store objects
+
+- Other
+    - `STREAM_CHUNK_SIZE`: Required, `string`. Size of the chunks to be used when streaming objects.
+    > Note: The Linux kernel uses 256 by default, and this will not be overrode. Any chunk sizes smaller than this will have no impact
