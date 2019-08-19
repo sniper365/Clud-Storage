@@ -6,6 +6,7 @@ use rocket::http::Status;
 use rocket::request;
 use rocket::request::{FromRequest, Request};
 use rocket::Outcome;
+use std::convert::TryFrom;
 
 #[derive(Clone)]
 pub struct Auth(User);
@@ -24,29 +25,12 @@ impl<'a, 'r> FromRequest<'a, 'r> for Auth {
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
         let headers = request.headers();
-        let mut cookies = request.cookies();
+        let cookies = request.cookies();
 
-        let token: Token;
-
-        if let Some(cookie) = cookies.get_private("token") {
-            token = Token::new(cookie.value().to_string());
-        } else {
-            let mut auth_header = match headers.get_one("Authorization") {
-                // We want it back in the format <TYPE auth>
-                Some(token) => token.split_whitespace(),
-                None => return Outcome::Failure((Status::Unauthorized, AuthError)),
-            };
-
-            let auth_value = match auth_header.next() {
-                Some("Bearer") => match auth_header.next() {
-                    Some(token) => token,
-                    None => return Outcome::Failure((Status::BadRequest, AuthError)),
-                },
-                _ => return Outcome::Failure((Status::BadRequest, AuthError)),
-            };
-
-            token = Token::new(auth_value.to_string());
-        }
+        let token: Token = match Token::try_from(cookies).or_else(|_| Token::try_from(headers)) {
+            Ok(token) => token,
+            Err(_) => return Outcome::Failure((Status::BadRequest, AuthError)),
+        };
 
         match InternalAuth::Bearer(token).verify() {
             Ok(user) => Outcome::Success(Auth(user)),
