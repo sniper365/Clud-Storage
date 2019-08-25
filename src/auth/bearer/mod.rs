@@ -8,16 +8,23 @@ use env::Env;
 use frank_jwt::{decode, encode, Algorithm};
 use serde::ser::Serialize;
 use serde_json::json;
+use serde_json::Map;
 use serde_json::Value;
 
 pub trait Bearer: Sized + Serialize {
-    fn header(&self) -> Value;
+    fn header(&self) -> Value {
+        Value::Object(Map::new())
+    }
+
+    fn payload(&self) -> Value {
+        json!(&self)
+    }
 
     fn encode(&self) -> Result<String, Error> {
         let secret = Env::app_key();
 
-        let header = json!(self.header());
-        let payload = json!(self);
+        let header = self.header();
+        let payload = self.payload();
 
         let token_string: String = encode(header, &secret, &payload, Algorithm::HS384)?;
 
@@ -43,6 +50,10 @@ pub struct Token {
 impl Token {
     pub fn new(token: String) -> Self {
         Token { token }
+    }
+
+    pub fn to_string(&self) -> String {
+        String::from(&self.token)
     }
 }
 

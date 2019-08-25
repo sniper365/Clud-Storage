@@ -1,6 +1,6 @@
 use auth::authenticate::Authenticate;
 use auth::basic::Credentials;
-use auth::bearer::Bearer;
+use auth::bearer::Token;
 use auth::Auth;
 use db::models::User;
 use rocket::http::{Cookie, Cookies, Status};
@@ -10,6 +10,7 @@ use rocket::FromForm;
 use rocket::{get, post};
 use rocket_contrib::templates::Template;
 use serde_derive::Serialize;
+use std::convert::TryFrom;
 
 #[derive(Serialize)]
 struct LoginContext {}
@@ -36,15 +37,15 @@ pub fn authenticate(mut cookies: Cookies, payload: Form<LoginForm>) -> impl Resp
         Err(_) => return Ok(Redirect::to("/login")),
     };
 
-    let token = match user.encode() {
+    let token = match Token::try_from(user.clone()) {
         Ok(token) => token,
         Err(e) => {
-          log!("error", "500 Internal Server Error: {}", e);
-          return Err(Status::InternalServerError);
-      }
+            log!("error", "500 Internal Server Error: {}", e);
+            return Err(Status::InternalServerError);
+        }
     };
 
-    cookies.add_private(Cookie::new("token", token));
+    cookies.add_private(Cookie::new("token", token.to_string()));
 
     log!("debug", "Got session from user {}", user.id());
 

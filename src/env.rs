@@ -45,6 +45,9 @@ const AWS_BUCKET_NAME: &str = "AWS_BUCKET_NAME";
 #[allow(dead_code)]
 const AWS_BUCKET_REGION: &str = "AWS_BUCKET_REGION";
 
+#[allow(dead_code)]
+const SESSION_EXPIRY_HOURS: &str = "SESSION_EXPIRY_HOURS";
+
 pub struct Env;
 
 #[allow(dead_code)]
@@ -152,6 +155,13 @@ impl Env {
         match env::var(AWS_BUCKET_REGION) {
             Ok(region) => region,
             Err(e) => panic!(e),
+        }
+    }
+
+    pub fn session_expiry_hours() -> i64 {
+        match env::var(SESSION_EXPIRY_HOURS) {
+            Ok(hours) => hours.parse::<i64>().unwrap(),
+            Err(_) => 12,
         }
     }
 }
