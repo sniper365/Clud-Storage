@@ -1,3 +1,4 @@
+use super::token_convert::TokenError;
 use auth::authenticate::Authenticate;
 use auth::bearer::Token;
 use auth::Auth as InternalAuth;
@@ -29,7 +30,10 @@ impl<'a, 'r> FromRequest<'a, 'r> for Auth {
 
         let token: Token = match Token::try_from(cookies).or_else(|_| Token::try_from(headers)) {
             Ok(token) => token,
-            Err(_) => return Outcome::Failure((Status::BadRequest, AuthError)),
+            Err(TokenError::NotPresent) => {
+                return Outcome::Failure((Status::Unauthorized, AuthError))
+            }
+            Err(TokenError::Invalid) => return Outcome::Failure((Status::BadRequest, AuthError)),
         };
 
         match InternalAuth::Bearer(token).verify() {
