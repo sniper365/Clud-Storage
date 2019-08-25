@@ -73,7 +73,8 @@ pub fn boot() {
             error::unauthorized,
             error::forbidden,
             error::not_found,
-            error::internal_server_error
+            error::internal_server_error,
+            error::bad_request
         ])
         .launch();
 }

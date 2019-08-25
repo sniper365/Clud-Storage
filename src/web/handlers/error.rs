@@ -7,6 +7,13 @@ use serde_derive::Serialize;
 #[derive(Serialize)]
 struct ErrorContext {}
 
+#[catch(400)]
+pub fn bad_request(_req: &Request) -> impl Responder<'static> {
+    let context = ErrorContext {};
+
+    Template::render("error/bad_request", &context)
+}
+
 #[catch(401)]
 pub fn unauthorized(_req: &Request) -> impl Responder<'static> {
     Redirect::to("/login")

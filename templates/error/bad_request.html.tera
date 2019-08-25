@@ -1,0 +1,15 @@
+{% extends "error/layout" %}
+
+{% block content %}
+    {{ super() }}
+
+    <div class="container">
+        <h1 class="h1 text-dark error-header">You Screwed Up!</h1>
+
+        <hr/>
+
+        <p class="text-dark error-text">
+            You suck. ¯\_(ツ)_/¯
+        </p>
+    </div>
+{% endblock content %}
