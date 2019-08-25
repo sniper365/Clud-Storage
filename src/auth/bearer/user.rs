@@ -23,7 +23,7 @@ impl Bearer for User {
             // Returns None on overflow, however that's nearly 30 years in the future,
             //  nearly impossible for this to hit unless configured to insanity
             "expires": Utc::now()
-                .checked_add_signed(Duration::seconds(Env::session_expiry_hours()))
+                .checked_add_signed(Duration::hours(Env::session_expiry_hours()))
                 .unwrap()
         })
     }
