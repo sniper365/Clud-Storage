@@ -6,18 +6,19 @@
     <div class="container">
         <div class="card mb-5">
             <div class="card-body">
-                <div class="card-title d-flex">
-                    <h2 class="mb-0">{{ file.name }}.{{ file.extension }}</h2>
+                <div class="card-title">
+                    <div class="row">
+                        <h2 class="col-lg-8 mb-0">{{ file.name }}.{{ file.extension }}</h2>
 
-                    <div class="flex-grow-1"></div>
-
-                    <div>
-                        <a href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/edit">
-                            <button class="btn btn-warning">Modify</button>
-                        </a>
-                        <a href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/{{ file.name }}.{{ file.extension }}">
-                            <button class="btn btn-primary">Download</button>
-                        </a>
+                        <div class="col-lg-4 d-flex">
+                            <div class="flex-grow-1"></div>
+                            <a href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/edit">
+                                <button class="btn btn-warning">Modify</button>
+                            </a>
+                            <a href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/{{ file.name }}.{{ file.extension }}" class="ml-1">
+                                <button class="btn btn-primary">Download</button>
+                            </a>
+                        </div>
                     </div>
                 </div>
 

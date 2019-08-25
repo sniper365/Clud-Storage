@@ -3,11 +3,11 @@
 {% block content %}
     {{ super() }}
 
-    {% include "layouts/folder/header" %}
+    {% include "folder/header" %}
 
     <div class="row mx-0">
-        {% include "layouts/folder/list" %}
+        {% include "folder/set" %}
 
-        {% include "layouts/file/list" %}
+        {% include "file/set" %}
     </div>
 {% endblock content %}
