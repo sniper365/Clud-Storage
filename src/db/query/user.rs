@@ -39,6 +39,12 @@ impl User {
     pub fn all() -> BoxedQuery<'static> {
         users::table.select(ALL_COLUMNS).into_boxed()
     }
+
+    pub fn update_password(&self) -> Result<User, diesel::result::Error> {
+        diesel::update(users::table.find(&self.id()))
+            .set(users::password.eq(self.password()))
+            .get_result(&DbPool::connection())
+    }
 }
 
 impl Query for User {
@@ -53,7 +59,6 @@ impl Query for User {
             .set((
                 users::name.eq(self.name()),
                 users::email.eq(self.email()),
-                users::password.eq(self.password()),
                 users::root.eq(self.root()),
                 users::role.eq(self.role()),
             ))

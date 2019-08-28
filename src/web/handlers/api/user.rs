@@ -96,12 +96,11 @@ pub fn update(auth: Auth, user_id: i32, payload: Json<UpdatePayload>) -> impl Re
     }
 
     match UserController::update(
-        user,
+        user.clone(),
         user_id,
         payload.name.clone(),
         payload.email.clone(),
-        "guest".to_string(),
-        payload.password.clone(),
+        user.role().to_string(),
     ) {
         Ok(_) => Ok(Status::Ok),
         Err(e) => Err(Status::from(e)),

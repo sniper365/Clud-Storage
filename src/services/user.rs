@@ -44,26 +44,7 @@ impl UserService {
         Ok(user)
     }
 
-    pub fn update(
-        id: i32,
-        name: String,
-        email: String,
-        role: String,
-        password: String,
-    ) -> Result<User, Error> {
-        let password_hash = match hash(&password, Env::bcrypt_cost()) {
-            Ok(hash) => hash,
-            Err(e) => {
-                log!(
-                    "fatal",
-                    "Failed to hash password \"{}\" with cost {}",
-                    password,
-                    Env::bcrypt_cost()
-                );
-                panic!(e)
-            }
-        };
-
+    pub fn update(id: i32, name: String, email: String, role: String) -> Result<User, Error> {
         let mut user = User::all()
             .filter(users::id.eq(id))
             .first::<User>(&DbFacade::connection())?;
@@ -71,7 +52,6 @@ impl UserService {
         user.set_name(name);
         user.set_email(email);
         user.set_role(role);
-        user.set_password(password_hash);
 
         user.update()
     }
@@ -144,14 +124,12 @@ mod tests {
             expected.name().to_string(),
             expected.email().to_string(),
             "guest".to_string(),
-            expected.password().to_string(),
         )
         .unwrap();
 
         assert_eq!(user.id(), actual.id());
         assert_eq!(expected.name(), actual.name());
         assert_eq!(expected.email(), actual.email());
-        assert!(verify(expected.password(), actual.password()).unwrap());
     }
 
     #[test]

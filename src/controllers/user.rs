@@ -63,7 +63,10 @@ impl UserController {
 
         match UserService::create(name, email, role, password) {
             Ok(user) => Ok(user),
-            Err(_) => Err(Error::InternalServerError),
+            Err(e) => {
+                log!("error", "500 Internal Server Error: {}", e);
+                return Err(Error::InternalServerError);
+            }
         }
     }
 
@@ -91,7 +94,6 @@ impl UserController {
         name: String,
         email: String,
         role: String,
-        password: String,
     ) -> Result<User, Error> {
         let conn = &DbPool::connection();
 
@@ -108,7 +110,7 @@ impl UserController {
             return Err(Error::Forbidden);
         }
 
-        match UserService::update(user_id, name, email, role, password) {
+        match UserService::update(user_id, name, email, role) {
             Ok(user) => Ok(user),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);

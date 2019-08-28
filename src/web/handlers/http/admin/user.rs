@@ -22,9 +22,14 @@ pub fn index(admin: Admin) -> impl Responder<'static> {
     let users = match UserController::index(user.clone()) {
         Ok(users) => users,
         Err(e) => {
-        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
-        return Err(Status::from(e));
-    },
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let context = IndexContext { user, users };
@@ -45,9 +50,14 @@ pub fn show(admin: Admin, user_id: i32) -> impl Responder<'static> {
     let show = match UserController::show(user.clone(), user_id) {
         Ok(user) => user,
         Err(e) => {
-        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
-        return Err(Status::from(e));
-    },
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let context = ShowContext { user, show };
@@ -94,9 +104,14 @@ pub fn store(admin: Admin, payload: Form<StorePayload>) -> impl Responder<'stati
     ) {
         Ok(user) => user,
         Err(e) => {
-        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
-        return Err(Status::from(e));
-    },
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     Ok(Redirect::to(format!("/admin/users/{}", user.id())))
@@ -115,9 +130,14 @@ pub fn edit(admin: Admin, user_id: i32) -> impl Responder<'static> {
     let edit = match UserController::edit(user.clone(), user_id) {
         Ok(edit) => edit,
         Err(e) => {
-        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
-        return Err(Status::from(e));
-    },
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let context = EditContext { user, edit };
@@ -130,16 +150,11 @@ pub struct UpdatePayload {
     name: String,
     email: String,
     role: String,
-    password: String,
 }
 
 #[post("/admin/users/<user_id>", data = "<payload>")]
 pub fn update(admin: Admin, user_id: i32, payload: Form<UpdatePayload>) -> impl Responder<'static> {
     let user = admin.clone().user();
-
-    if !user.password_check(&payload.password) {
-        return Err(Status::Forbidden);
-    }
 
     match UserController::update(
         user,
@@ -147,7 +162,6 @@ pub fn update(admin: Admin, user_id: i32, payload: Form<UpdatePayload>) -> impl 
         payload.name.clone(),
         payload.email.clone(),
         payload.role.clone(),
-        payload.password.clone(),
     ) {
         Ok(user) => Ok(Redirect::to(format!("/admin/users/{}", user.id()))),
         Err(e) => Err(Status::from(e)),
