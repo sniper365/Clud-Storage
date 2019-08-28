@@ -1,6 +1,6 @@
 use super::ControllerError as Error;
 use db::models::{File, User};
-use db::DbPool;
+use db::DbFacade;
 use diesel::result;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
@@ -24,7 +24,7 @@ impl FileController {
             return Err(Error::Forbidden);
         }
 
-        let conn = &DbPool::connection();
+        let conn = &DbFacade::connection();
 
         match File::all()
             .filter(files::folder_id.eq(folder_id))
@@ -39,7 +39,7 @@ impl FileController {
     }
 
     pub fn show(user: User, file_id: i32) -> Result<File, Error> {
-        let conn = &DbPool::connection();
+        let conn = &DbFacade::connection();
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
@@ -105,7 +105,7 @@ impl FileController {
     }
 
     pub fn edit(user: User, file_id: i32) -> Result<File, Error> {
-        let conn = &DbPool::connection();
+        let conn = &DbFacade::connection();
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
@@ -130,7 +130,7 @@ impl FileController {
         public: bool,
         folder_id: i32,
     ) -> Result<File, Error> {
-        let conn = &DbPool::connection();
+        let conn = &DbFacade::connection();
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
@@ -162,7 +162,7 @@ impl FileController {
     }
 
     pub fn delete(user: User, file_id: i32) -> Result<File, Error> {
-        let conn = &DbPool::connection();
+        let conn = &DbFacade::connection();
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,
@@ -197,7 +197,7 @@ impl FileController {
     }
 
     pub fn contents(user: User, file_id: i32) -> Result<fs::File, Error> {
-        let conn = &DbPool::connection();
+        let conn = &DbFacade::connection();
 
         let found: File = match File::all().filter(files::id.eq(&file_id)).first(conn) {
             Ok(file) => file,

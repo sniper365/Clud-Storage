@@ -77,6 +77,18 @@ impl UserService {
 
         user.delete()
     }
+
+    pub fn update_password(id: i32, password: String) -> Result<User, Error> {
+        let mut user = User::all()
+            .filter(users::id.eq(id))
+            .first::<User>(&DbFacade::connection())?;
+
+        let password_hash = hash(&password, Env::bcrypt_cost()).unwrap();
+
+        user.set_password(password_hash);
+
+        user.update_password()
+    }
 }
 
 #[cfg(test)]

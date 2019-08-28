@@ -41,6 +41,7 @@ pub fn boot() {
                 http::user::edit,
                 http::user::update,
                 http::user::delete,
+                http::user::update_password,
                 http::admin::home,
                 http::admin::user::index,
                 http::admin::user::show,

@@ -1,6 +1,6 @@
 use super::ControllerError as Error;
 use db::models::{Folder, User};
-use db::DbPool;
+use db::DbFacade;
 use diesel::result;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
@@ -17,7 +17,7 @@ impl FolderController {
             return Err(Error::Forbidden);
         }
 
-        let conn = &DbPool::connection();
+        let conn = &DbFacade::connection();
 
         let stmt = Folder::all().filter(folders::user_id.eq(user.id()));
 
@@ -33,7 +33,7 @@ impl FolderController {
     }
 
     pub fn show(user: User, folder_id: i32) -> Result<Folder, Error> {
-        let conn = &DbPool::connection();
+        let conn = &DbFacade::connection();
 
         let found: Folder = match Folder::all().filter(folders::id.eq(&folder_id)).first(conn) {
             Ok(folder) => folder,
@@ -74,7 +74,7 @@ impl FolderController {
     }
 
     pub fn edit(user: User, folder_id: i32) -> Result<Folder, Error> {
-        let conn = &DbPool::connection();
+        let conn = &DbFacade::connection();
 
         let found: Folder = match Folder::all().filter(folders::id.eq(&folder_id)).first(conn) {
             Ok(folder) => folder,
@@ -98,7 +98,7 @@ impl FolderController {
         user_id: i32,
         parent_id: Option<i32>,
     ) -> Result<Folder, Error> {
-        let conn = &DbPool::connection();
+        let conn = &DbFacade::connection();
 
         let found: Folder = match Folder::all().filter(folders::id.eq(&folder_id)).first(conn) {
             Ok(folder) => folder,
@@ -123,7 +123,7 @@ impl FolderController {
     }
 
     pub fn delete(user: User, folder_id: i32) -> Result<Folder, Error> {
-        let conn = &DbPool::connection();
+        let conn = &DbFacade::connection();
 
         let found: Folder = match Folder::all().filter(folders::id.eq(&folder_id)).first(conn) {
             Ok(folder) => folder,

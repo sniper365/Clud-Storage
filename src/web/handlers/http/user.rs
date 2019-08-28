@@ -180,3 +180,27 @@ pub fn delete(auth: Auth, user_id: i32) -> impl Responder<'static> {
         Err(e) => Err(Status::from(e)),
     }
 }
+
+#[derive(FromForm)]
+pub struct UpdatePasswordPayload {
+    old_password: String,
+    password: String,
+}
+
+#[post("/users/<user_id>/password", data = "<payload>")]
+pub fn update_password(
+    auth: Auth,
+    user_id: i32,
+    payload: Form<UpdatePasswordPayload>,
+) -> impl Responder<'static> {
+    let user = auth.clone().user();
+
+    if !user.password_check(&payload.old_password) {
+        return Err(Status::Forbidden);
+    }
+
+    match UserController::update_password(user, user_id, payload.password.to_string()) {
+        Ok(user) => Ok(Redirect::to(format!("/users/{}", user.id()))),
+        Err(e) => Err(Status::from(e)),
+    }
+}
