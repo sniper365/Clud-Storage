@@ -1,0 +1,13 @@
+{% if errors | length > 0 %}
+    <div class="alert alert-danger">
+        <h4 class="alert-heading">Whoops!</h4>
+
+        <hr/>
+
+        <ul class="mb-1">
+            {% for error in errors %}
+                <li>{{ error.0 }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}

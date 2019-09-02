@@ -11,13 +11,15 @@ use rocket::{get, post};
 use rocket_contrib::templates::Template;
 use serde_derive::Serialize;
 use std::convert::TryFrom;
+use web::error::Error;
+use web::state::State;
 
 #[derive(Serialize)]
 struct LoginContext {}
 
 #[get("/login")]
-pub fn login() -> impl Responder<'static> {
-    let context = LoginContext {};
+pub fn login(state: State) -> impl Responder<'static> {
+    let context = state.into_context(LoginContext {});
 
     Template::render("auth/login", &context)
 }
@@ -29,12 +31,18 @@ pub struct LoginForm {
 }
 
 #[post("/login", data = "<payload>")]
-pub fn authenticate(mut cookies: Cookies, payload: Form<LoginForm>) -> impl Responder<'static> {
+pub fn authenticate(mut state: State, payload: Form<LoginForm>) -> impl Responder<'static> {
     let credentials = Credentials::new(payload.email.clone(), payload.password.clone());
 
     let user: User = match Auth::Basic(credentials).verify() {
         Ok(user) => user,
-        Err(_) => return Ok(Redirect::to("/login")),
+        Err(_) => {
+            state.push_error(Error::new(
+                "Your email or password is incorrect.".to_string(),
+            ));
+
+            return Ok(Redirect::to("/login"));
+        }
     };
 
     let token = match Token::try_from(user.clone()) {
@@ -45,7 +53,9 @@ pub fn authenticate(mut cookies: Cookies, payload: Form<LoginForm>) -> impl Resp
         }
     };
 
-    cookies.add_private(Cookie::new("token", token.to_string()));
+    state
+        .cookies()
+        .add_private(Cookie::new("token", token.to_string()));
 
     log!("debug", "Got session from user {}", user.id());
 

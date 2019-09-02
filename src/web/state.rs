@@ -6,6 +6,10 @@ use serde::Serialize;
 pub struct State<'a>(Cookies<'a>);
 
 impl<'a> State<'a> {
+    pub fn cookies(self) -> Cookies<'a> {
+        self.0
+    }
+
     pub fn errors(&mut self) -> Vec<Error> {
         match &self.0.get_private("errors") {
             Some(cookie) => {
@@ -32,28 +36,6 @@ impl<'a> State<'a> {
             .join("||");
 
         self.0.add_private(Cookie::new("errors", cookie_value));
-    }
-
-    pub fn history(&mut self) -> Vec<String> {
-        match &self.0.get_private("history") {
-            Some(cookie) => cookie
-                .value()
-                .split("||")
-                .map(|h| String::from(h))
-                .collect(),
-            None => Vec::new(),
-        }
-    }
-
-    pub fn push_history(&mut self, path: String) {
-        let mut history = self.history();
-
-        history.push(path);
-
-        let cookie_value = history.join("||");
-
-        self.0.remove_private(Cookie::named("history"));
-        self.0.add_private(Cookie::new("history", cookie_value));
     }
 
     pub fn into_context<T: Serialize>(mut self, data: T) -> Context<T> {

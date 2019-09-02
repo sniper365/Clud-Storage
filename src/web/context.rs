@@ -12,12 +12,4 @@ impl<'a, T: ser::Serialize> Context<T> {
     pub fn new(errors: Vec<Error>, data: T) -> Self {
         Self { errors, data }
     }
-
-    pub fn errors(&self) -> &Vec<Error> {
-        &self.errors
-    }
-
-    pub fn data(&self) -> &T {
-        &self.data
-    }
 }

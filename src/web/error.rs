@@ -1,29 +1,24 @@
 use serde_derive::Serialize;
 
 #[derive(Serialize)]
-pub struct Error(String, String);
+pub struct Error(String);
 
 impl Error {
-    pub fn error(&self) -> &String {
-        &self.0
+    pub fn new(message: String) -> Self {
+        Self(message)
     }
 
     pub fn message(&self) -> &String {
-        &self.1
+        &self.0
     }
 
     pub fn to_string(&self) -> String {
-        format!("{}::{}", self.error(), self.message()).to_string()
+        format!("{}", self.message()).to_string()
     }
 }
 
 impl From<&str> for Error {
     fn from(from: &str) -> Self {
-        let mut parts = from.split("::");
-
-        Error(
-            parts.nth(0).unwrap_or("").to_string(),
-            parts.nth(0).unwrap_or("").to_string(),
-        )
+        Error(from.to_string())
     }
 }
