@@ -8,6 +8,7 @@ use rocket::{get, post};
 use rocket_contrib::templates::Template;
 use serde_derive::Serialize;
 use web::guards::auth::Auth;
+use web::state::State;
 
 #[get("/folders")]
 pub fn index(_auth: Auth) -> impl Responder<'static> {
@@ -23,39 +24,54 @@ struct FolderContext {
 }
 
 #[get("/folders/<folder_id>")]
-pub fn show(auth: Auth, folder_id: i32) -> impl Responder<'static> {
+pub fn show(auth: Auth, state: State, folder_id: i32) -> impl Responder<'static> {
     let user = auth.to_owned().user();
 
     let folder = match FolderController::show(user.clone(), folder_id) {
         Ok(folder) => folder,
         Err(e) => {
-        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
-        return Err(Status::from(e));
-    },
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let subfolders = match FolderController::index(user.clone(), Some(folder_id)) {
         Ok(subfolders) => subfolders,
         Err(e) => {
-        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
-        return Err(Status::from(e));
-    },
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let files = match FileController::index(user.clone(), folder.id()) {
         Ok(files) => files,
         Err(e) => {
-        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
-        return Err(Status::from(e));
-    },
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
-    let context = FolderContext {
+    let context = state.into_context(FolderContext {
         user,
         folder,
         folders: subfolders,
         files,
-    };
+    });
 
     Ok(Template::render("folder/show", &context))
 }
@@ -67,7 +83,7 @@ pub struct CreateContext {
 }
 
 #[get("/folders/create?<folder_id>")]
-pub fn create(auth: Auth, folder_id: Option<i32>) -> impl Responder<'static> {
+pub fn create(auth: Auth, state: State, folder_id: Option<i32>) -> impl Responder<'static> {
     let user = auth.clone().user();
 
     let mut parent = None;
@@ -75,16 +91,21 @@ pub fn create(auth: Auth, folder_id: Option<i32>) -> impl Responder<'static> {
         parent = match FolderController::show(user.clone(), folder_id) {
             Ok(parent) => Some(parent),
             Err(e) => {
-        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
-        return Err(Status::from(e));
-    },
+                log!(
+                    e.level(),
+                    "Request from user \"{}\" returned \"{}\"",
+                    user.id(),
+                    e
+                );
+                return Err(Status::from(e));
+            }
         };
     }
 
-    let context = CreateContext {
+    let context = state.into_context(CreateContext {
         user: user.clone(),
         parent,
-    };
+    });
 
     match FolderController::create(user.clone()) {
         Ok(_) => Ok(Template::render("folder/create", &context)),
@@ -119,33 +140,43 @@ pub struct EditContext {
 }
 
 #[get("/folders/<folder_id>/edit")]
-pub fn edit(auth: Auth, folder_id: i32) -> impl Responder<'static> {
+pub fn edit(auth: Auth, state: State, folder_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
     let mut parent = None;
     let folder = match FolderController::edit(user.clone(), folder_id) {
         Ok(folder) => folder,
         Err(e) => {
-        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
-        return Err(Status::from(e));
-    },
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     if let Some(parent_id) = folder.parent_id() {
         parent = match FolderController::show(user.clone(), *parent_id) {
             Ok(parent) => Some(parent),
             Err(e) => {
-        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
-        return Err(Status::from(e));
-    },
+                log!(
+                    e.level(),
+                    "Request from user \"{}\" returned \"{}\"",
+                    user.id(),
+                    e
+                );
+                return Err(Status::from(e));
+            }
         };
     }
 
-    let context = EditContext {
+    let context = state.into_context(EditContext {
         user,
         parent,
         folder,
-    };
+    });
 
     Ok(Template::render("folders/edit", &context))
 }

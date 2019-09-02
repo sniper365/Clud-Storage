@@ -1,5 +1,6 @@
 use super::context::Context;
 use super::error::Error;
+use super::success::Success;
 use rocket::http::{Cookie, Cookies};
 use serde::Serialize;
 
@@ -38,8 +39,39 @@ impl<'a> State<'a> {
         self.0.add_private(Cookie::new("errors", cookie_value));
     }
 
+    pub fn successes(&mut self) -> Vec<Success> {
+        match &self.0.get_private("successes") {
+            Some(cookie) => {
+                let successes: Vec<Success> = cookie
+                    .value()
+                    .split("||")
+                    .map(|e| Success::from(e))
+                    .collect();
+
+                &self.0.remove_private(Cookie::named("successes"));
+
+                successes
+            }
+            None => Vec::new(),
+        }
+    }
+
+    pub fn push_success(&mut self, success: Success) {
+        let mut successes = self.successes();
+
+        successes.push(success);
+
+        let cookie_value = successes
+            .into_iter()
+            .map(|e| e.to_string())
+            .collect::<Vec<String>>()
+            .join("||");
+
+        self.0.add_private(Cookie::new("successes", cookie_value));
+    }
+
     pub fn into_context<T: Serialize>(mut self, data: T) -> Context<T> {
-        Context::new(self.errors(), data)
+        Context::new(self.errors(), self.successes(), data)
     }
 }
 

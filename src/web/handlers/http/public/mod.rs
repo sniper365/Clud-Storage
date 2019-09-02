@@ -7,6 +7,7 @@ use rocket::http::Status;
 use rocket::response::{Responder, Stream};
 use rocket_contrib::templates::Template;
 use serde_derive::Serialize;
+use web::state::State;
 
 #[derive(Serialize)]
 pub struct FileContext {
@@ -15,7 +16,7 @@ pub struct FileContext {
 }
 
 #[get("/public/<file_id>")]
-pub fn file(file_id: i32) -> impl Responder<'static> {
+pub fn file(file_id: i32, state: State) -> impl Responder<'static> {
     let user = UserBuilder::new()
         .with_name("Guest".to_string())
         .with_role("guest".to_string())
@@ -34,7 +35,7 @@ pub fn file(file_id: i32) -> impl Responder<'static> {
         }
     };
 
-    let context = FileContext { user, file };
+    let context = state.into_context(FileContext { user, file });
 
     Ok(Template::render("public/file", &context))
 }

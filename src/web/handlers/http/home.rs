@@ -6,6 +6,7 @@ use rocket::response::Responder;
 use rocket_contrib::templates::Template;
 use serde_derive::Serialize;
 use web::guards::auth::Auth;
+use web::state::State;
 
 #[derive(Serialize)]
 struct HomeContext {
@@ -16,7 +17,7 @@ struct HomeContext {
 }
 
 #[get("/")]
-pub fn home(auth: Auth) -> impl Responder<'static> {
+pub fn home(auth: Auth, state: State) -> impl Responder<'static> {
     let user = auth.to_owned().user();
 
     let folder = match FolderController::index(user.clone(), None) {
@@ -25,33 +26,48 @@ pub fn home(auth: Auth) -> impl Responder<'static> {
             None => return Err(Status::InternalServerError),
         },
         Err(e) => {
-        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
-        return Err(Status::from(e));
-    },
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let folders = match FolderController::index(user.clone(), Some(folder.id())) {
         Ok(folders) => folders,
         Err(e) => {
-        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
-        return Err(Status::from(e));
-    },
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
     let files = match FileController::index(user.clone(), folder.id()) {
         Ok(files) => files,
         Err(e) => {
-        log!(e.level(), "Request from user \"{}\" returned \"{}\"", user.id(), e);
-        return Err(Status::from(e));
-    },
+            log!(
+                e.level(),
+                "Request from user \"{}\" returned \"{}\"",
+                user.id(),
+                e
+            );
+            return Err(Status::from(e));
+        }
     };
 
-    let context = HomeContext {
+    let context = state.into_context(HomeContext {
         user,
         folder,
         folders,
         files,
-    };
+    });
 
     Ok(Template::render("home", &context))
 }

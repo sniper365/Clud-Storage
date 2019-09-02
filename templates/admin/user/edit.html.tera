@@ -12,15 +12,15 @@
 
                 <hr/>
 
-                <form action="/admin/users/{{ edit.user_id }}" method="POST">
+                <form action="/admin/users/{{ data.edit.user_id }}" method="POST">
                     <div class="form-group">
                         <label for="name">Name</label>
-                        <input type="text" id="name" value="{{ edit.name }}" name="name" class="form-control" required/>
+                        <input type="text" id="name" value="{{ data.edit.name }}" name="name" class="form-control" required/>
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" value="{{ edit.email }}" name="email" class="form-control" required/>
+                        <input type="email" id="email" value="{{ data.edit.email }}" name="email" class="form-control" required/>
                     </div>
 
                     <div class="form-group">

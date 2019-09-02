@@ -8,6 +8,7 @@ use rocket::{get, post};
 use rocket_contrib::templates::Template;
 use serde_derive::Serialize;
 use web::guards::auth::Auth;
+use web::state::State;
 
 #[derive(Serialize)]
 pub struct IndexContext {
@@ -16,7 +17,7 @@ pub struct IndexContext {
 }
 
 #[get("/users")]
-pub fn index(auth: Auth) -> impl Responder<'static> {
+pub fn index(auth: Auth, state: State) -> impl Responder<'static> {
     let user = auth.clone().user();
 
     let users = match UserController::index(user.clone()) {
@@ -32,7 +33,7 @@ pub fn index(auth: Auth) -> impl Responder<'static> {
         }
     };
 
-    let context = IndexContext { user, users };
+    let context = state.into_context(IndexContext { user, users });
 
     Ok(Template::render("user/index", &context))
 }
@@ -44,7 +45,7 @@ pub struct ShowContext {
 }
 
 #[get("/users/<user_id>")]
-pub fn show(auth: Auth, user_id: i32) -> impl Responder<'static> {
+pub fn show(auth: Auth, state: State, user_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
     let show = match UserController::show(user.clone(), user_id) {
@@ -60,7 +61,7 @@ pub fn show(auth: Auth, user_id: i32) -> impl Responder<'static> {
         }
     };
 
-    let context = ShowContext { user, show };
+    let context = state.into_context(ShowContext { user, show });
 
     Ok(Template::render("user/show", &context))
 }
@@ -71,14 +72,14 @@ pub struct CreateContext {
 }
 
 #[get("/users/create")]
-pub fn create(auth: Auth) -> impl Responder<'static> {
+pub fn create(auth: Auth, state: State) -> impl Responder<'static> {
     let user = auth.clone().user();
 
     if let Err(e) = UserController::create(user.clone()) {
         return Err(Status::from(e));
     }
 
-    let context = CreateContext { user };
+    let context = state.into_context(CreateContext { user });
 
     Ok(Template::render("user/create", &context))
 }
@@ -123,7 +124,7 @@ pub struct EditContext {
 }
 
 #[get("/users/<user_id>/edit")]
-pub fn edit(auth: Auth, user_id: i32) -> impl Responder<'static> {
+pub fn edit(auth: Auth, state: State, user_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
     let edit = match UserController::edit(user.clone(), user_id) {
@@ -139,7 +140,7 @@ pub fn edit(auth: Auth, user_id: i32) -> impl Responder<'static> {
         }
     };
 
-    let context = EditContext { user, edit };
+    let context = state.into_context(EditContext { user, edit });
 
     Ok(Template::render("user/edit", &context))
 }

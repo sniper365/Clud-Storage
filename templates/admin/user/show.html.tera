@@ -7,7 +7,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="card-title">
-                    <h2>{{ show.name }}</h2>
+                    <h2>{{ data.show.name }}</h2>
                 </div>
 
                 <hr/>
@@ -15,17 +15,17 @@
                 <form>
                     <div class="form-group">
                         <label for="name">Name</label>
-                        <input type="text" id="name" value="{{ show.name }}" name="name" class="form-control" required readonly/>
+                        <input type="text" id="name" value="{{ data.show.name }}" name="name" class="form-control" required readonly/>
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" value="{{ show.email }}" name="email" class="form-control" required readonly/>
+                        <input type="email" id="email" value="{{ data.show.email }}" name="email" class="form-control" required readonly/>
                     </div>
 
                     <div class="form-group">
                         <label for="role">Role</label>
-                        <input type="text" id="role" value="{{ show.role }}" name="role" class="form-control" required readonly/>
+                        <input type="text" id="role" value="{{ data.show.role }}" name="role" class="form-control" required readonly/>
                     </div>
                 </form>
             </div>

@@ -11,10 +11,10 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="/users/{{ user.user_id }}/edit">Settings</a>
+        <a class="nav-link" href="/users/{{ data.user.user_id }}/edit">Settings</a>
       </li>
 
-      {% if user.is_admin %}
+      {% if data.user.is_admin %}
       <li class="nav-item">
           <a class="nav-link" href="/admin">Admin</a>
       </li>

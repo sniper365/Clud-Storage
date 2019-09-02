@@ -5,6 +5,7 @@ mod error;
 mod guards;
 mod handlers;
 mod state;
+mod success;
 
 use self::handlers::*;
 use controllers::ControllerError;

@@ -1,0 +1,13 @@
+{% if successes | length > 0 %}
+    <div class="alert alert-success">
+        <h4 class="alert-heading">Success!</h4>
+
+        <hr/>
+
+        <ul class="mb-1">
+            {% for success in successes %}
+                <li>{{ success }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}

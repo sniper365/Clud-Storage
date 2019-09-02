@@ -4,18 +4,20 @@
     {{ super() }}
 
     <div class="container">
+        {% include "successes" %}
+
         <div class="card mb-5">
             <div class="card-body">
                 <div class="card-title">
                     <div class="row">
-                        <h2 class="col-lg-8 mb-0">{{ file.name }}.{{ file.extension }}</h2>
+                        <h2 class="col-lg-8 mb-0">{{ data.file.name }}.{{ data.file.extension }}</h2>
 
                         <div class="col-lg-4 d-flex">
                             <div class="flex-grow-1"></div>
-                            <a href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/edit">
+                            <a href="/folders/{{ data.file.folder_id }}/files/{{ data.file.file_id }}/edit">
                                 <button class="btn btn-warning">Modify</button>
                             </a>
-                            <a href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/{{ file.name }}.{{ file.extension }}" class="ml-1">
+                            <a href="/folders/{{ data.file.folder_id }}/files/{{ data.file.file_id }}/{{ data.file.name }}.{{ data.file.extension }}" class="ml-1">
                                 <button class="btn btn-primary">Download</button>
                             </a>
                         </div>
@@ -26,40 +28,40 @@
 
                 <div class="form-group">
                     <label for="name">Format</label>
-                    <input type="text" id="name" value="{{ file.extension }}" name="name" class="form-control" readonly/>
+                    <input type="text" id="name" value="{{ data.file.extension }}" name="name" class="form-control" readonly/>
                 </div>
 
                 <div class="d-flex">
                     <div class="flex-grow-1"></div>
-                    {% if file.extension == "jpg" or file.extension == "png" or file.extension == "gif" %}
-                        <img src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download" class="img-fluid mx-auto">
-                    {% elif file.extension == "mp4" %}
+                    {% if data.file.extension == "jpg" or data.file.extension == "png" or data.file.extension == "gif" %}
+                        <img src="/folders/{{ data.file.folder_id }}/files/{{ data.file.file_id }}/download" class="img-fluid mx-auto">
+                    {% elif data.file.extension == "mp4" %}
                         <video class="embed-responsive embed-responsive-16by9" controls>
-                            <source src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download"/>
+                            <source src="/folders/{{ data.file.folder_id }}/files/{{ data.file.file_id }}/download"/>
                         </video>
-                    {% elif file.extension == "pdf" %}
+                    {% elif data.file.extension == "pdf" %}
                         <div style="width: 100%;position: relative;">
                             <img src="/resources/pdf_backdrop.png" style="width: 100%;height: 100%;"/>
-                            <iframe src="/folders/{{ file.folder_id }}/files/{{ file.file_id }}/download" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;" type="application/pdf">
+                            <iframe src="/folders/{{ data.file.folder_id }}/files/{{ data.file.file_id }}/download" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;" type="application/pdf">
                         </div>
                     {% else %}
                         <div class="alert alert-info flex-grow-1 mt-3" role="alert">
-                            No preview available for file type "{{ file.extension }}"
+                            No preview available for file type "{{ data.file.extension }}"
                         </div>
                     {% endif %}
                     <div class="flex-grow-1"></div>
                 </div>
 
-                {% if file.public %}
+                {% if data.file.public %}
                     <hr/>
 
-                    Public Link: <a href="/public/{{ file.file_id }}" id="link"></a>
+                    Public Link: <a href="/public/{{ data.file.file_id }}" id="link"></a>
                 {% endif %}
             </div>
         </div>
     </div>
 
     <script>
-        $("#link").text(window.location.protocol + "//" + window.location.hostname + "/public/{{ file.file_id }}");
+        $("#link").text(window.location.protocol + "//" + window.location.hostname + "/public/{{ data.file.file_id }}");
     </script>
 {% endblock content %}

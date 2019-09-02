@@ -1,6 +1,6 @@
 <div class="card mt-3 border-0 col-md-12 col-lg-10">
     <ul class="list-group">
-        {% for file in files %}
+        {% for file in data.files %}
             <a class="list-group-item text-body" href="/folders/{{ file.folder_id }}/files/{{ file.file_id }}">
                 <div class="row">
                     <div class="col-md-9 pt-1">

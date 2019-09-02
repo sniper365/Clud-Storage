@@ -15,6 +15,8 @@ use rocket_multipart_form_data::{
 use serde_derive::Serialize;
 use std::fs;
 use web::guards::auth::Auth;
+use web::state::State;
+use web::success::Success;
 
 #[get("/folders/<folder_id>/files")]
 pub fn index(_auth: Auth, folder_id: i32) -> impl Responder<'static> {
@@ -29,7 +31,7 @@ pub struct ShowContext {
 }
 
 #[get("/folders/<_folder_id>/files/<file_id>", rank = 2)]
-pub fn show(auth: Auth, _folder_id: i32, file_id: i32) -> impl Responder<'static> {
+pub fn show(auth: Auth, state: State, _folder_id: i32, file_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
     let file = match FileController::show(user.clone(), file_id) {
@@ -58,7 +60,7 @@ pub fn show(auth: Auth, _folder_id: i32, file_id: i32) -> impl Responder<'static
         }
     };
 
-    let context = ShowContext { user, folder, file };
+    let context = state.into_context(ShowContext { user, folder, file });
 
     Ok(Template::render("file/show", &context))
 }
@@ -70,7 +72,7 @@ pub struct CreateContext {
 }
 
 #[get("/folders/<folder_id>/files/create", rank = 1)]
-pub fn create(auth: Auth, folder_id: i32) -> impl Responder<'static> {
+pub fn create(auth: Auth, state: State, folder_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
     if let Err(e) = FileController::create(user.clone()) {
@@ -90,7 +92,7 @@ pub fn create(auth: Auth, folder_id: i32) -> impl Responder<'static> {
         }
     };
 
-    let context = CreateContext { user, folder };
+    let context = state.into_context(CreateContext { user, folder });
 
     Ok(Template::render("file/create", &context))
 }
@@ -98,6 +100,7 @@ pub fn create(auth: Auth, folder_id: i32) -> impl Responder<'static> {
 #[post("/folders/<folder_id>/files", data = "<payload>")]
 pub fn store(
     auth: Auth,
+    mut state: State,
     folder_id: i32,
     payload: Data,
     content_type: &ContentType,
@@ -153,6 +156,12 @@ pub fn store(
         }
     };
 
+    state.push_success(Success::new(format!(
+        "File {}.{} successfully uploaded!",
+        stored.name(),
+        stored.extension()
+    )));
+
     Ok(Redirect::to(format!(
         "/folders/{}/files/{}",
         folder_id,
@@ -168,7 +177,7 @@ pub struct EditContext {
 }
 
 #[get("/folders/<_folder_id>/files/<file_id>/edit")]
-pub fn edit(auth: Auth, _folder_id: i32, file_id: i32) -> impl Responder<'static> {
+pub fn edit(auth: Auth, state: State, _folder_id: i32, file_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
     let file = match FileController::edit(user.clone(), file_id) {
@@ -197,7 +206,7 @@ pub fn edit(auth: Auth, _folder_id: i32, file_id: i32) -> impl Responder<'static
         }
     };
 
-    let context = EditContext { user, folder, file };
+    let context = state.into_context(EditContext { user, folder, file });
 
     Ok(Template::render("file/edit", &context))
 }

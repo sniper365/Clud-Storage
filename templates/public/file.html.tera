@@ -9,22 +9,22 @@
         <div class="card mb-5">
             <div class="card-body">
                 <div class="card-title">
-                    <h2>{{ file.name }}.{{ file.extension }}</h2>
+                    <h2>{{ data.file.name }}.{{ data.file.extension }}</h2>
                 </div>
 
                 <hr/>
 
-                {% if file.extension == "jpg" or file.extension == "png" %}
-                    <img src="/public/{{ file.file_id }}/download" class="img-fluid">
-                {% elif file.extension == "mp4" %}
+                {% if data.file.extension == "jpg" or data.file.extension == "png" %}
+                    <img src="/public/{{ data.file.file_id }}/download" class="img-fluid">
+                {% elif data.file.extension == "mp4" %}
                     <video class="embed-responsive embed-responsive-16by9" controls>
-                      <source src="/public/{{ file.file_id }}/download"/>
+                      <source src="/public/{{ data.file.file_id }}/download"/>
                     </video>
-                {% elif file.extension == "pdf" %}
-                  <embed src="/public/{{ file.file_id }}/download" class="embed-responsive" height="900" type="application/pdf">
+                {% elif data.file.extension == "pdf" %}
+                  <embed src="/public/{{ data.file.file_id }}/download" class="embed-responsive" height="900" type="application/pdf">
                 {% else %}
                   <div class="alert alert-info flex-grow-1 mt-3" role="alert">
-                      No preview available for file type "{{ file.extension }}"
+                      No preview available for file type "{{ data.file.extension }}"
                   </div>
                 {% endif %}
             </div>

@@ -5,7 +5,7 @@
                 Upload File
             </div>
 
-            <form class="" id="upload" action="/folders/{{ folder.folder_id }}/files" method="POST" enctype="multipart/form-data">
+            <form class="" id="upload" action="/folders/{{ data.folder.folder_id }}/files" method="POST" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="m-3">
                         <div class="custom-file">

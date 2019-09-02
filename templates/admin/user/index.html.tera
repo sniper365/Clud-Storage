@@ -25,7 +25,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for u in users %}
+                        {% for u in data.users %}
                             <tr class="border-top">
                                 <td scope="row">{{ u.user_id }}</td>
                                 <td>{{ u.name }}</td>
@@ -38,7 +38,7 @@
                                     <a class="mr-1" href="/admin/users/{{ u.user_id }}/edit">
                                         <button class="btn btn-warning btn-sm">Modify</button>
                                     </a>
-                                    {% if user.user_id != u.user_id %}
+                                    {% if data.user.user_id != u.user_id %}
                                         <form class="mr-1" action="/admin/users/{{ u.user_id }}/delete" method="POST">
                                             <button class="btn btn-danger btn-sm" type="submit">Delete</button>
                                         </form>

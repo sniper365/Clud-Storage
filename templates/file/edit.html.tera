@@ -7,16 +7,16 @@
         <div class="card">
             <div class="card-body">
                 <div class="card-title d-flex">
-                    <h2>{{ file.name }}.{{ file.extension }}</h2>
+                    <h2>{{ data.file.name }}.{{ data.file.extension }}</h2>
 
                 </div>
 
                 <hr/>
 
-                <form action="/folders/{{ file.folder_id }}/files/{{ file.file_id }}" method="POST">
+                <form action="/folders/{{ data.file.folder_id }}/files/{{ data.file.file_id }}" method="POST">
                     <div class="form-group">
                         <label for="name">Name</label>
-                        <input type="text" id="name" value="{{ file.name }}" name="name" class="form-control" required/>
+                        <input type="text" id="name" value="{{ data.file.name }}" name="name" class="form-control" required/>
                     </div>
 
                     <div class="form-group">
@@ -27,8 +27,8 @@
                         </select>
                     </div>
 
-                    <input type="text" class="hidden" name="extension" value="{{ file.extension }}" hidden/>
-                    <input type="text" class="hidden" name="folder_id" value="{{ file.folder_id }}" hidden/>
+                    <input type="text" class="hidden" name="extension" value="{{ data.file.extension }}" hidden/>
+                    <input type="text" class="hidden" name="folder_id" value="{{ data.file.folder_id }}" hidden/>
 
                     <hr/>
 

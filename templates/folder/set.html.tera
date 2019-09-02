@@ -1,11 +1,11 @@
 <div class="card mt-3 border-0 col-md-12 col-lg-2">
     <ul class="list-group">
-        {% if folder.parent_id %}
-            <a class="list-group-item text-body pt-0 pb-1 h2" href="/folders/{{ folder.parent_id }}">
+        {% if data.folder.parent_id %}
+            <a class="list-group-item text-body pt-0 pb-1 h2" href="/folders/{{ data.folder.parent_id }}">
                 ⇖
             </a>
         {% endif %}
-        {% for folder in folders %}
+        {% for folder in data.folders %}
             <a class="list-group-item text-body" href="/folders/{{ folder.folder_id }}">
                 {{ folder.name }}
             </a>

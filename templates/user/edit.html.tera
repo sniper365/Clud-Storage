@@ -12,15 +12,15 @@
 
                 <hr/>
 
-                <form action="/users/{{ edit.user_id }}" method="POST">
+                <form action="/users/{{ data.edit.user_id }}" method="POST">
                     <div class="form-group">
                         <label for="name">Name</label>
-                        <input type="text" id="name" value="{{ edit.name }}" name="name" class="form-control" required/>
+                        <input type="text" id="name" value="{{ data.edit.name }}" name="name" class="form-control" required/>
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" value="{{ edit.email }}" name="email" class="form-control" required/>
+                        <input type="email" id="email" value="{{ data.edit.email }}" name="email" class="form-control" required/>
                     </div>
 
                     <hr/>
@@ -45,7 +45,7 @@
 
                 <hr/>
 
-                <form action="/users/{{ edit.user_id }}/password" method="POST">
+                <form action="/users/{{ data.edit.user_id }}/password" method="POST">
                     <div class="form-group mb-5">
                         <label for="password">Old Password</label>
                         <input type="password" id="password" placeholder="password" name="old_password" class="form-control" required/>
