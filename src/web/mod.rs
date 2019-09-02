@@ -1,7 +1,10 @@
 use rocket::{catchers, routes};
 
+mod context;
+mod error;
 mod guards;
 mod handlers;
+mod state;
 
 use self::handlers::*;
 use controllers::ControllerError;
@@ -71,11 +74,11 @@ pub fn boot() {
             ],
         )
         .register(catchers![
-            error::unauthorized,
-            error::forbidden,
-            error::not_found,
-            error::internal_server_error,
-            error::bad_request
+            handlers::error::unauthorized,
+            handlers::error::forbidden,
+            handlers::error::not_found,
+            handlers::error::internal_server_error,
+            handlers::error::bad_request
         ])
         .launch();
 }
