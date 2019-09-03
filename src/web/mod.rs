@@ -2,6 +2,7 @@ use rocket::{catchers, routes};
 
 mod context;
 mod error;
+mod fairings;
 mod guards;
 mod handlers;
 mod state;
@@ -15,6 +16,7 @@ use rocket_contrib::templates::Template;
 pub fn boot() {
     rocket::ignite()
         .attach(Template::fairing())
+        .attach(fairings::log::LogFairing)
         .mount(
             "/",
             routes![
