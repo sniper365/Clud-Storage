@@ -9,6 +9,7 @@ use rocket_contrib::templates::Template;
 use serde_derive::Serialize;
 use web::guards::admin::Admin;
 use web::state::State;
+use web::success::Success;
 
 #[derive(Serialize)]
 pub struct IndexContext {
@@ -93,7 +94,11 @@ pub struct StorePayload {
 }
 
 #[post("/admin/users", data = "<payload>")]
-pub fn store(admin: Admin, payload: Form<StorePayload>) -> impl Responder<'static> {
+pub fn store(
+    admin: Admin,
+    mut state: State,
+    payload: Form<StorePayload>,
+) -> impl Responder<'static> {
     let user = admin.clone().user();
 
     let user = match UserController::store(
@@ -114,6 +119,11 @@ pub fn store(admin: Admin, payload: Form<StorePayload>) -> impl Responder<'stati
             return Err(Status::from(e));
         }
     };
+
+    state.push_success(Success::new(format!(
+        "User {} successfully created!",
+        user.email(),
+    )));
 
     Ok(Redirect::to(format!("/admin/users/{}", user.id())))
 }

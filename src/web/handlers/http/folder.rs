@@ -9,6 +9,7 @@ use rocket_contrib::templates::Template;
 use serde_derive::Serialize;
 use web::guards::auth::Auth;
 use web::state::State;
+use web::success::Success;
 
 #[get("/folders")]
 pub fn index(_auth: Auth) -> impl Responder<'static> {
@@ -121,13 +122,21 @@ pub struct StorePayload {
 #[post("/folders?<folder_id>", data = "<payload>")]
 pub fn store(
     auth: Auth,
+    mut state: State,
     folder_id: Option<i32>,
     payload: Form<StorePayload>,
 ) -> impl Responder<'static> {
     let user = auth.clone().user();
 
     match FolderController::store(user.clone(), payload.name.to_owned(), user.id(), folder_id) {
-        Ok(folder) => Ok(Redirect::to(format!("/folders/{}", folder.id()))),
+        Ok(folder) => {
+            state.push_success(Success::new(format!(
+                "Folder {} successfully created!",
+                folder.name(),
+            )));
+
+            Ok(Redirect::to(format!("/folders/{}", folder.id())))
+        }
         Err(e) => Err(Status::from(e)),
     }
 }

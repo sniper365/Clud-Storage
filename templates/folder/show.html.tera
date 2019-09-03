@@ -3,6 +3,10 @@
 {% block content %}
     {{ super() }}
 
+    <div class="container">
+        {% include "successes" %}
+    </div>
+
     {% include "folder/header" %}
 
     <div class="row mx-0">
