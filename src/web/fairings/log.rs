@@ -27,10 +27,10 @@ impl Fairing for LogFairing {
     fn on_request(&self, request: &mut Request, _d: &Data) {
         match request.client_ip() {
             Some(ip) => {
-                log!("fatal", "Got request from IP {}", ip);
+                log!("fatal", "Got request from IP {} for {}", ip, request);
             }
             None => {
-                log!("fatal", "Got request from unknown IP");
+                log!("fatal", "Got request from unknown IP for {}", request);
             }
         }
     }
