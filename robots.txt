@@ -1,0 +1,7 @@
+# If you're reading this, then you are a real human.
+# If you are a real human, then you have real eyes.
+#
+# Checkmate, Jaden Smith
+
+User-agent: *
+Disallow: /

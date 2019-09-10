@@ -14,3 +14,8 @@ use std::path::{Path, PathBuf};
 pub fn resources(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new("resources/").join(file)).ok()
 }
+
+#[get("/robots.txt")]
+pub fn robots() -> Option<NamedFile> {
+    NamedFile::open(Path::new("robots.txt")).ok()
+}

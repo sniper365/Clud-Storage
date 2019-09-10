@@ -21,6 +21,7 @@ pub fn boot() {
             "/",
             routes![
                 http::resources,
+                http::robots,
                 http::auth::login,
                 http::auth::authenticate,
                 http::auth::logout,
