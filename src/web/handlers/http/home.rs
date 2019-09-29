@@ -12,6 +12,7 @@ use web::state::State;
 struct HomeContext {
     user: User,
     folder: Folder,
+    parent: Folder,
     folders: Vec<Folder>,
     files: Vec<File>,
 }
@@ -64,6 +65,8 @@ pub fn home(auth: Auth, state: State) -> impl Responder<'static> {
 
     let context = state.into_context(HomeContext {
         user,
+        // Root is used twice in two different contexts
+        parent: folder.clone(),
         folder,
         folders,
         files,
