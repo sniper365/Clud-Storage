@@ -1,4 +1,4 @@
-use super::aws::Aws;
+use super::aws::rusoto::s3::S3;
 use super::disk::Disk;
 use super::storage_driver_option::StorageDriverOption;
 use super::StorageDriver;
@@ -6,7 +6,6 @@ use env::Env;
 use std::error::Error;
 use std::fmt;
 use std::fs::File;
-use std::io::Read;
 use std::path::Path;
 
 pub struct StorageRouter;
@@ -14,13 +13,10 @@ pub struct StorageRouter;
 impl StorageDriver for StorageRouter {
     type Error = StorageRouterError;
 
-    fn store<R>(path: &Path, contents: &mut R) -> Result<(), StorageRouterError>
-    where
-        R: Read,
-    {
+    fn store(path: &Path, contents: File) -> Result<(), StorageRouterError> {
         match Env::storage_driver() {
             StorageDriverOption::Aws => {
-                Aws::store(path, contents).map_err(|e| StorageRouterError::from(e))
+                S3::store(path, contents).map_err(|e| StorageRouterError::from(e))
             }
             StorageDriverOption::Disk => {
                 Disk::store(path, contents).map_err(|e| StorageRouterError::from(e))
@@ -30,14 +26,14 @@ impl StorageDriver for StorageRouter {
 
     fn read(path: &Path) -> Result<File, StorageRouterError> {
         match Env::storage_driver() {
-            StorageDriverOption::Aws => Aws::read(path).map_err(|e| StorageRouterError::from(e)),
+            StorageDriverOption::Aws => S3::read(path).map_err(|e| StorageRouterError::from(e)),
             StorageDriverOption::Disk => Disk::read(path).map_err(|e| StorageRouterError::from(e)),
         }
     }
 
     fn delete(path: &Path) -> Result<(), StorageRouterError> {
         match Env::storage_driver() {
-            StorageDriverOption::Aws => Aws::delete(path).map_err(|e| StorageRouterError::from(e)),
+            StorageDriverOption::Aws => S3::delete(path).map_err(|e| StorageRouterError::from(e)),
             StorageDriverOption::Disk => {
                 Disk::delete(path).map_err(|e| StorageRouterError::from(e))
             }
@@ -45,7 +41,7 @@ impl StorageDriver for StorageRouter {
     }
 }
 
-type AwsError = <Aws as StorageDriver>::Error;
+type AwsError = <S3 as StorageDriver>::Error;
 type DiskError = <Disk as StorageDriver>::Error;
 
 pub enum StorageRouterError {

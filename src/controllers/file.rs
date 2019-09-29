@@ -9,7 +9,6 @@ use policies::Restricted;
 use schema::*;
 use services::{FileService, StorageService};
 use std::fs;
-use std::io::Read;
 
 pub struct FileController;
 
@@ -77,18 +76,15 @@ impl FileController {
         }
     }
 
-    pub fn store<R>(
+    pub fn store(
         user: User,
         name: String,
         extension: String,
         user_id: i32,
         folder_id: i32,
         public: bool,
-        input: &mut R,
-    ) -> Result<File, Error>
-    where
-        R: Read,
-    {
+        input: fs::File,
+    ) -> Result<File, Error> {
         if !user.can_create::<File>() {
             return Err(Error::Forbidden);
         }

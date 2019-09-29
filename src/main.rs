@@ -16,10 +16,13 @@ extern crate r2d2_postgres;
 extern crate rocket;
 extern crate rocket_contrib;
 extern crate rocket_multipart_form_data;
+extern crate rusoto_core;
+extern crate rusoto_s3;
 extern crate s3;
 extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
+extern crate tokio;
 
 #[cfg(test)]
 #[macro_use]

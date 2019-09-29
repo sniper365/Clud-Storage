@@ -115,7 +115,7 @@ pub fn store(
     let file = multipart_form_data.files.get("file");
     let mut name = String::new();
 
-    let mut file = match file {
+    let file = match file {
         Some(FileField::Single(file)) => {
             let res = match fs::File::open(file.path.clone()) {
                 Ok(res) => res,
@@ -142,7 +142,7 @@ pub fn store(
         user.id(),
         folder_id,
         false,
-        &mut file,
+        file,
     ) {
         Ok(file) => file,
         Err(e) => {

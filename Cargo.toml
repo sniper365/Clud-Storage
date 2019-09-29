@@ -23,6 +23,9 @@ rocket-multipart-form-data = "*"
 diesel-derive-enum = { version = "0.4", features = ["postgres"] }
 rand = "0.6.5"
 rust-s3 = "0.15.0"
+rusoto_s3 = "0.40.0"
+rusoto_core = "0.40.0"
+tokio = "0.1.*"
 
 [dependencies.fake]
 version = "1.3.0"
