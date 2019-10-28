@@ -13,7 +13,7 @@
 
                 <hr/>
 
-                {% if parent %}
+                {% if data.parent %}
                     <form action="/folders?folder_id={{ data.parent.folder_id }}" method="POST">
                 {% else %}
                     <form action="/folders" method="POST">
