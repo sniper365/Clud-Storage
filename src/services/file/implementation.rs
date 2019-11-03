@@ -7,11 +7,12 @@ use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use schema::*;
+use super::FileService;
 
-pub struct FileService;
+pub struct Service;
 
-impl FileService {
-    pub fn create(
+impl FileService for Service {
+    fn create(
         name: String,
         extension: String,
         file_name: String,
@@ -28,7 +29,7 @@ impl FileService {
             .save()
     }
 
-    pub fn update(
+    fn update(
         id: i32,
         name: String,
         file_name: String,
@@ -49,7 +50,7 @@ impl FileService {
         file.update()
     }
 
-    pub fn delete(id: i32) -> Result<File, Error> {
+    fn delete(id: i32) -> Result<File, Error> {
         let file = File::all()
             .filter(files::id.eq(id))
             .first::<File>(&DbFacade::connection())?;

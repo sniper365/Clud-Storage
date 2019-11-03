@@ -8,6 +8,7 @@ use diesel::RunQueryDsl;
 use policies::Restricted;
 use schema::*;
 use std::fs;
+use crate::services::FileService;
 
 pub struct FileController;
 

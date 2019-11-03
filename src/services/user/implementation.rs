@@ -9,11 +9,14 @@ use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use env::Env;
 use schema::*;
+use crate::services::UserService;
+use crate::services::FolderService;
+use crate::services::FileService;
 
-pub struct UserService;
+pub struct Service;
 
-impl UserService {
-    pub fn create(
+impl UserService for Service {
+    fn create(
         name: String,
         email: String,
         role: String,
@@ -42,7 +45,7 @@ impl UserService {
         Ok(user)
     }
 
-    pub fn update(id: i32, name: String, email: String, role: String) -> Result<User, Error> {
+    fn update(id: i32, name: String, email: String, role: String) -> Result<User, Error> {
         let mut user = User::all()
             .filter(users::id.eq(id))
             .first::<User>(&DbFacade::connection())?;
@@ -54,7 +57,7 @@ impl UserService {
         user.update()
     }
 
-    pub fn delete(id: i32) -> Result<User, Error> {
+    fn delete(id: i32) -> Result<User, Error> {
 
         let user = User::all()
             .filter(users::id.eq(id))
@@ -77,7 +80,7 @@ impl UserService {
         user.delete()
     }
 
-    pub fn update_password(id: i32, password: String) -> Result<User, Error> {
+    fn update_password(id: i32, password: String) -> Result<User, Error> {
         let mut user = User::all()
             .filter(users::id.eq(id))
             .first::<User>(&DbFacade::connection())?;
@@ -104,7 +107,7 @@ mod tests {
 
         let user = factory!(User);
 
-        let actual = UserService::create(
+        let actual = Service::create(
             user.name().to_string(),
             user.email().to_string(),
             "guest".to_string(),
@@ -130,7 +133,7 @@ mod tests {
         let user = factory!(User).save().unwrap();
 
         let expected = factory!(User);
-        let actual = UserService::update(
+        let actual = Service::update(
             user.id(),
             expected.name().to_string(),
             expected.email().to_string(),
@@ -149,7 +152,7 @@ mod tests {
         let conn = DbFacade::connection();
 
         let expected = factory!(User).save().unwrap();
-        let actual = UserService::delete(expected.id()).unwrap();
+        let actual = Service::delete(expected.id()).unwrap();
 
         let lookup = User::all()
             .filter(users::id.eq(actual.id()))

@@ -1,7 +1,7 @@
-mod file;
-mod folder;
-mod storage;
-mod user;
+pub mod file;
+pub mod folder;
+pub mod storage;
+pub mod user;
 
 pub use self::file::FileService;
 pub use self::folder::FolderService;

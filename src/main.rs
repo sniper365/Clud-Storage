@@ -64,6 +64,7 @@ use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use schema::*;
+use services::UserService;
 
 fn seed() {
     match User::all()

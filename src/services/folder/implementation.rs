@@ -7,11 +7,12 @@ use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use schema::*;
+use super::FolderService;
 
-pub struct FolderService;
+pub struct Service;
 
-impl FolderService {
-    pub fn create(name: String, user_id: i32, parent_id: Option<i32>) -> Result<Folder, Error> {
+impl FolderService for Service {
+    fn create(name: String, user_id: i32, parent_id: Option<i32>) -> Result<Folder, Error> {
         let folder = FolderBuilder::new()
             .with_name(name)
             .with_user_id(user_id)
@@ -21,7 +22,7 @@ impl FolderService {
         folder.save()
     }
 
-    pub fn update(
+    fn update(
         id: i32,
         name: String,
         user_id: i32,
@@ -38,7 +39,7 @@ impl FolderService {
         folder.update()
     }
 
-    pub fn delete(id: i32) -> Result<Folder, Error> {
+    fn delete(id: i32) -> Result<Folder, Error> {
         let folder = Folder::all()
             .filter(folders::id.eq(id))
             .first::<Folder>(&DbFacade::connection())?;
@@ -60,7 +61,7 @@ mod tests {
         let user = factory!(User).save().unwrap();
         let expected = factory!(Folder, user.id(), None);
 
-        let actual = FolderService::create(
+        let actual = Service::create(
             expected.name().to_string(),
             expected.user_id(),
             *expected.parent_id(),
@@ -80,7 +81,7 @@ mod tests {
         let folder = factory!(Folder, user.id(), None).save().unwrap();
 
         let expected = factory!(Folder, user.id(), None);
-        let actual = FolderService::update(
+        let actual = Service::update(
             folder.id(),
             expected.name().to_string(),
             expected.user_id(),
@@ -101,7 +102,7 @@ mod tests {
 
         let user = factory!(User).save().unwrap();
         let expected = factory!(Folder, user.id(), None).save().unwrap();
-        let actual = FolderService::new().delete(expected.id()).unwrap();
+        let actual = Service::new().delete(expected.id()).unwrap();
 
         let lookup = Folder::all()
             .filter(folders::id.eq(actual.id()))

@@ -7,6 +7,7 @@ use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use policies::Restricted;
 use schema::*;
+use services::UserService;
 
 pub struct UserController;
 

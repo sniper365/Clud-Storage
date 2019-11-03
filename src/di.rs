@@ -1,14 +1,14 @@
 macro_rules! resolve {
     (FileService) => {
-        crate::services::FileService
+        crate::services::file::implementation::Service
     };
 
     (FolderService) => {
-        crate::services::FolderService
+        crate::services::folder::implementation::Service
     };
 
     (UserService) => {
-        crate::services::UserService
+        crate::services::user::implementation::Service
     };
 
     (StorageService) => {
