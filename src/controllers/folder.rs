@@ -7,7 +7,6 @@ use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use policies::Restricted;
 use schema::*;
-use services::FolderService;
 
 pub struct FolderController;
 
@@ -67,7 +66,7 @@ impl FolderController {
             return Err(Error::Forbidden);
         }
 
-        match FolderService::create(name, user_id, parent_id) {
+        match <resolve!(FolderService)>::create(name, user_id, parent_id) {
             Ok(folder) => Ok(folder),
             Err(_) => Err(Error::InternalServerError),
         }
@@ -113,7 +112,7 @@ impl FolderController {
             return Err(Error::Forbidden);
         }
 
-        match FolderService::update(folder_id, name, user_id, parent_id) {
+        match <resolve!(FolderService)>::update(folder_id, name, user_id, parent_id) {
             Ok(folder) => Ok(folder),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
@@ -138,7 +137,7 @@ impl FolderController {
             return Err(Error::Forbidden);
         }
 
-        match FolderService::delete(folder_id) {
+        match <resolve!(FolderService)>::delete(folder_id) {
             Ok(folder) => Ok(folder),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);

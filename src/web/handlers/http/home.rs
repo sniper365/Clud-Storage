@@ -1,4 +1,3 @@
-use controllers::{FileController, FolderController};
 use db::models::{File, Folder, User};
 use rocket::get;
 use rocket::http::Status;
@@ -21,7 +20,7 @@ struct HomeContext {
 pub fn home(auth: Auth, state: State) -> impl Responder<'static> {
     let user = auth.to_owned().user();
 
-    let folder = match FolderController::index(user.clone(), None) {
+    let folder = match <resolve!(FolderController)>::index(user.clone(), None) {
         Ok(folders) => match folders.first() {
             Some(root) => root.to_owned(),
             None => return Err(Status::InternalServerError),
@@ -37,7 +36,7 @@ pub fn home(auth: Auth, state: State) -> impl Responder<'static> {
         }
     };
 
-    let folders = match FolderController::index(user.clone(), Some(folder.id())) {
+    let folders = match <resolve!(FolderController)>::index(user.clone(), Some(folder.id())) {
         Ok(folders) => folders,
         Err(e) => {
             log!(
@@ -50,7 +49,7 @@ pub fn home(auth: Auth, state: State) -> impl Responder<'static> {
         }
     };
 
-    let files = match FileController::index(user.clone(), folder.id()) {
+    let files = match <resolve!(FileController)>::index(user.clone(), folder.id()) {
         Ok(files) => files,
         Err(e) => {
             log!(

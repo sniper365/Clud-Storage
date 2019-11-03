@@ -74,7 +74,7 @@ mod tests {
         let folder = factory!(Folder, user.id(), None).save()?;
         let expected = factory!(File, folder.id());
 
-        let actual = FileService::create(
+        let actual = <resolve!(FileService)>::create(
             expected.name().to_string(),
             expected.extension().to_string(),
             expected.file_name().to_string(),
@@ -98,7 +98,7 @@ mod tests {
         let file = factory!(File, folder.id()).save()?;
 
         let expected = factory!(File, folder.id());
-        let actual = FileService::update(
+        let actual = <resolve!(FileService)>::update(
             file.id(),
             expected.name().to_string(),
             expected.file_name().to_string(),
@@ -131,7 +131,7 @@ mod tests {
 
         std::fs::File::create(path)?;
 
-        let actual = FileService::delete(expected.id())?;
+        let actual = <resolve!(FileService)>::delete(expected.id())?;
 
         let lookup = File::all()
             .filter(files::id.eq(actual.id()))

@@ -1,4 +1,3 @@
-use controllers::UserController;
 use db::models::User;
 use rocket::http::Status;
 use rocket::request::Form;
@@ -21,7 +20,7 @@ pub struct IndexContext {
 pub fn index(admin: Admin, state: State) -> impl Responder<'static> {
     let user = admin.clone().user();
 
-    let users = match UserController::index(user.clone()) {
+    let users = match <resolve!(UserController)>::index(user.clone()) {
         Ok(users) => users,
         Err(e) => {
             log!(
@@ -49,7 +48,7 @@ pub struct ShowContext {
 pub fn show(admin: Admin, state: State, user_id: i32) -> impl Responder<'static> {
     let user = admin.clone().user();
 
-    let show = match UserController::show(user.clone(), user_id) {
+    let show = match <resolve!(UserController)>::show(user.clone(), user_id) {
         Ok(user) => user,
         Err(e) => {
             log!(
@@ -76,7 +75,7 @@ pub struct CreateContext {
 pub fn create(admin: Admin, state: State) -> impl Responder<'static> {
     let user = admin.clone().user();
 
-    if let Err(e) = UserController::create(user.clone()) {
+    if let Err(e) = <resolve!(UserController)>::create(user.clone()) {
         return Err(Status::from(e));
     }
 
@@ -101,7 +100,7 @@ pub fn store(
 ) -> impl Responder<'static> {
     let user = admin.clone().user();
 
-    let user = match UserController::store(
+    let user = match <resolve!(UserController)>::store(
         user.clone(),
         payload.name.clone(),
         payload.email.clone(),
@@ -138,7 +137,7 @@ pub struct EditContext {
 pub fn edit(admin: Admin, state: State, user_id: i32) -> impl Responder<'static> {
     let user = admin.clone().user();
 
-    let edit = match UserController::edit(user.clone(), user_id) {
+    let edit = match <resolve!(UserController)>::edit(user.clone(), user_id) {
         Ok(edit) => edit,
         Err(e) => {
             log!(
@@ -167,7 +166,7 @@ pub struct UpdatePayload {
 pub fn update(admin: Admin, user_id: i32, payload: Form<UpdatePayload>) -> impl Responder<'static> {
     let user = admin.clone().user();
 
-    match UserController::update(
+    match <resolve!(UserController)>::update(
         user,
         user_id,
         payload.name.clone(),
@@ -187,7 +186,7 @@ pub fn delete(admin: Admin, user_id: i32) -> impl Responder<'static> {
         return Err(Status::Forbidden);
     }
 
-    match UserController::delete(user, user_id) {
+    match <resolve!(UserController)>::delete(user, user_id) {
         Ok(_) => Ok(Redirect::to("/admin/users")),
         Err(e) => Err(Status::from(e)),
     }

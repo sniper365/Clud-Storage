@@ -7,7 +7,6 @@ use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use policies::Restricted;
 use schema::*;
-use services::{FileService, StorageService};
 use std::fs;
 
 pub struct FileController;
@@ -89,9 +88,9 @@ impl FileController {
             return Err(Error::Forbidden);
         }
 
-        let file_name = StorageService::store(user_id.to_string(), input).unwrap();
+        let file_name = <resolve!(StorageService)>::store(user_id.to_string(), input).unwrap();
 
-        match FileService::create(name, extension, file_name, folder_id, public) {
+        match <resolve!(FileService)>::create(name, extension, file_name, folder_id, public) {
             Ok(file) => Ok(file),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
@@ -141,7 +140,7 @@ impl FileController {
             return Err(Error::Forbidden);
         }
 
-        match FileService::update(
+        match <resolve!(FileService)>::update(
             file_id,
             name,
             found.file_name().to_string(),
@@ -178,12 +177,12 @@ impl FileController {
             return Err(Error::Forbidden);
         }
 
-        if let Err(_) = StorageService::delete(user.id().to_string(), found.file_name().to_string())
+        if let Err(_) = <resolve!(StorageService)>::delete(user.id().to_string(), found.file_name().to_string())
         {
             return Err(Error::InternalServerError);
         }
 
-        match FileService::delete(file_id) {
+        match <resolve!(FileService)>::delete(file_id) {
             Ok(file) => Ok(file),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
@@ -216,7 +215,7 @@ impl FileController {
             return Err(Error::Forbidden);
         }
 
-        match StorageService::read(owner.to_string(), found.file_name().to_string()) {
+        match <resolve!(StorageService)>::read(owner.to_string(), found.file_name().to_string()) {
             Ok(contents) => Ok(contents),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
@@ -248,7 +247,7 @@ mod tests {
             factory!(File, folder.id()).save()?,
         ];
 
-        let mut actual = FileController::index(user, folder.id())?;
+        let mut actual = <resolve!(FileController)>::index(user, folder.id())?;
 
         // Sorting the lists, Vec will return != if they are in
         //  different order, but this shouldn't care

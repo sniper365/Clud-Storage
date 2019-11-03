@@ -7,7 +7,6 @@ use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use policies::Restricted;
 use schema::*;
-use services::UserService;
 
 pub struct UserController;
 
@@ -61,7 +60,7 @@ impl UserController {
             return Err(Error::Forbidden);
         }
 
-        match UserService::create(name, email, role, password) {
+        match <resolve!(UserService)>::create(name, email, role, password) {
             Ok(user) => Ok(user),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
@@ -110,7 +109,7 @@ impl UserController {
             return Err(Error::Forbidden);
         }
 
-        match UserService::update(user_id, name, email, role) {
+        match <resolve!(UserService)>::update(user_id, name, email, role) {
             Ok(user) => Ok(user),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
@@ -135,7 +134,7 @@ impl UserController {
             return Err(Error::Forbidden);
         }
 
-        match UserService::delete(user_id) {
+        match <resolve!(UserService)>::delete(user_id) {
             Ok(user) => Ok(user),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);
@@ -160,7 +159,7 @@ impl UserController {
             return Err(Error::Forbidden);
         }
 
-        match UserService::update_password(user_id, password) {
+        match <resolve!(UserService)>::update_password(user_id, password) {
             Ok(user) => Ok(user),
             Err(e) => {
                 log!("error", "500 Internal Server Error: {}", e);

@@ -1,4 +1,3 @@
-use controllers::UserController;
 use db::presentation::ToJson;
 use rocket::http::Status;
 use rocket::response::Responder;
@@ -11,7 +10,7 @@ use web::guards::auth::Auth;
 pub fn index(auth: Auth) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    let users = match UserController::index(user.clone()) {
+    let users = match <resolve!(UserController)>::index(user.clone()) {
         Ok(users) => users,
         Err(e) => {
             log!(
@@ -31,7 +30,7 @@ pub fn index(auth: Auth) -> impl Responder<'static> {
 pub fn show(auth: Auth, user_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    let show = match UserController::show(user.clone(), user_id) {
+    let show = match <resolve!(UserController)>::show(user.clone(), user_id) {
         Ok(user) => user,
         Err(e) => {
             log!(
@@ -58,7 +57,7 @@ pub struct StorePayload {
 pub fn store(auth: Auth, payload: Json<StorePayload>) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    match UserController::store(
+    match <resolve!(UserController)>::store(
         user.clone(),
         payload.name.clone(),
         payload.email.clone(),
@@ -95,7 +94,7 @@ pub fn update(auth: Auth, user_id: i32, payload: Json<UpdatePayload>) -> impl Re
         return Err(Status::Forbidden);
     }
 
-    match UserController::update(
+    match <resolve!(UserController)>::update(
         user.clone(),
         user_id,
         payload.name.clone(),
@@ -111,7 +110,7 @@ pub fn update(auth: Auth, user_id: i32, payload: Json<UpdatePayload>) -> impl Re
 pub fn delete(auth: Auth, user_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    match UserController::delete(user, user_id) {
+    match <resolve!(UserController)>::delete(user, user_id) {
         Ok(_) => Ok(Status::Ok),
         Err(e) => Err(Status::from(e)),
     }

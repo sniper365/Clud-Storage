@@ -1,4 +1,3 @@
-use controllers::UserController;
 use db::models::User;
 use rocket::http::Status;
 use rocket::request::Form;
@@ -20,7 +19,7 @@ pub struct IndexContext {
 pub fn index(auth: Auth, state: State) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    let users = match UserController::index(user.clone()) {
+    let users = match <resolve!(UserController)>::index(user.clone()) {
         Ok(users) => users,
         Err(e) => {
             log!(
@@ -48,7 +47,7 @@ pub struct ShowContext {
 pub fn show(auth: Auth, state: State, user_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    let show = match UserController::show(user.clone(), user_id) {
+    let show = match <resolve!(UserController)>::show(user.clone(), user_id) {
         Ok(user) => user,
         Err(e) => {
             log!(
@@ -75,7 +74,7 @@ pub struct CreateContext {
 pub fn create(auth: Auth, state: State) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    if let Err(e) = UserController::create(user.clone()) {
+    if let Err(e) = <resolve!(UserController)>::create(user.clone()) {
         return Err(Status::from(e));
     }
 
@@ -95,7 +94,7 @@ pub struct StorePayload {
 pub fn store(auth: Auth, payload: Form<StorePayload>) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    let user = match UserController::store(
+    let user = match <resolve!(UserController)>::store(
         user.clone(),
         payload.name.clone(),
         payload.email.clone(),
@@ -127,7 +126,7 @@ pub struct EditContext {
 pub fn edit(auth: Auth, state: State, user_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    let edit = match UserController::edit(user.clone(), user_id) {
+    let edit = match <resolve!(UserController)>::edit(user.clone(), user_id) {
         Ok(edit) => edit,
         Err(e) => {
             log!(
@@ -160,7 +159,7 @@ pub fn update(auth: Auth, user_id: i32, payload: Form<UpdatePayload>) -> impl Re
         return Err(Status::Forbidden);
     }
 
-    match UserController::update(
+    match <resolve!(UserController)>::update(
         user.clone(),
         user_id,
         payload.name.clone(),
@@ -176,7 +175,7 @@ pub fn update(auth: Auth, user_id: i32, payload: Form<UpdatePayload>) -> impl Re
 pub fn delete(auth: Auth, user_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    match UserController::delete(user, user_id) {
+    match <resolve!(UserController)>::delete(user, user_id) {
         Ok(_) => Ok(Redirect::to("/users")),
         Err(e) => Err(Status::from(e)),
     }
@@ -200,7 +199,7 @@ pub fn update_password(
         return Err(Status::Forbidden);
     }
 
-    match UserController::update_password(user, user_id, payload.password.to_string()) {
+    match <resolve!(UserController)>::update_password(user, user_id, payload.password.to_string()) {
         Ok(user) => Ok(Redirect::to(format!("/users/{}", user.id()))),
         Err(e) => Err(Status::from(e)),
     }

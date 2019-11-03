@@ -1,5 +1,3 @@
-use super::FileService;
-use super::FolderService;
 use bcrypt::hash;
 use db::builders::{Builder, UserBuilder};
 use db::models::User;
@@ -31,7 +29,7 @@ impl UserService {
             .build()
             .save()?;
 
-        if let Err(e) = FolderService::create("/".to_string(), user.id(), None) {
+        if let Err(e) = <resolve!(FolderService)>::create("/".to_string(), user.id(), None) {
             log!(
                 "error",
                 "Failed to create root directory for user {}: {}",
@@ -57,19 +55,20 @@ impl UserService {
     }
 
     pub fn delete(id: i32) -> Result<User, Error> {
+
         let user = User::all()
             .filter(users::id.eq(id))
             .first::<User>(&DbFacade::connection())?;
 
         for folder in user.folders()? {
             for file in folder.files()? {
-                if let Err(e) = FileService::delete(file.id()) {
+                if let Err(e) = <resolve!(FileService)>::delete(file.id()) {
                     log!("error", "Failed to delete file {}: {}", file.id(), e);
                     return Err(e);
                 }
             }
 
-            if let Err(e) = FolderService::delete(folder.id()) {
+            if let Err(e) = <resolve!(FolderService)>::delete(folder.id()) {
                 log!("error", "Failed to delete folder {}: {}", folder.id(), e);
                 return Err(e);
             }

@@ -1,4 +1,3 @@
-use controllers::FolderController;
 use db::presentation::ToJson;
 use rocket::http::Status;
 use rocket::response::Responder;
@@ -11,7 +10,7 @@ use web::guards::auth::Auth;
 pub fn index(auth: Auth, parent_id: Option<i32>) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    let folders = match FolderController::index(user.clone(), parent_id) {
+    let folders = match <resolve!(FolderController)>::index(user.clone(), parent_id) {
         Ok(folders) => folders,
         Err(e) => {
             log!(
@@ -31,7 +30,7 @@ pub fn index(auth: Auth, parent_id: Option<i32>) -> impl Responder<'static> {
 pub fn show(auth: Auth, folder_id: i32) -> impl Responder<'static> {
     let user = auth.to_owned().user();
 
-    let folder = match FolderController::show(user.clone(), folder_id) {
+    let folder = match <resolve!(FolderController)>::show(user.clone(), folder_id) {
         Ok(folder) => folder,
         Err(e) => {
             log!(
@@ -57,7 +56,7 @@ pub struct StorePayload {
 pub fn store(auth: Auth, payload: Json<StorePayload>) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    match FolderController::store(
+    match <resolve!(FolderController)>::store(
         user.clone(),
         payload.name.to_owned(),
         user.id(),
@@ -86,7 +85,7 @@ pub struct UpdatePayload {
 pub fn update(auth: Auth, folder_id: i32, payload: Json<UpdatePayload>) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    match FolderController::update(
+    match <resolve!(FolderController)>::update(
         user.clone(),
         folder_id,
         payload.name.to_owned(),
@@ -102,7 +101,7 @@ pub fn update(auth: Auth, folder_id: i32, payload: Json<UpdatePayload>) -> impl 
 pub fn delete(auth: Auth, folder_id: i32) -> impl Responder<'static> {
     let user = auth.user();
 
-    match FolderController::delete(user, folder_id) {
+    match <resolve!(FolderController)>::delete(user, folder_id) {
         Ok(_) => Ok(Status::Ok),
         Err(e) => Err(Status::from(e)),
     }

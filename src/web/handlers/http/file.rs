@@ -1,4 +1,3 @@
-use controllers::{FileController, FolderController};
 use db::models::{File, Folder, User};
 use env::Env;
 use rocket::data::Data;
@@ -34,7 +33,7 @@ pub struct ShowContext {
 pub fn show(auth: Auth, state: State, _folder_id: i32, file_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    let file = match FileController::show(user.clone(), file_id) {
+    let file = match <resolve!(FileController)>::show(user.clone(), file_id) {
         Ok(file) => file,
         Err(e) => {
             log!(
@@ -47,7 +46,7 @@ pub fn show(auth: Auth, state: State, _folder_id: i32, file_id: i32) -> impl Res
         }
     };
 
-    let folder = match FolderController::show(user.clone(), file.folder_id()) {
+    let folder = match <resolve!(FolderController)>::show(user.clone(), file.folder_id()) {
         Ok(folder) => folder,
         Err(e) => {
             log!(
@@ -75,11 +74,11 @@ pub struct CreateContext {
 pub fn create(auth: Auth, state: State, folder_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    if let Err(e) = FileController::create(user.clone()) {
+    if let Err(e) = <resolve!(FileController)>::create(user.clone()) {
         return Err(Status::from(e));
     }
 
-    let folder = match FolderController::show(user.clone(), folder_id) {
+    let folder = match <resolve!(FolderController)>::show(user.clone(), folder_id) {
         Ok(folder) => folder,
         Err(e) => {
             log!(
@@ -135,7 +134,7 @@ pub fn store(
 
     let mut parts = name.splitn(2, ".");
 
-    let stored = match FileController::store(
+    let stored = match <resolve!(FileController)>::store(
         user.clone(),
         parts.nth(0).unwrap_or("").to_string(),
         parts.nth(0).unwrap_or("").to_string(),
@@ -180,7 +179,7 @@ pub struct EditContext {
 pub fn edit(auth: Auth, state: State, _folder_id: i32, file_id: i32) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    let file = match FileController::edit(user.clone(), file_id) {
+    let file = match <resolve!(FileController)>::edit(user.clone(), file_id) {
         Ok(file) => file,
         Err(e) => {
             log!(
@@ -193,7 +192,7 @@ pub fn edit(auth: Auth, state: State, _folder_id: i32, file_id: i32) -> impl Res
         }
     };
 
-    let folder = match FolderController::edit(user.clone(), file.folder_id()) {
+    let folder = match <resolve!(FolderController)>::edit(user.clone(), file.folder_id()) {
         Ok(folder) => folder,
         Err(e) => {
             log!(
@@ -228,7 +227,7 @@ pub fn update(
 ) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    match FileController::update(
+    match <resolve!(FileController)>::update(
         user.clone(),
         file_id,
         payload.name.to_owned(),
@@ -249,7 +248,7 @@ pub fn update(
 pub fn delete(auth: Auth, _folder_id: i32, file_id: i32) -> impl Responder<'static> {
     let user = auth.user();
 
-    match FileController::delete(user, file_id) {
+    match <resolve!(FileController)>::delete(user, file_id) {
         Ok(file) => Ok(Redirect::to(format!("/folders/{}", file.folder_id()))),
         Err(e) => Err(Status::from(e)),
     }
@@ -264,7 +263,7 @@ pub fn download(
 ) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    let stream = match FileController::contents(user.clone(), file_id) {
+    let stream = match <resolve!(FileController)>::contents(user.clone(), file_id) {
         Ok(stream) => stream,
         Err(e) => {
             log!(

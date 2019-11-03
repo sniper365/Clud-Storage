@@ -1,4 +1,3 @@
-use controllers::{FileController, FolderController};
 use db::models::{File, Folder, User};
 use rocket::http::Status;
 use rocket::request::Form;
@@ -28,7 +27,7 @@ struct FolderContext {
 pub fn show(auth: Auth, state: State, folder_id: i32) -> impl Responder<'static> {
     let user = auth.to_owned().user();
 
-    let folder = match FolderController::show(user.clone(), folder_id) {
+    let folder = match <resolve!(FolderController)>::show(user.clone(), folder_id) {
         Ok(folder) => folder,
         Err(e) => {
             log!(
@@ -41,7 +40,7 @@ pub fn show(auth: Auth, state: State, folder_id: i32) -> impl Responder<'static>
         }
     };
 
-    let subfolders = match FolderController::index(user.clone(), Some(folder_id)) {
+    let subfolders = match <resolve!(FolderController)>::index(user.clone(), Some(folder_id)) {
         Ok(subfolders) => subfolders,
         Err(e) => {
             log!(
@@ -54,7 +53,7 @@ pub fn show(auth: Auth, state: State, folder_id: i32) -> impl Responder<'static>
         }
     };
 
-    let files = match FileController::index(user.clone(), folder.id()) {
+    let files = match <resolve!(FileController)>::index(user.clone(), folder.id()) {
         Ok(files) => files,
         Err(e) => {
             log!(
@@ -89,7 +88,7 @@ pub fn create(auth: Auth, state: State, folder_id: Option<i32>) -> impl Responde
 
     let mut parent = None;
     if let Some(folder_id) = folder_id {
-        parent = match FolderController::show(user.clone(), folder_id) {
+        parent = match <resolve!(FolderController)>::show(user.clone(), folder_id) {
             Ok(parent) => Some(parent),
             Err(e) => {
                 log!(
@@ -108,7 +107,7 @@ pub fn create(auth: Auth, state: State, folder_id: Option<i32>) -> impl Responde
         parent,
     });
 
-    match FolderController::create(user.clone()) {
+    match <resolve!(FolderController)>::create(user.clone()) {
         Ok(_) => Ok(Template::render("folder/create", &context)),
         Err(e) => Err(Status::from(e)),
     }
@@ -128,7 +127,7 @@ pub fn store(
 ) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    match FolderController::store(user.clone(), payload.name.to_owned(), user.id(), folder_id) {
+    match <resolve!(FolderController)>::store(user.clone(), payload.name.to_owned(), user.id(), folder_id) {
         Ok(folder) => {
             state.push_success(Success::new(format!(
                 "Folder {} successfully created!",
@@ -153,7 +152,7 @@ pub fn edit(auth: Auth, state: State, folder_id: i32) -> impl Responder<'static>
     let user = auth.clone().user();
 
     let mut parent = None;
-    let folder = match FolderController::edit(user.clone(), folder_id) {
+    let folder = match <resolve!(FolderController)>::edit(user.clone(), folder_id) {
         Ok(folder) => folder,
         Err(e) => {
             log!(
@@ -167,7 +166,7 @@ pub fn edit(auth: Auth, state: State, folder_id: i32) -> impl Responder<'static>
     };
 
     if let Some(parent_id) = folder.parent_id() {
-        parent = match FolderController::show(user.clone(), *parent_id) {
+        parent = match <resolve!(FolderController)>::show(user.clone(), *parent_id) {
             Ok(parent) => Some(parent),
             Err(e) => {
                 log!(
@@ -200,7 +199,7 @@ pub struct UpdatePayload {
 pub fn update(auth: Auth, folder_id: i32, payload: Form<UpdatePayload>) -> impl Responder<'static> {
     let user = auth.clone().user();
 
-    match FolderController::update(
+    match <resolve!(FolderController)>::update(
         user.clone(),
         folder_id,
         payload.name.to_owned(),
@@ -216,7 +215,7 @@ pub fn update(auth: Auth, folder_id: i32, payload: Form<UpdatePayload>) -> impl 
 pub fn delete(auth: Auth, folder_id: i32) -> impl Responder<'static> {
     let user = auth.user();
 
-    match FolderController::delete(user, folder_id) {
+    match <resolve!(FolderController)>::delete(user, folder_id) {
         Ok(folder) => match folder.parent_id() {
             Some(parent_id) => Ok(Redirect::to(format!("/folders/{}", parent_id))),
             None => Ok(Redirect::to("/")),

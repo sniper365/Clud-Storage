@@ -101,7 +101,7 @@ mod tests {
 
         let user = factory!(User).save().unwrap();
         let expected = factory!(Folder, user.id(), None).save().unwrap();
-        let actual = FolderService::delete(expected.id()).unwrap();
+        let actual = FolderService::new().delete(expected.id()).unwrap();
 
         let lookup = Folder::all()
             .filter(folders::id.eq(actual.id()))

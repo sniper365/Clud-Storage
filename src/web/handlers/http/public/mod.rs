@@ -1,4 +1,3 @@
-use controllers::FileController;
 use db::builders::{Builder, UserBuilder};
 use db::models::{File, User};
 use env::Env;
@@ -22,7 +21,7 @@ pub fn file(file_id: i32, state: State) -> impl Responder<'static> {
         .with_role("guest".to_string())
         .build();
 
-    let file = match FileController::show(user.clone(), file_id) {
+    let file = match <resolve!(FileController)>::show(user.clone(), file_id) {
         Ok(file) => file,
         Err(e) => {
             log!(
@@ -47,7 +46,7 @@ pub fn download(file_id: i32) -> impl Responder<'static> {
         .with_role("guest".to_string())
         .build();
 
-    let stream = match FileController::contents(user.clone(), file_id) {
+    let stream = match <resolve!(FileController)>::contents(user.clone(), file_id) {
         Ok(contents) => contents,
         Err(e) => {
             log!(

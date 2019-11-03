@@ -29,11 +29,15 @@ extern crate tokio;
 extern crate fake;
 
 #[macro_use]
+mod di;
+
+#[macro_use]
 mod logging;
 
 #[cfg(test)]
 #[macro_use]
 mod test;
+
 
 mod auth;
 mod controllers;
@@ -41,9 +45,9 @@ mod db;
 mod env;
 mod policies;
 mod schema;
-mod services;
 mod storage_drivers;
 mod web;
+mod services;
 
 fn main() {
     // Load .env file
@@ -60,7 +64,6 @@ use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use schema::*;
-use services::UserService;
 
 fn seed() {
     match User::all()
@@ -69,7 +72,7 @@ fn seed() {
     {
         Ok(_) => {}
         Err(_) => {
-            UserService::create(
+            <resolve!(UserService)>::create(
                 "Temp Admin".to_string(),
                 "temp@temp.com".to_string(),
                 "admin".to_string(),
