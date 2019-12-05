@@ -1,5 +1,5 @@
 use super::{Restrict, Restricted};
-use entities::models::User;
+use db::models::User;
 
 impl Restricted for User {}
 

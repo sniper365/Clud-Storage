@@ -16,26 +16,26 @@ impl StorageDriver for StorageRouter {
     fn store(path: &Path, contents: File) -> Result<(), StorageRouterError> {
         match Env::storage_driver() {
             StorageDriverOption::Aws => {
-                S3::store(path, contents).map_err(StorageRouterError::from)
+                S3::store(path, contents).map_err(|e| StorageRouterError::from(e))
             }
             StorageDriverOption::Disk => {
-                Disk::store(path, contents).map_err(StorageRouterError::from)
+                Disk::store(path, contents).map_err(|e| StorageRouterError::from(e))
             }
         }
     }
 
     fn read(path: &Path) -> Result<File, StorageRouterError> {
         match Env::storage_driver() {
-            StorageDriverOption::Aws => S3::read(path).map_err(StorageRouterError::from),
-            StorageDriverOption::Disk => Disk::read(path).map_err(StorageRouterError::from),
+            StorageDriverOption::Aws => S3::read(path).map_err(|e| StorageRouterError::from(e)),
+            StorageDriverOption::Disk => Disk::read(path).map_err(|e| StorageRouterError::from(e)),
         }
     }
 
     fn delete(path: &Path) -> Result<(), StorageRouterError> {
         match Env::storage_driver() {
-            StorageDriverOption::Aws => S3::delete(path).map_err(StorageRouterError::from),
+            StorageDriverOption::Aws => S3::delete(path).map_err(|e| StorageRouterError::from(e)),
             StorageDriverOption::Disk => {
-                Disk::delete(path).map_err(StorageRouterError::from)
+                Disk::delete(path).map_err(|e| StorageRouterError::from(e))
             }
         }
     }

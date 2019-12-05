@@ -41,7 +41,7 @@ impl StorageDriver for Disk {
         };
 
         // Create a buffer to read and write the contents to
-        let mut buffer = [0; 1_000_000];
+        let mut buffer = [0; 1000000];
 
         // Continually write the contents to the file until there's nothing
         //  left to read
@@ -56,7 +56,7 @@ impl StorageDriver for Disk {
             };
 
             // If nothing was read, all is done
-            if bytes == 0 {
+            if bytes <= 0 {
                 break;
             }
 
@@ -86,15 +86,14 @@ impl StorageDriver for Disk {
                     path.to_str().unwrap_or(""),
                     e
                 );
-
-                Err(e)
+                return Err(e);
             }
         }
     }
 
     fn delete(path: &Path) -> Result<(), Self::Error> {
         match remove_file(path) {
-            Ok(_) => Ok(()),
+            Ok(file) => Ok(file),
             Err(e) => {
                 log!(
                     "error",
@@ -102,8 +101,7 @@ impl StorageDriver for Disk {
                     path.to_str().unwrap_or(""),
                     e
                 );
-
-                Err(e)
+                return Err(e);
             }
         }
     }
@@ -111,32 +109,36 @@ impl StorageDriver for Disk {
 
 #[cfg(test)]
 mod tests {
-    // #[test]
-    // fn test_store() -> Result<(), Box<dyn Error>> {
-    //     let path = Path::new("storage/test/store");
-    //     let expected = vec![10, 10, 10, 10, 10];
-    //     let mut actual = Vec::new();
-    //
-    //     // Disk::store(path, &mut expected.as_slice())?;
-    //
-    //     let mut file = File::open(path)?;
-    //     file.read_to_end(&mut actual)?;
-    //
-    //     assert_eq!(expected, actual);
-    //
-    //     Ok(())
-    // }
-    //
-    // #[test]
-    // fn test_read() -> Result<(), Box<dyn Error>> {
-    //     let path = Path::new("storage/test/read");
-    //
-    //     {
-    //         File::create(path)?;
-    //     }
-    //
-    //     Disk::read(path)?;
-    //
-    //     Ok(())
-    // }
+    use super::*;
+    use env::Env;
+    use std::error::Error;
+
+    #[test]
+    fn test_store() -> Result<(), Box<dyn Error>> {
+        let path = Path::new("storage/test/store");
+        let expected = vec![10, 10, 10, 10, 10];
+        let mut actual = Vec::new();
+
+        // Disk::store(path, &mut expected.as_slice())?;
+
+        let mut file = File::open(path)?;
+        file.read_to_end(&mut actual)?;
+
+        assert_eq!(expected, actual);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_read() -> Result<(), Box<dyn Error>> {
+        let path = Path::new("storage/test/read");
+
+        {
+            File::create(path)?;
+        }
+
+        Disk::read(path)?;
+
+        Ok(())
+    }
 }

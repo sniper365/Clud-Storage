@@ -2,7 +2,7 @@ mod file;
 mod folder;
 mod user;
 
-use entities::Entity;
+use db::Entity;
 
 pub trait Restrict<T: Restricted>: Entity {
     fn indexable_by(_restrict: &T) -> bool {

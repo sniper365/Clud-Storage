@@ -1,4 +1,4 @@
-use entities::models::{File, Folder, User};
+use db::models::{File, Folder, User};
 use rocket::get;
 use rocket::http::Status;
 use rocket::response::Responder;
@@ -6,7 +6,6 @@ use rocket_contrib::templates::Template;
 use serde_derive::Serialize;
 use web::guards::auth::Auth;
 use web::state::State;
-use crate::controllers::file::FileController;
 
 #[derive(Serialize)]
 struct HomeContext {
@@ -19,8 +18,7 @@ struct HomeContext {
 
 #[get("/")]
 pub fn home(auth: Auth, state: State) -> impl Responder<'static> {
-    let file_controller = resolve!(FileController);
-    let user = auth.user();
+    let user = auth.to_owned().user();
 
     let folder = match <resolve!(FolderController)>::index(user.clone(), None) {
         Ok(folders) => match folders.first() {
@@ -51,7 +49,7 @@ pub fn home(auth: Auth, state: State) -> impl Responder<'static> {
         }
     };
 
-    let files = match file_controller.index(user.clone(), folder.id()) {
+    let files = match <resolve!(FileController)>::index(user.clone(), folder.id()) {
         Ok(files) => files,
         Err(e) => {
             log!(

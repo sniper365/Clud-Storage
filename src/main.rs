@@ -41,7 +41,7 @@ mod test;
 
 mod auth;
 mod controllers;
-mod entities;
+mod db;
 mod env;
 mod policies;
 mod schema;
@@ -58,32 +58,28 @@ fn main() {
     web::boot()
 }
 
-use entities::models::User;
-use entities::diesel::pool::DbPool;
+use db::models::User;
+use db::DbPool;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use schema::*;
 use services::UserService;
-use crate::services::user::CreateRequest;
 
 fn seed() {
-    let user_service = resolve!(UserService);
-
     match User::all()
         .filter(users::role.eq("admin"))
         .first::<User>(&DbPool::connection())
     {
         Ok(_) => {}
         Err(_) => {
-            let request = CreateRequest {
-                name: "Temp Admin".to_string(),
-                email: "temp@temp.com".to_string(),
-                role: "admin".to_string(),
-                password: "password".to_string(),
-            };
-
-            user_service.create(request).unwrap();
+            <resolve!(UserService)>::create(
+                "Temp Admin".to_string(),
+                "temp@temp.com".to_string(),
+                "admin".to_string(),
+                "password".to_string(),
+            )
+            .unwrap();
         }
     };
 }

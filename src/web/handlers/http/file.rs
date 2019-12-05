@@ -1,6 +1,4 @@
-use controllers::file::CreateRequest;
-use controllers::file::UpdateRequest;
-use entities::models::{File, Folder, User};
+use db::models::{File, Folder, User};
 use env::Env;
 use rocket::data::Data;
 use rocket::http::{ContentType, Status};
@@ -18,7 +16,6 @@ use std::fs;
 use web::guards::auth::Auth;
 use web::state::State;
 use web::success::Success;
-use crate::controllers::file::FileController;
 
 #[get("/folders/<folder_id>/files")]
 pub fn index(_auth: Auth, folder_id: i32) -> impl Responder<'static> {
@@ -34,10 +31,9 @@ pub struct ShowContext {
 
 #[get("/folders/<_folder_id>/files/<file_id>", rank = 2)]
 pub fn show(auth: Auth, state: State, _folder_id: i32, file_id: i32) -> impl Responder<'static> {
-    let file_controller = resolve!(FileController);
-    let user = auth.user();
+    let user = auth.clone().user();
 
-    let file = match file_controller.show(user.clone(), file_id) {
+    let file = match <resolve!(FileController)>::show(user.clone(), file_id) {
         Ok(file) => file,
         Err(e) => {
             log!(
@@ -76,10 +72,9 @@ pub struct CreateContext {
 
 #[get("/folders/<folder_id>/files/create", rank = 1)]
 pub fn create(auth: Auth, state: State, folder_id: i32) -> impl Responder<'static> {
-    let file_controller = resolve!(FileController);
-    let user = auth.user();
+    let user = auth.clone().user();
 
-    if let Err(e) = file_controller.create(user.clone()) {
+    if let Err(e) = <resolve!(FileController)>::create(user.clone()) {
         return Err(Status::from(e));
     }
 
@@ -109,11 +104,10 @@ pub fn store(
     payload: Data,
     content_type: &ContentType,
 ) -> impl Responder<'static> {
-    let file_controller = resolve!(FileController);
     let mut options = MultipartFormDataOptions::new();
     options
         .allowed_fields
-        .push(MultipartFormDataField::file("file").size_limit(10_000_000_000));
+        .push(MultipartFormDataField::file("file").size_limit(10000000000));
 
     let multipart_form_data = MultipartFormData::parse(content_type, payload, options).unwrap();
 
@@ -136,20 +130,19 @@ pub fn store(
         _ => return Err(Status::BadRequest),
     };
 
-    let user = auth.user();
+    let user = auth.to_owned().user();
 
-    let mut parts = name.splitn(2, '.');
+    let mut parts = name.splitn(2, ".");
 
-    let store_request = CreateRequest {
-        name: parts.nth(0).unwrap_or("").to_string(),
-        extension: parts.nth(0).unwrap_or("").to_string(),
-        user_id: user.id(),
+    let stored = match <resolve!(FileController)>::store(
+        user.clone(),
+        parts.nth(0).unwrap_or("").to_string(),
+        parts.nth(0).unwrap_or("").to_string(),
+        user.id(),
         folder_id,
-        public: false,
-        input: file,
-    };
-
-    let stored = match file_controller.store(user.clone(), store_request) {
+        false,
+        file,
+    ) {
         Ok(file) => file,
         Err(e) => {
             log!(
@@ -184,10 +177,9 @@ pub struct EditContext {
 
 #[get("/folders/<_folder_id>/files/<file_id>/edit")]
 pub fn edit(auth: Auth, state: State, _folder_id: i32, file_id: i32) -> impl Responder<'static> {
-    let file_controller = resolve!(FileController);
-    let user = auth.user();
+    let user = auth.clone().user();
 
-    let file = match file_controller.edit(user.clone(), file_id) {
+    let file = match <resolve!(FileController)>::edit(user.clone(), file_id) {
         Ok(file) => file,
         Err(e) => {
             log!(
@@ -233,18 +225,16 @@ pub fn update(
     file_id: i32,
     payload: Form<UpdatePayload>,
 ) -> impl Responder<'static> {
-    let file_controller = resolve!(FileController);
-    let user = auth.user();
+    let user = auth.clone().user();
 
-    let request = UpdateRequest {
+    match <resolve!(FileController)>::update(
+        user.clone(),
         file_id,
-        name: payload.name.to_owned(),
-        extension: payload.extension.to_owned(),
-        public: payload.public,
-        folder_id: payload.folder_id
-    };
-
-    match file_controller.update(user, request) {
+        payload.name.to_owned(),
+        payload.extension.to_owned(),
+        payload.public,
+        payload.folder_id,
+    ) {
         Ok(file) => Ok(Redirect::to(format!(
             "/folders/{}/files/{}",
             file.folder_id(),
@@ -256,10 +246,9 @@ pub fn update(
 
 #[post("/folders/<_folder_id>/files/<file_id>/delete")]
 pub fn delete(auth: Auth, _folder_id: i32, file_id: i32) -> impl Responder<'static> {
-    let file_controller = resolve!(FileController);
     let user = auth.user();
 
-    match file_controller.delete(user, file_id) {
+    match <resolve!(FileController)>::delete(user, file_id) {
         Ok(file) => Ok(Redirect::to(format!("/folders/{}", file.folder_id()))),
         Err(e) => Err(Status::from(e)),
     }
@@ -272,10 +261,9 @@ pub fn download(
     file_id: i32,
     _name: String,
 ) -> impl Responder<'static> {
-    let file_controller = resolve!(FileController);
-    let user: User = auth.user();
+    let user = auth.clone().user();
 
-    let stream = match file_controller.contents(user.clone(), file_id) {
+    let stream = match <resolve!(FileController)>::contents(user.clone(), file_id) {
         Ok(stream) => stream,
         Err(e) => {
             log!(

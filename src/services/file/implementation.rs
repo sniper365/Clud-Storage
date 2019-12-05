@@ -1,151 +1,146 @@
-use entities::traits::file::FileStore;
-use entities::builders::{Builder, FileBuilder};
-use entities::models::File;
-use services::error::ServiceError;
+use db::builders::{Builder, FileBuilder};
+use db::models::File;
+use db::query::Query;
+use db::DbFacade;
+use diesel::result::Error;
+use diesel::ExpressionMethods;
+use diesel::QueryDsl;
+use diesel::RunQueryDsl;
+use schema::*;
 use super::FileService;
-use crate::services::file::CreateRequest;
-use crate::services::file::UpdateRequest;
 
-pub struct Service<T: FileStore> {
-    file_store: T
-}
+pub struct Service;
 
-impl<T: FileStore> Service<T> {
-    pub fn new(file_store: T) -> Self {
-        Self { file_store }
-    }
-}
-
-impl<T: FileStore> FileService for Service<T> {
-    fn all(&self, folder_id: i32) -> Result<Vec<File>, ServiceError> {
-        match self.file_store.find_by_folder_id(folder_id) {
-            Ok(files) => Ok(files),
-            Err(e) => Err(ServiceError::from(e))
-        }
-    }
-
-    fn find(&self, file_id: i32) -> Result<File, ServiceError> {
-        match self.file_store.find_by_file_id(file_id) {
-            Ok(file) => Ok(file),
-            Err(e) => Err(ServiceError::from(e))
-        }
+impl FileService for Service {
+    fn create(
+        name: String,
+        extension: String,
+        file_name: String,
+        folder_id: i32,
+        public: bool,
+    ) -> Result<File, Error> {
+        FileBuilder::new()
+            .with_name(name)
+            .with_extension(extension)
+            .with_file_name(file_name)
+            .with_public(public)
+            .with_folder_id(folder_id)
+            .build()
+            .save()
     }
 
-    fn create(&self, request: CreateRequest) -> Result<File, ServiceError> {
-        // Create the File with the
-        //  name, extension, internal name, public, and folder_id
-        let file = FileBuilder::new()
-            .with_name(request.name)
-            .with_extension(request.extension)
-            .with_file_name(request.file_name)
-            .with_public(request.public)
-            .with_folder_id(request.folder_id)
-            .build();
+    fn update(
+        id: i32,
+        name: String,
+        file_name: String,
+        extension: String,
+        folder_id: i32,
+        public: bool,
+    ) -> Result<File, Error> {
+        let mut file = File::all()
+            .filter(files::id.eq(id))
+            .first::<File>(&DbFacade::connection())?;
 
-        // Request that the DataStore save the File
-        match self.file_store.save(&file) {
-            Ok(file) => Ok(file),
-            Err(e) => Err(ServiceError::from(e))
-        }
+        file.set_name(name);
+        file.set_file_name(file_name);
+        file.set_extension(extension);
+        file.set_folder_id(folder_id);
+        file.set_public(public);
+
+        file.update()
     }
 
-    fn update(&self, request: UpdateRequest) -> Result<File, ServiceError> {
-        // Attempt to retrieve the File from the DataStore
-        //  by the file's Id, if theres an error, throw it back
-        let mut file = self.file_store.find_by_file_id(request.id)?;
+    fn delete(id: i32) -> Result<File, Error> {
+        let file = File::all()
+            .filter(files::id.eq(id))
+            .first::<File>(&DbFacade::connection())?;
 
-        // Update the name, internal name,
-        //  extension, folder_id and public
-        //  of the File
-        file.set_name(request.name);
-        file.set_file_name(request.file_name);
-        file.set_extension(request.extension);
-        file.set_folder_id(request.folder_id);
-        file.set_public(request.public);
-
-        // Request the DataStore update the file record
-        match self.file_store.update(&file) {
-            Ok(file) => Ok(file),
-            Err(e) => Err(ServiceError::from(e))
-        }
-    }
-
-    fn delete(&self, id: i32) -> Result<File, ServiceError> {
-        // Attempt to get the File from the DataStore
-        //  by its File Id, if there's an error, throw it
-        //  back
-        let file = self.file_store.find_by_file_id(id)?;
-
-        match self.file_store.delete(&file) {
-            Ok(file) => Ok(file),
-            Err(e) => Err(ServiceError::from(e))
-        }
+        file.delete()
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::Service;
-    use crate::test::mocks::file::store::FileStoreMock;
-    use crate::services::FileService;
-    use crate::entities::builders::{ Builder, FileBuilder };
-    use super::CreateRequest;
-    use super::UpdateRequest;
+    use super::*;
+    use db::builders::*;
+    use db::DbFacade;
+    use env::Env;
+    use std::error::Error;
 
     #[test]
-    fn test_create() {
-        let file_store = FileStoreMock::new();
-        let file_service = Service::new(file_store);
+    fn test_create() -> Result<(), Box<dyn Error>> {
+        dotenv::dotenv().expect("Missing .env file");
 
-        let expected = factory!(File, 1);
+        let user = factory!(User).save()?;
+        let folder = factory!(Folder, user.id(), None).save()?;
+        let expected = factory!(File, folder.id());
 
-        let request = CreateRequest {
-            name: expected.name().to_string(),
-            extension: expected.extension().to_string(),
-            file_name: expected.file_name().to_string(),
-            folder_id: expected.folder_id(),
-            public: expected.public(),
-        };
-
-        let actual = file_service.create(request).unwrap();
+        let actual = <resolve!(FileService)>::create(
+            expected.name().to_string(),
+            expected.extension().to_string(),
+            expected.file_name().to_string(),
+            expected.folder_id(),
+            false,
+        )?;
 
         assert_eq!(expected.name(), actual.name());
         assert_eq!(expected.extension(), actual.extension());
-        assert_eq!(expected.file_name(), actual.file_name());
         assert_eq!(expected.folder_id(), actual.folder_id());
-        assert_eq!(expected.public(), actual.public());
+
+        Ok(())
     }
 
     #[test]
-    fn test_update() {
-        let file_store = FileStoreMock::new();
-        let file_service = Service::new(file_store);
+    fn test_update() -> Result<(), Box<dyn Error>> {
+        dotenv::dotenv().expect("Missing .env file");
 
-        let expected = factory!(File, 1);
+        let user = factory!(User).save()?;
+        let folder = factory!(Folder, user.id(), None).save()?;
+        let file = factory!(File, folder.id()).save()?;
 
-        let request = UpdateRequest {
-            id: expected.id(),
-            name: expected.name().to_string(),
-            file_name: expected.file_name().to_string(),
-            extension: expected.extension().to_string(),
-            folder_id: expected.folder_id(),
-            public: expected.public(),
-        };
+        let expected = factory!(File, folder.id());
+        let actual = <resolve!(FileService)>::update(
+            file.id(),
+            expected.name().to_string(),
+            expected.file_name().to_string(),
+            expected.extension().to_string(),
+            expected.folder_id(),
+            false,
+        )?;
 
-        let actual = file_service.update(request).unwrap();
+        assert_eq!(file.id(), actual.id());
+        assert_eq!(expected.name(), actual.name());
+        assert_eq!(expected.extension(), actual.extension());
+        assert_eq!(expected.folder_id(), actual.folder_id());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_delete() -> Result<(), Box<dyn Error>> {
+        dotenv::dotenv().expect("Missing .env file");
+        let conn = DbFacade::connection();
+
+        let user = factory!(User).save()?;
+        let folder = factory!(Folder, user.id(), None).save()?;
+        let expected = factory!(File, folder.id()).save()?;
+        let path = format!(
+            "{}/test/{file_name}",
+            Env::storage_dir(),
+            file_name = &expected.file_name()
+        );
+
+        std::fs::File::create(path)?;
+
+        let actual = <resolve!(FileService)>::delete(expected.id())?;
+
+        let lookup = File::all()
+            .filter(files::id.eq(actual.id()))
+            .first::<File>(&conn);
 
         assert_eq!(expected, actual);
-    }
+        assert_eq!(lookup, Err(diesel::result::Error::NotFound));
 
-    #[test]
-    fn test_delete() {
-        let file_store = FileStoreMock::new();
-        let file_service = Service::new(file_store);
-
-        let expected = factory!(File, 1);
-
-        let actual = file_service.delete(expected.id()).unwrap();
-
-        assert_eq!(expected.id(), actual.id());
+        Ok(())
     }
 }

@@ -2,7 +2,7 @@ use super::token_convert::TokenError;
 use auth::authenticate::Authenticate;
 use auth::bearer::Token;
 use auth::Auth as InternalAuth;
-use entities::models::User;
+use db::models::User;
 use rocket::http::{Cookie, Status};
 use rocket::request;
 use rocket::request::{FromRequest, Request};
